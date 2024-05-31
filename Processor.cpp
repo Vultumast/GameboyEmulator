@@ -1,129 +1,78 @@
 #include "Processor.hpp"
+#include "Constants.hpp"
+#include "MemoryBus.hpp"
 
-void Processor::Write(ProcessorRegisters reg, std::uint16_t value)
+
+Processor::Processor()
 {
-	switch (reg)
-	{
-	case ProcessorRegisters::AF:
-		_registerAF = value;
-		break;
-	case ProcessorRegisters::BC:
-		_registerBC = value;
-		break;
-	case ProcessorRegisters::DE:
-		_registerDE = value;
-		break;
-	case ProcessorRegisters::HL:
-		_registerHL = value;
-		break;
-	case ProcessorRegisters::SP:
-		_registerSP = value;
-		break;
-	case ProcessorRegisters::PC:
-		_registerPC = value;
-		break;
-	}
-}
-void Processor::WriteHi(ProcessorRegisters reg, std::uint8_t value)
-{
-	switch (reg)
-	{
-	case ProcessorRegisters::AF:
-		_registerAF = (_registerAF & 0xFF00) | (value << 8);
-		break;
-	case ProcessorRegisters::BC:
-		_registerBC = (_registerBC & 0xFF00) | (value << 8);
-		break;
-	case ProcessorRegisters::DE:
-		_registerDE = (_registerDE & 0xFF00) | (value << 8);
-		break;
-	case ProcessorRegisters::HL:
-		_registerHL = (_registerHL & 0xFF00) | (value << 8);
-		break;
-	case ProcessorRegisters::SP:
-		_registerSP = (_registerSP & 0xFF00) | (value << 8);
-		break;
-	case ProcessorRegisters::PC:
-		_registerPC = (_registerPC & 0xFF00) | (value << 8);
-		break;
-	}
-}
-void Processor::WriteLo(ProcessorRegisters reg, std::uint8_t value)
-{
-	switch (reg)
-	{
-	case ProcessorRegisters::AF:
-		_registerAF = (_registerAF & 0x00FF) | value << 8;
-		break;
-	case ProcessorRegisters::BC:
-		_registerBC = (_registerBC & 0x00FF) | value << 8;
-		break;
-	case ProcessorRegisters::DE:
-		_registerDE = (_registerDE & 0x00FF) | value << 8;
-		break;
-	case ProcessorRegisters::HL:
-		_registerHL = (_registerHL & 0x00FF) | value << 8;
-		break;
-	case ProcessorRegisters::SP:
-		_registerSP = (_registerSP & 0x00FF) | value << 8;
-		break;
-	case ProcessorRegisters::PC:
-		_registerPC = (_registerPC & 0x00FF) | value;
-		break;
-	}
+	// TODO: SETUP INSTRUCTION TABLE
+	// Maybe make four tables in "blocks" like Pan Docs?
 }
 
-std::uint16_t Processor::Read(ProcessorRegisters reg)
+uint8_t Processor::read(uint16_t addr)
 {
-	switch (reg)
-	{
-	case ProcessorRegisters::AF:
-		return _registerAF;
-	case ProcessorRegisters::BC:
-		return _registerBC;
-	case ProcessorRegisters::DE:
-		return _registerDE;
-	case ProcessorRegisters::HL:
-		return _registerHL;
-	case ProcessorRegisters::SP:
-		return _registerSP;
-	case ProcessorRegisters::PC:
-		return _registerPC;
-	}
+	// read from bus
 }
-std::uint8_t Processor::ReadHi(ProcessorRegisters reg)
+
+void Processor::write(uint16_t addr, uint8_t value)
 {
-	switch (reg)
-	{
-	case ProcessorRegisters::AF:
-		return (_registerAF & 0xFF00) >> 8;
-	case ProcessorRegisters::BC:
-		return (_registerBC & 0xFF00) >> 8;
-	case ProcessorRegisters::DE:
-		return (_registerDE & 0xFF00) >> 8;
-	case ProcessorRegisters::HL:
-		return (_registerHL & 0xFF00) >> 8;
-	case ProcessorRegisters::SP:
-		return (_registerSP & 0xFF00) >> 8;
-	case ProcessorRegisters::PC:
-		return (_registerPC & 0xFF00) >> 8;
-	}
+	// write to bus
 }
-std::uint8_t Processor::ReadLo(ProcessorRegisters reg)
+
+void Processor::reset()
 {
-	switch (reg)
-	{
-	case ProcessorRegisters::AF:
-		return (_registerAF & 0x00FF);
-	case ProcessorRegisters::BC:
-		return (_registerBC & 0x00FF);
-	case ProcessorRegisters::DE:
-		return (_registerDE & 0x00FF);
-	case ProcessorRegisters::HL:
-		return (_registerHL & 0x00FF);
-	case ProcessorRegisters::SP:
-		return (_registerSP & 0x00FF);
-	case ProcessorRegisters::PC:
-		return (_registerPC & 0x00FF);
-	}
+	pc = 0x0100;
+	sp = 0xFFFE;
+
+	// These are values for the DMG model game boy, they're different for GBC
+	a = 0x01;
+	b = 0x00;
+	c = 0x13;
+	d = 0x00;
+	e = 0xD8;
+	f = 0x30; // This is wrong if the header checksum is 0x00 but I don't care
+	h = 0x01;
+	l = 0x4D;
+
+	// Reset internal emulation variables
+	addr = 0x0000;
+	fetched = 0x00;
 }
+
+void Processor::interrupt()
+{
+	// TODO
+}
+
+void Processor::nmi()
+{
+	// TODO
+}
+
+void Processor::clock()
+{
+	// Cycle timer finished?
+	if (remaining_cycles == 0)
+	{
+		// TODO
+	}
+	
+	cycle_count++;
+	remaining_cycles--;
+}
+
+uint8_t Processor::GetFlag(FLAGS flag)
+{
+	return ((f & flag) > 0) ? 1 : 0;
+}
+
+void Processor::SetFlag(FLAGS flag, bool value)
+{
+	if (value)
+		f |= flag;
+	else
+		f &= ~flag;
+}
+
+
+// TODO: ADDRESSING MODES, OPERATIONS
