@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace EmulatorGUI.EmulatorLib
 {
-    public class Processor : ObjectBase
+    public class Video : ObjectBase
     {
         [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern nint processor_create();
+        public static extern nint video_create();
 
         [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void processor_delete(nint pointer);
+        public static extern void video_delete(nint pointer);
 
-        public Processor() : base(processor_create())
+        public Video() : base(video_create())
         {
 
         }
 
         public override void Destroy()
         {
-            processor_delete(CPointer);
+            video_delete(CPointer);
         }
     }
 }
