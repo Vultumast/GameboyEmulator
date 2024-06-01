@@ -8,6 +8,8 @@ class Processor
 {
 
 public:
+	Processor();
+
 	// Registers
 	uint8_t a = 0x00;
 	uint8_t b = 0x00;

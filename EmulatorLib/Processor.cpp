@@ -12,6 +12,7 @@ Processor::Processor()
 uint8_t Processor::read(uint16_t addr)
 {
 	// read from bus
+	return 0;
 }
 
 void Processor::write(uint16_t addr, uint8_t value)

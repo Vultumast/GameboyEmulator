@@ -15,25 +15,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MemoryBus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Processor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MemoryBus.hpp">
+    <ClInclude Include="Framework.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Constants.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryBus.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Processor.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Video.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryBus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Video.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
