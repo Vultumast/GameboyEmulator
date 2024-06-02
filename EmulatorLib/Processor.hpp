@@ -9,11 +9,12 @@
 #include "OpCodeInfo.hpp"
 
 
+class MemoryBus;
+
 class Processor
 {
-
 public:
-	Processor();
+	Processor(MemoryBus* memoryBus);
 
 	// Registers
 	uint8_t a = 0x00;
@@ -30,12 +31,15 @@ public:
 	bool ime = false; // This should be private but it's never gonna get accessed outside the CPU anyway (hopefully)
 
 	// "Event" functions
-	void reset();
+	void Reset();
+	void PulseClock();
 	void interrupt();
 	void nmi();
-	void clock();
 
-	bool isInstructionCompleted();
+	bool IsInstructionCompleted() { return _remainingCycles == 0; }
+
+	void SetRegister(Register destination, uint16_t value);
+	uint16_t GetRegister(Register destination);
 
 	enum FLAGS
 	{
@@ -53,13 +57,10 @@ private:
 	uint8_t fetched = 0x00;
 	uint16_t addr = 0x0000;
 	uint8_t opcode = 0x00;
-	uint8_t remaining_cycles = 0;
-	uint16_t cycle_count = 0;
 
 	uint8_t read(uint16_t addr);
 	void write(uint16_t addr, uint8_t value);
 
-	uint8_t fetch();
 
 	struct INSTRUCTION
 	{
@@ -70,6 +71,21 @@ private:
 	};
 
 private:
+
+	MemoryBus* _memoryBus = nullptr;
+
+	uint8_t _byteLength = 1;
+	uint8_t _remainingCycles = 4;
+	uint8_t _cycleCount = 0;
+
+	uint8_t fetch();
+
+	void op_NOP();
+	void op_LD(Register destination, Register source);
+	void op_LD(uint16_t destination, Register source);
+	void op_LD(Register destination, uint16_t source);
+
+
 	// Addressing modes
 	uint8_t ADDR_R8();
 	uint8_t ADDR_R16();
@@ -80,61 +96,5 @@ private:
 	uint8_t ADDR_TGT3();
 	uint8_t ADDR_IMM8();
 	uint8_t ADDR_IMM16();
-
-private:
-	// Operations (TODO)
-
-	// The list of operations I've come up with is this, may need to be tweaked
-	/*
-	NOP
-	STOP
-	HALT
-	PREFIX
-	EI
-	DI
-	JR
-	JP
-	RET
-	RETI
-	CALL
-	RST
-	LD8
-	LDH
-	LD16
-	PUSH
-	POP
-	INC
-	DEC
-	ADD8
-	ADC
-	SUB
-	SBC
-	AND
-	XOR
-	OR
-	CP
-	DAA
-	CPL
-	SCF
-	CCF
-	ADD16
-	RLCA
-	RRCA
-	RLA
-	RRA
-	RLC
-	RRC
-	RL
-	RR
-	SLA
-	SRA
-	SWAP
-	SRL
-	BIT
-	RES
-	SET
-
-	XXX // this is for invalid opcodes so they can freeze, be ignored, be logged, w/e
-	*/
 
 };

@@ -1,4 +1,11 @@
 #include "MemoryBus.hpp";
+#include <algorithm>
+
+void MemoryBus::Randomize()
+{
+	for (auto i = 0; i < 0x10000; i++)
+		_ram[i] = rand() % 0xFF;
+}
 
 bool MemoryBus::IsAddressMapped(const std::uint16_t& address)
 {
