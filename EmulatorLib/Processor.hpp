@@ -4,6 +4,11 @@
 #include <string>
 #include <vector>
 
+#include "Constants.hpp"
+
+#include "OpCodeInfo.hpp"
+
+
 class Processor
 {
 

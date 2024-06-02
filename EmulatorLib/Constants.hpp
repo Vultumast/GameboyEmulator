@@ -55,3 +55,131 @@ constexpr std::uint16_t Reg_BGOBJPalettes_Start = 0xFF68;
 constexpr std::uint16_t Reg_BGOBJPalettes_End = 0xFF6B;
 
 constexpr std::uint16_t Reg_WRAMBankSelect = 0xFF70;
+
+
+constexpr std::uint32_t CyclesPerSecond = 4194304;
+
+enum class OpCode
+{
+	// Misc Instructions
+	NOP,
+	STOP,
+	HALT,
+	PREFIX,
+	DI,
+	EI,
+
+	// Jump
+	JR,
+	RET,
+	JP,
+	CALL,
+	RST,
+	RETI,
+
+	// SHARED 8/16 bit load/move/store instuctions
+	LD,
+
+	// 8 Bit load/move/store Instructions 
+	// LD_8,
+	LDH,
+
+	// 16 bit load/move/store Instructions
+	// LD_16,
+	POP,
+	PUSH,
+
+	// SHARED 8/16 bit arithmetic/logical Instructions 
+	INC,
+	DEC,
+	ADD,
+
+	// 8 Bit arithmetic/logical Instructions 
+	// INC_8,
+	// DEC,
+	DAA,
+	SCF,
+	CPL,
+	CCF,
+	// ADD,
+	ADC,
+	SUB,
+	SBC,
+	AND,
+	XOR,
+	OR,
+	CP,
+
+	// 8 Bit rotations/shifts and bit Instructions
+	RLCA,
+	RRCA,
+	RLA,
+	RRA,
+	RLC,
+	RRC,
+	RL,
+	RR,
+	SLA,
+	SRA,
+	SWAP,
+	SRL,
+	BIT,
+	RES,
+	SET,
+
+
+	XXX
+};
+
+enum class Register
+{
+	A,
+	B,
+	C,
+	D,
+	E,
+	H,
+	L,
+
+	AF,
+	BC,
+	DE,
+	HL,
+	SP,
+	PC
+};
+
+enum class OperandType
+{
+	None,
+
+	Acculumator,
+	RegisterB,
+	RegisterC,
+	RegisterD,
+	RegisterE,
+	RegisterH,
+	RegisterL,
+
+	RegisterAF,
+	RegisterBC,
+	RegisterDE,
+	RegisterHL,
+	Stackpointer,
+	ProgramCounter,
+
+	IncrementHL,
+	DecrementHL,
+
+	RegisterBCIndirect,
+	RegisterDEIndirect,
+	RegisterHLIndirect,
+
+	DataUINT8,
+	DataUINT16,
+
+	AddressUINT8,
+	AddressUINT16
+};
+
+

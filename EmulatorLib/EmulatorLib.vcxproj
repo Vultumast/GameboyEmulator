@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Constants.hpp" />
+    <ClInclude Include="Emulator.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="MemoryBus.hpp" />
     <ClInclude Include="Processor.hpp" />
@@ -159,6 +160,8 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="MemoryBus.cpp" />
     <ClCompile Include="Processor.cpp" />
+    <ClCompile Include="OpCodeInfo.cpp" />
+    <ClCompile Include="OpCodeInfo.hpp" />
     <ClCompile Include="Video.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
