@@ -171,6 +171,8 @@ enum class OperandType
 	IncrementHL,
 	DecrementHL,
 
+	RegisterCIndirect,
+
 	RegisterBCIndirect,
 	RegisterDEIndirect,
 	RegisterHLIndirect,
