@@ -179,7 +179,9 @@ enum class OperandType
 	DataUINT16,
 
 	AddressUINT8,
-	AddressUINT16
+	AddressUINT16,
+
+	DataINT8
 };
 
 
