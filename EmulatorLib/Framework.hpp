@@ -10,8 +10,8 @@
 
 extern "C"
 {
-	DLL_EXPORT Processor* processor_create() { return new Processor(); }
+	DLL_EXPORT Processor* processor_create(MemoryBus* bus) { return new Processor(bus); }
 	DLL_EXPORT void processor_delete(Processor* pointer) { delete pointer; }
 
-	DLL_EXPORT void processor_reset(Processor* processor) { processor->reset(); }
+	DLL_EXPORT void processor_reset(Processor* processor) { processor->Reset(); }
 }

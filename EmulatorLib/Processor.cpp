@@ -36,10 +36,6 @@ void Processor::Reset()
 	f = 0x30; // This is wrong if the header checksum is 0x00 but I don't care
 	h = 0x01;
 	l = 0x4D;
-
-	// Reset internal emulation variables
-	addr = 0x0000;
-	fetched = 0x00;
 }
 
 void Processor::interrupt()
@@ -60,7 +56,20 @@ void Processor::PulseClock()
 	// Cycle timer finished?
 	if (IsInstructionCompleted())
 	{
-		OpCodeInfo* info = OpCodes[fetch()];
+		OpCodeInfo& info = OpCodes[fetch()];
+
+
+		switch (info.GetOpCode())
+		{
+		case OpCode::NOP:
+			break;
+		case OpCode::LD:
+
+			break;
+		}
+
+
+		std::function<void(Processor&, MemoryBus*, uint16_t)>& func = Instructions[info.GetHexCode()];
 
 	}
 
@@ -115,7 +124,7 @@ void Processor::SetRegister(Register destination, uint16_t value)
 		break;
 	}
 }
-uint16_t Processor::GetRegister(Register destination)
+uint16_t Processor::GetRegister(Register destination) const
 {
 	switch (destination)
 	{
@@ -150,7 +159,7 @@ uint16_t Processor::GetRegister(Register destination)
 	}
 }
 
-uint8_t Processor::GetFlag(FLAGS flag)
+uint8_t Processor::GetFlag(FLAGS flag) const
 {
 	return ((f & flag) > 0) ? 1 : 0;
 }

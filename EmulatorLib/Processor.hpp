@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "Constants.hpp"
 
@@ -36,10 +37,10 @@ public:
 	void interrupt();
 	void nmi();
 
-	bool IsInstructionCompleted() { return _remainingCycles == 0; }
+	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 
 	void SetRegister(Register destination, uint16_t value);
-	uint16_t GetRegister(Register destination);
+	uint16_t GetRegister(Register destination) const;
 
 	enum FLAGS
 	{
@@ -49,26 +50,13 @@ public:
 		Z = (1 << 7),
 	};
 
-private:
-	uint8_t GetFlag(FLAGS flag);
+	uint8_t GetFlag(FLAGS flag) const;
 	void SetFlag(FLAGS flag, bool value);
 
-	// Internal values
-	uint8_t fetched = 0x00;
-	uint16_t addr = 0x0000;
-	uint8_t opcode = 0x00;
+private:
 
 	uint8_t read(uint16_t addr);
 	void write(uint16_t addr, uint8_t value);
-
-
-	struct INSTRUCTION
-	{
-		std::string name;
-		uint8_t (*operation)(void) = nullptr;
-		uint8_t (*addr_mode)(void) = nullptr;
-		uint8_t cycles = 0;
-	};
 
 private:
 
@@ -85,16 +73,6 @@ private:
 	void op_LD(uint16_t destination, Register source);
 	void op_LD(Register destination, uint16_t source);
 
-
-	// Addressing modes
-	uint8_t ADDR_R8();
-	uint8_t ADDR_R16();
-	uint8_t ADDR_R16STK();
-	uint8_t ADDR_R16MEM();
-	uint8_t ADDR_COND();
-	uint8_t ADDR_B3();
-	uint8_t ADDR_TGT3();
-	uint8_t ADDR_IMM8();
-	uint8_t ADDR_IMM16();
-
 };
+
+extern std::function<void(Processor&, MemoryBus*, std::uint16_t) > Instructions[256];

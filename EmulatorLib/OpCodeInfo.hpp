@@ -2,9 +2,6 @@
 
 #include "Constants.hpp"
 
-extern OpCodeInfo OpCodes[256];
-extern OpCodeInfo OpCodesCB[256];
-
 struct OpCodeInfo
 {
 private:
@@ -42,4 +39,10 @@ public:
 
 	OperandType GetLeftHandOperand() const { return _lhs; }
 	OperandType GetRightHandOperand() const { return _rhs; }
+
+	bool LeftHandOperatorIsRegister() const { return _lhs >= OperandType::Acculumator && _lhs <= OperandType::RegisterHLIndirect; }
+	bool RightHandOperatorIsRegister() const { return _rhs >= OperandType::Acculumator && _rhs <= OperandType::RegisterHLIndirect; }
 };
+
+extern OpCodeInfo OpCodes[256];
+extern OpCodeInfo OpCodesCB[256];
