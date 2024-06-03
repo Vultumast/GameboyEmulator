@@ -7,19 +7,17 @@
 Processor::Processor(MemoryBus* memoryBus)
 {
 	_memoryBus = memoryBus;
-	// TODO: SETUP INSTRUCTION TABLE
-	// Maybe make four tables in "blocks" like Pan Docs?
 }
 
 uint8_t Processor::read(uint16_t addr)
 {
-	// read from bus
-	return 0;
+	uint8_t value = _memoryBus->Read(addr);
+	return value;
 }
 
 void Processor::write(uint16_t addr, uint8_t value)
 {
-	// write to bus
+	_memoryBus->Write(addr, value);
 }
 
 void Processor::Reset()
@@ -43,11 +41,6 @@ void Processor::interrupt()
 	// TODO
 }
 
-void Processor::nmi()
-{
-	// TODO
-}
-
 void Processor::PulseClock()
 {
 	_cycleCount = (_cycleCount + 1) % 0xFF;
@@ -58,60 +51,9 @@ void Processor::PulseClock()
 	{
 		OpCodeInfo& info = OpCodes[fetch()];
 
-		uint16_t data = 0;
-		switch (info.GetRightHandOperand())
-		{
-		case OperandType::Acculumator:
-			data = a;
-			break;
-		case OperandType::RegisterB:
-			data = b;
-			break;
-		case OperandType::RegisterC:
-			data = c;
-			break;
-		case OperandType::RegisterD:
-			data = d;
-			break;
-		case OperandType::RegisterE:
-			data = e;
-			break;
-		case OperandType::RegisterH:
-			data = h;
-			break;
-		case OperandType::RegisterL:
-			data = l;
-			break;
-		case OperandType::RegisterAF:
-			data = (a | f << 8);
-			break;
-		case OperandType::RegisterBC:
-			data = (b | c << 8);
-			break;
-		case OperandType::RegisterDE:
-			data = (d | e << 8);
-			break;
-		case OperandType::RegisterHL:
-			data = (h | l << 8);
-			break;
-		case OperandType::Stackpointer:
-			data = sp;
-			break;
-		case OperandType::ProgramCounter:
-			data = pc;
-			break;
-		case OperandType::DataUINT16:
-			data = fetch();
-			data |= (fetch() << 8);
-			break;
-		case OperandType::DataUINT8:
-			data = fetch();
-			break;
-		}
+		std::function<void(Processor&, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
 
-		std::function<void(Processor&, uint16_t)>& func = Instructions[info.GetHexCode()];
-
-		func(*this, data);
+		func(*this, GetOperand(info.GetLeftHandOperand()), GetOperand(info.GetRightHandOperand()));
 	}
 
 }
@@ -243,11 +185,66 @@ void Processor::SetDestinationValue(uint16_t destination, uint16_t source, bool 
 		_memoryBus->Write(_memoryBus->Read(destination), source);
 }
 
+uint16_t Processor::GetOperand(OperandType operand)
+{
+	uint16_t data = 0;
+
+	switch (operand)
+	{
+	case OperandType::Acculumator:
+		data = a;
+		break;
+	case OperandType::RegisterB:
+		data = b;
+		break;
+	case OperandType::RegisterC:
+		data = c;
+		break;
+	case OperandType::RegisterD:
+		data = d;
+		break;
+	case OperandType::RegisterE:
+		data = e;
+		break;
+	case OperandType::RegisterH:
+		data = h;
+		break;
+	case OperandType::RegisterL:
+		data = l;
+		break;
+	case OperandType::RegisterAF:
+		data = (f | a << 8);
+		break;
+	case OperandType::RegisterBC:
+		data = (c | b << 8);
+		break;
+	case OperandType::RegisterDE:
+		data = (e | d << 8);
+		break;
+	case OperandType::RegisterHL:
+		data = (l | h << 8);
+		break;
+	case OperandType::Stackpointer:
+		data = sp;
+		break;
+	case OperandType::ProgramCounter:
+		data = pc;
+		break;
+	case OperandType::DataUINT16:
+		data = fetch();
+		data |= (fetch() << 8);
+		break;
+	case OperandType::DataUINT8:
+		data = fetch();
+		break;
+	}
+
+	return data;
+}
+
 uint8_t Processor::fetch()
 {
 	uint8_t value = _memoryBus->Read(pc);
 	pc = (pc + 1) & 0xFFFF;
 	return value;
 }
-
-// TODO: ADDRESSING MODES, OPERATIONS

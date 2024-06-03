@@ -35,7 +35,6 @@ public:
 	void Reset();
 	void PulseClock();
 	void interrupt();
-	void nmi();
 
 	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 
@@ -59,6 +58,7 @@ public:
 	void SetDestinationValue(Register destination, uint16_t source, bool direct = true);
 	void SetDestinationValue(uint16_t destination, uint16_t source, bool direct = true);
 
+	uint16_t GetOperand(OperandType operand);
 
 private:
 
@@ -74,4 +74,4 @@ private:
 	uint8_t fetch();
 };
 
-extern std::function<void(Processor&, std::uint16_t) > Instructions[256];
+extern std::function<void(Processor&, std::uint16_t, std::uint16_t) > Instructions[256];
