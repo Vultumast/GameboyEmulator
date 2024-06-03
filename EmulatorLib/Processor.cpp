@@ -58,19 +58,60 @@ void Processor::PulseClock()
 	{
 		OpCodeInfo& info = OpCodes[fetch()];
 
-
-		switch (info.GetOpCode())
+		uint16_t data = 0;
+		switch (info.GetRightHandOperand())
 		{
-		case OpCode::NOP:
+		case OperandType::Acculumator:
+			data = a;
 			break;
-		case OpCode::LD:
-
+		case OperandType::RegisterB:
+			data = b;
+			break;
+		case OperandType::RegisterC:
+			data = c;
+			break;
+		case OperandType::RegisterD:
+			data = d;
+			break;
+		case OperandType::RegisterE:
+			data = e;
+			break;
+		case OperandType::RegisterH:
+			data = h;
+			break;
+		case OperandType::RegisterL:
+			data = l;
+			break;
+		case OperandType::RegisterAF:
+			data = (a | f << 8);
+			break;
+		case OperandType::RegisterBC:
+			data = (b | c << 8);
+			break;
+		case OperandType::RegisterDE:
+			data = (d | e << 8);
+			break;
+		case OperandType::RegisterHL:
+			data = (h | l << 8);
+			break;
+		case OperandType::Stackpointer:
+			data = sp;
+			break;
+		case OperandType::ProgramCounter:
+			data = pc;
+			break;
+		case OperandType::DataUINT16:
+			data = fetch();
+			data |= (fetch() << 8);
+			break;
+		case OperandType::DataUINT8:
+			data = fetch();
 			break;
 		}
 
+		std::function<void(Processor&, uint16_t)>& func = Instructions[info.GetHexCode()];
 
-		std::function<void(Processor&, MemoryBus*, uint16_t)>& func = Instructions[info.GetHexCode()];
-
+		func(*this, data);
 	}
 
 }
@@ -124,9 +165,9 @@ void Processor::SetRegister(Register destination, uint16_t value)
 		break;
 	}
 }
-uint16_t Processor::GetRegister(Register destination) const
+uint16_t Processor::GetRegister(Register source) const
 {
-	switch (destination)
+	switch (source)
 	{
 	case Register::A:
 		return a;
@@ -172,31 +213,41 @@ void Processor::SetFlag(FLAGS flag, bool value)
 		f &= ~flag;
 }
 
+uint16_t Processor::GetSourceValue(Register source, bool direct)
+{
+	if (direct)
+		return GetRegister(source);
+	else
+		return _memoryBus->Read(GetRegister(source));
+}
+uint16_t Processor::GetSourceValue(uint16_t source, bool direct)
+{
+	if (direct)
+		return _memoryBus->Read(source);
+	else
+		return _memoryBus->Read(_memoryBus->Read(source));
+}
 
+void Processor::SetDestinationValue(Register destination, uint16_t source, bool direct)
+{
+	if (direct)
+		SetRegister(destination, source);
+	else
+		_memoryBus->Write(GetRegister(destination), source);
+}
+void Processor::SetDestinationValue(uint16_t destination, uint16_t source, bool direct)
+{
+	if (direct)
+		_memoryBus->Write(destination, source);
+	else
+		_memoryBus->Write(_memoryBus->Read(destination), source);
+}
 
 uint8_t Processor::fetch()
 {
 	uint8_t value = _memoryBus->Read(pc);
 	pc = (pc + 1) & 0xFFFF;
 	return value;
-}
-
-void Processor::op_NOP()
-{
-
-}
-
-void Processor::op_LD(Register destination, Register source)
-{
-	SetRegister(destination, GetRegister(source));
-}
-void Processor::op_LD(uint16_t destination, Register source)
-{
-	_memoryBus->Write(destination, GetRegister(source));
-}
-void Processor::op_LD(Register destination, uint16_t source)
-{
-	SetRegister(destination, _memoryBus->Read(source));
 }
 
 // TODO: ADDRESSING MODES, OPERATIONS

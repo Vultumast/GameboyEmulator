@@ -40,7 +40,7 @@ public:
 	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 
 	void SetRegister(Register destination, uint16_t value);
-	uint16_t GetRegister(Register destination) const;
+	uint16_t GetRegister(Register source) const;
 
 	enum FLAGS
 	{
@@ -53,13 +53,18 @@ public:
 	uint8_t GetFlag(FLAGS flag) const;
 	void SetFlag(FLAGS flag, bool value);
 
+	uint16_t GetSourceValue(Register source, bool direct = true);
+	uint16_t GetSourceValue(uint16_t source, bool direct = true);
+
+	void SetDestinationValue(Register destination, uint16_t source, bool direct = true);
+	void SetDestinationValue(uint16_t destination, uint16_t source, bool direct = true);
+
+
 private:
 
 	uint8_t read(uint16_t addr);
 	void write(uint16_t addr, uint8_t value);
-
-private:
-
+	
 	MemoryBus* _memoryBus = nullptr;
 
 	uint8_t _byteLength = 1;
@@ -67,12 +72,6 @@ private:
 	uint8_t _cycleCount = 0;
 
 	uint8_t fetch();
-
-	void op_NOP();
-	void op_LD(Register destination, Register source);
-	void op_LD(uint16_t destination, Register source);
-	void op_LD(Register destination, uint16_t source);
-
 };
 
-extern std::function<void(Processor&, MemoryBus*, std::uint16_t) > Instructions[256];
+extern std::function<void(Processor&, std::uint16_t) > Instructions[256];
