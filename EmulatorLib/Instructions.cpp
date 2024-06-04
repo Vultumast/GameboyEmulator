@@ -129,7 +129,7 @@ void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 		
 	case OperandType::RegisterCIndirect:
-		processor.SetDestinationValue(0xFF + processor.GetRegister(Register::C), source, false);
+		processor.SetDestinationValue(0xFF00 + processor.GetRegister(Register::C), source, false);
 		break;
 	case OperandType::RegisterBCIndirect:
 		processor.SetDestinationValue(processor.GetRegister(Register::BC), source, false);
@@ -168,12 +168,41 @@ void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 void op_PUSH(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	// TODO
+	processor.SetDestinationValue(processor.GetRegister(Register::SP), dest);
+	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) + 2) & 0xFFFF);
 }
 
 void op_POP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	// TODO
+	processor.SetRegister((Register)((uint16_t)(destType)-1), processor.read(processor.GetRegister(Register::SP))); // dest = [sp]
+	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) - 2) & 0xFFFF);
+}
+
+void op_CALL(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	// This doesn't care about conditionals, that needs to be added
+
+	// push pc
+	processor.SetDestinationValue(processor.GetRegister(Register::SP), processor.GetRegister(Register::PC));
+	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) + 2) & 0xFFFF);
+
+	processor.SetRegister(Register::PC, dest);
+}
+
+void op_RET(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	// pop pc
+	processor.SetRegister(Register::PC, processor.read(processor.GetRegister(Register::SP))); // dest = [sp]
+	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) - 2) & 0xFFFF);
+}
+
+void op_RETI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	// pop pc
+	processor.SetRegister(Register::PC, processor.read(processor.GetRegister(Register::SP))); // dest = [sp]
+	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) - 2) & 0xFFFF);
+
+	processor.ime = true;
 }
 
 #pragma region Arthimetic
@@ -315,6 +344,21 @@ void op_SBC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	processor.SetFlag(Processor::FLAGS::H, post <= 0xFF && pre > 0x7F);
 	processor.SetFlag(Processor::FLAGS::C, post <= 0xFF && pre > 0xFF);
 }
+
+void op_DAA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	uint8_t _a = processor.GetRegister(Register::A);
+
+
+	if ((_a & 0x0F) > 0x09 || processor.GetFlag(Processor::FLAGS::H)) { _a += 0x06; }
+	if ((_a & 0xF0) > 0x90 || processor.GetFlag(Processor::FLAGS::C))
+	{
+		_a += 0x60;
+		processor.SetFlag(Processor::FLAGS::C, true);
+	}
+	else { processor.SetFlag(Processor::FLAGS::C, false); }
+
+}
 #pragma endregion
 
 void op_AND(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
@@ -373,4 +417,9 @@ void op_JR(Processor& processor, OperandType destType, std::uint16_t dest, std::
 {
 	if (dest)
 		processor.SetRegister(Register::PC, source);
+}
+
+void op_XXX(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	// This locks the processor but ignoring it doesn't break anything
 }
