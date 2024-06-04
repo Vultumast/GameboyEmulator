@@ -53,7 +53,7 @@ void Processor::PulseClock()
 
 		std::function<void(Processor&, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
 
-		func(*this, GetOperand(info.GetLeftHandOperand()), GetOperand(info.GetRightHandOperand()));
+		func(*this, (uint16_t)info.GetLeftHandOperand(), GetOperand(info.GetRightHandOperand()));
 	}
 
 }

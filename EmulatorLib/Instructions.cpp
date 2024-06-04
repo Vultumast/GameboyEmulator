@@ -166,7 +166,12 @@ void op_LD8(Processor& processor, std::uint16_t dest, std::uint16_t source)
 
 void op_LD16(Processor& processor, std::uint16_t dest, std::uint16_t source)
 {
-	// TODO
+	OperandType operandType = (OperandType)dest;
+	switch (operandType)
+	{
+
+	}
+
 }
 
 void op_PUSH(Processor& processor, std::uint16_t dest, std::uint16_t source)
