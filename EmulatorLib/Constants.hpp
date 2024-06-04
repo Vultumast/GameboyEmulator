@@ -183,7 +183,17 @@ enum class OperandType
 	AddressUINT8,
 	AddressUINT16,
 
-	DataINT8
+	DataINT8,
+
+	FlagCarry,
+	FlagHalfCarry,
+	FlagNegative,
+	FlagZero,
+	
+	FlagNotCarry,
+	FlagNotHalfCarry,
+	FlagNotNegative,
+	FlagNotZero,
 };
 
 

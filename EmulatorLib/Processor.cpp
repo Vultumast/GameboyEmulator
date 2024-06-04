@@ -67,6 +67,14 @@ void Processor::PulseClock()
 			break;
 		}
 
+		if (info.GetOpCode() == OpCode::JR)
+		{
+			data = 1;
+
+			if (info.GetLeftHandOperand() != OperandType::None)
+				data = GetOperand(info.GetLeftHandOperand());
+		}
+
 		func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
 	}
 
@@ -156,7 +164,7 @@ uint16_t Processor::GetRegister(Register source) const
 	}
 }
 
-uint8_t Processor::GetFlag(FLAGS flag) const
+bool Processor::GetFlag(FLAGS flag) const
 {
 	return ((f & flag) > 0) ? 1 : 0;
 }
@@ -248,6 +256,20 @@ uint16_t Processor::GetOperand(OperandType operand)
 		break;
 	case OperandType::DataUINT8:
 		data = fetch();
+		break;
+
+	case OperandType::FlagCarry:
+	case OperandType::FlagHalfCarry:
+	case OperandType::FlagNegative:
+	case OperandType::FlagZero:
+		data = GetFlag(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry);
+		break;
+
+	case OperandType::FlagNotCarry:
+	case OperandType::FlagNotHalfCarry:
+	case OperandType::FlagNotNegative:
+	case OperandType::FlagNotZero:
+		data = !GetFlag(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry);
 		break;
 	}
 

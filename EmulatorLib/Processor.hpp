@@ -49,7 +49,7 @@ public:
 		Z = (1 << 7),
 	};
 
-	uint8_t GetFlag(FLAGS flag) const;
+	bool GetFlag(FLAGS flag) const;
 	void SetFlag(FLAGS flag, bool value);
 
 	uint16_t GetSourceValue(Register source, bool direct = true);
