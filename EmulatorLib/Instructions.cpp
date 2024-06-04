@@ -21,6 +21,10 @@ void op_CPL(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_CP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_ADC(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
+void op_AND(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_XOR(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_OR(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
 // Rotate and Shift
 void op_RLCA(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_RLA(Processor&, OperandType, std::uint16_t, std::uint16_t);
@@ -29,20 +33,30 @@ void op_RRA(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
 // Jumps
 void op_JR(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_JP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
 std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instructions[256] =
 {
-	op_NOP  , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_RLCA , op_LD   , op_ADD  , op_LD   , op_DEC  , op_INC  , op_DEC  , op_LD   , op_RRCA ,
-	op_STOP , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_RLA  , op_JR   , op_ADD  , op_LD   , op_DEC  , op_INC  , op_DEC  , op_LD   , op_RRA  ,
-	op_JR   , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_DAA  , op_JR   , op_ADD  , op_LD   , op_DEC  , op_INC  , op_DEC  , op_LD   , op_CPL  ,
-	op_JR   , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_SCF  , op_JR   , op_ADD  , op_LD   , op_DEC  , op_INC  , op_DEC  , op_LD   , op_CCF  ,
+	op_NOP  , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_RLCA , op_LD   , op_ADD  , op_LD   , op_DEC   , op_INC  , op_DEC  , op_LD   , op_RRCA ,
+	op_STOP , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_RLA  , op_JR   , op_ADD  , op_LD   , op_DEC   , op_INC  , op_DEC  , op_LD   , op_RRA  ,
+	op_JR   , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_DAA  , op_JR   , op_ADD  , op_LD   , op_DEC   , op_INC  , op_DEC  , op_LD   , op_CPL  ,
+	op_JR   , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_SCF  , op_JR   , op_ADD  , op_LD   , op_DEC   , op_INC  , op_DEC  , op_LD   , op_CCF  ,
 
-	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   ,
-	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   ,
-	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   ,
-	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_HALT , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   ,
-	op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADC  , op_ADC  , op_ADC  , op_ADC  , op_ADC  , op_ADC  , op_ADC  , op_ADC  ,
-	op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SBC  , op_SBC  , op_SBC  , op_SBC  , op_SBC  , op_SBC  , op_SBC  , op_SBC  ,
+	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD    , op_LD   , op_LD   , op_LD   , op_LD   ,
+	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD    , op_LD   , op_LD   , op_LD   , op_LD   ,
+	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD    , op_LD   , op_LD   , op_LD   , op_LD   ,
+	op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_LD   , op_HALT , op_LD   , op_LD   , op_LD   , op_LD   , op_LD    , op_LD   , op_LD   , op_LD   , op_LD   ,
+
+	op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADD  , op_ADC  , op_ADC  , op_ADC  , op_ADC   , op_ADC  , op_ADC  , op_ADC  , op_ADC  ,
+	op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SUB  , op_SBC  , op_SBC  , op_SBC  , op_SBC   , op_SBC  , op_SBC  , op_SBC  , op_SBC  ,
+	op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_XOR  , op_XOR  , op_XOR  , op_XOR   , op_XOR  , op_XOR  , op_XOR  , op_XOR  ,
+	op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_CP   , op_CP   , op_CP   , op_CP    , op_CP   , op_CP   , op_CP   , op_CP   ,
+
+	op_RET  , op_POP  , op_JP   , op_JP   , op_CALL , op_PUSH , op_ADD  , op_RST  , op_RET  , op_RET  , op_JP   , op_PREFIX, op_CALL , op_CALL , op_ADC  , op_RST  ,
+	op_RET  , op_POP  , op_JP   , op_XXX  , op_CALL , op_PUSH , op_SUB  , op_RST  , op_RET  , op_RETI , op_JP   , op_XXX   , op_CALL , op_XXX  , op_SBC  , op_RST  ,
+	op_LD   , op_POP  , op_LD   , op_XXX  , op_XXX  , op_PUSH , op_AND  , op_RST  , op_ADD  , op_JP   , op_LD   , op_XXX   , op_XXX  , op_XXX  , op_XOR  , op_RST  ,
+	op_LD   , op_POP  , op_LD   , op_DI   , op_XXX  , op_PUSH , op_OR   , op_RST  , op_LD   , op_LD   , op_LD   , op_EI    , op_XXX  , op_XXX  , op_CP   , op_RST  
+
 };
 
 
@@ -238,7 +252,7 @@ void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		processor.SetRegister(Register::A, (a + source) & 0xFF);
 		processor.SetFlag(Processor::FLAGS::Z, a + source == 0);
 		processor.SetFlag(Processor::FLAGS::N, false);
-		processor.SetFlag(Processor::FLAGS::H, (a + source) > 0xFF);
+		processor.SetFlag(Processor::FLAGS::H, (a + source) > 0x7F);
 		processor.SetFlag(Processor::FLAGS::C, (a + source) > 0xFF);
 		break;
 
@@ -246,7 +260,7 @@ void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		uint16_t hl = processor.GetRegister(Register::HL);
 		processor.SetRegister(Register::HL, (hl + source) & 0xFFFF);
 		processor.SetFlag(Processor::N, false);
-		processor.SetFlag(Processor::H, (hl + source) > 0xFFFF);
+		processor.SetFlag(Processor::H, (hl + source) > 0x7FFF);
 		processor.SetFlag(Processor::C, (hl + source) > 0xFFFF);
 		break;
 
@@ -255,7 +269,7 @@ void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		processor.SetRegister(Register::SP, (sp + (int8_t)source) & 0xFFFF);
 		processor.SetFlag(Processor::Z, false);
 		processor.SetFlag(Processor::N, false);
-		processor.SetFlag(Processor::H, (sp + (int8_t)source) > 0xFFFF);
+		processor.SetFlag(Processor::H, (sp + (int8_t)source) > 0x7FFF);
 		processor.SetFlag(Processor::C, (sp + (int8_t)source) > 0xFFFF);
 		break;
 	}
@@ -269,7 +283,7 @@ void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		processor.SetRegister(Register::A, (a - source) & 0xFF);
 		processor.SetFlag(Processor::FLAGS::Z, a - source == 0);
 		processor.SetFlag(Processor::FLAGS::N, true);
-		processor.SetFlag(Processor::FLAGS::H, (a - source) > 0xFF);
+		processor.SetFlag(Processor::FLAGS::H, (a - source) > 0x7F);
 		processor.SetFlag(Processor::FLAGS::C, (a - source) > 0xFF);
 		break;
 	}
@@ -277,14 +291,44 @@ void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 
 void op_ADC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
+	uint8_t c = processor.GetFlag(Processor::FLAGS::C);
 
+	uint8_t pre = processor.GetRegister(Register::A) & 0xFF;
+	uint8_t post = (pre + source) + c;
+
+	processor.SetRegister(Register::A, post);
+	processor.SetFlag(Processor::FLAGS::Z, post == 0);
+	processor.SetFlag(Processor::FLAGS::N, true);
+	processor.SetFlag(Processor::FLAGS::H, post <= 0x7F && pre > 0x7F);
+	processor.SetFlag(Processor::FLAGS::C, post <= 0xFF && pre > 0xFF);
 }
 void op_SBC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
+	uint8_t c = processor.GetFlag(Processor::FLAGS::C);
 
+	uint8_t pre = processor.GetRegister(Register::A) & 0xFF;
+	uint8_t post = (pre - source) - c;
+
+	processor.SetRegister(Register::A, post);
+	processor.SetFlag(Processor::FLAGS::Z, post == 0);
+	processor.SetFlag(Processor::FLAGS::N, true);
+	processor.SetFlag(Processor::FLAGS::H, post <= 0xFF && pre > 0x7F);
+	processor.SetFlag(Processor::FLAGS::C, post <= 0xFF && pre > 0xFF);
 }
 #pragma endregion
 
+void op_AND(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.SetRegister(Register::A, (processor.GetRegister(Register::A) & source) & 0xFF);
+}
+void op_XOR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.SetRegister(Register::A, (processor.GetRegister(Register::A) ^ source) & 0xFF);
+}
+void op_OR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.SetRegister(Register::A, (processor.GetRegister(Register::A) | source) & 0xFF);
+}
 #pragma region Rotate and Shift
 void op_RLCA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
