@@ -67,12 +67,20 @@ void Processor::PulseClock()
 			break;
 		}
 
+		// Special case for conditionals
 		if (info.GetOpCode() == OpCode::JR)
 		{
 			data = 1;
 
 			if (info.GetLeftHandOperand() != OperandType::None)
 				data = GetOperand(info.GetLeftHandOperand());
+		}
+
+		// Special case for RST instructions
+		if ((info.GetHexCode() & 0xC7) == 0xC7)
+		{
+			uint8_t op = info.GetHexCode();
+			data = ((op & 0xF0) - 0xC0) + (op & 0x08);
 		}
 
 		func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
