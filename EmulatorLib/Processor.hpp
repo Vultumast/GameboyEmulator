@@ -74,4 +74,4 @@ private:
 	uint8_t fetch();
 };
 
-extern std::function<void(Processor&, std::uint16_t, std::uint16_t) > Instructions[256];
+extern std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t) > Instructions[256];

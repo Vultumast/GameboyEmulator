@@ -51,9 +51,23 @@ void Processor::PulseClock()
 	{
 		OpCodeInfo& info = OpCodes[fetch()];
 
-		std::function<void(Processor&, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
+		std::function<void(Processor&, OperandType, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
 
-		func(*this, (uint16_t)info.GetLeftHandOperand(), GetOperand(info.GetRightHandOperand()));
+		uint16_t data = 0;
+		switch (info.GetLeftHandOperand())
+		{
+		case OperandType::DataUINT8:
+		case OperandType::AddressUINT8:
+			data = fetch();
+			break;
+		case OperandType::DataUINT16:
+		case OperandType::AddressUINT16:
+			data = fetch();
+			data |= (fetch() << 8);
+			break;
+		}
+
+		func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
 	}
 
 }
@@ -192,44 +206,42 @@ uint16_t Processor::GetOperand(OperandType operand)
 	switch (operand)
 	{
 	case OperandType::Acculumator:
-		data = a;
-		break;
 	case OperandType::RegisterB:
-		data = b;
-		break;
 	case OperandType::RegisterC:
-		data = c;
-		break;
 	case OperandType::RegisterD:
-		data = d;
-		break;
 	case OperandType::RegisterE:
-		data = e;
-		break;
 	case OperandType::RegisterH:
-		data = h;
-		break;
 	case OperandType::RegisterL:
-		data = l;
-		break;
 	case OperandType::RegisterAF:
-		data = (f | a << 8);
-		break;
 	case OperandType::RegisterBC:
-		data = (c | b << 8);
-		break;
 	case OperandType::RegisterDE:
-		data = (e | d << 8);
-		break;
 	case OperandType::RegisterHL:
-		data = (l | h << 8);
-		break;
 	case OperandType::Stackpointer:
-		data = sp;
-		break;
 	case OperandType::ProgramCounter:
-		data = pc;
+		data = GetRegister((Register)(((uint16_t)operand) - 1));
 		break;
+	case OperandType::IncrementHL:
+		data = (GetRegister(Register::HL) + 1) & 0xFFFF;
+		SetRegister(Register::HL, data);
+		break;
+	case OperandType::DecrementHL:
+		data = (GetRegister(Register::HL) - 1) & 0xFFFF;
+		SetRegister(Register::HL, data);
+		break;
+
+	case OperandType::RegisterCIndirect:
+		data = _memoryBus->Read(0xFF00 + GetRegister(Register::C));
+		break;
+	case OperandType::RegisterBCIndirect:
+		data = _memoryBus->Read(GetRegister(Register::BC));
+		break;
+	case OperandType::RegisterDEIndirect:
+		data = _memoryBus->Read(GetRegister(Register::DE));
+		break;
+	case OperandType::RegisterHLIndirect:
+		data = _memoryBus->Read(GetRegister(Register::HL));
+		break;
+
 	case OperandType::DataUINT16:
 		data = fetch();
 		data |= (fetch() << 8);

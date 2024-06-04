@@ -1,185 +1,243 @@
 #include "Processor.hpp"
 #include "MemoryBus.hpp"
 
-void op_0x00(Processor&, std::uint16_t, std::uint16_t);
-void op_0x01(Processor&, std::uint16_t, std::uint16_t);
-void op_0x02(Processor&, std::uint16_t, std::uint16_t);
-void op_0x03(Processor&, std::uint16_t, std::uint16_t);
-void op_0x04(Processor&, std::uint16_t, std::uint16_t);
-void op_0x05(Processor&, std::uint16_t, std::uint16_t);
-void op_0x06(Processor&, std::uint16_t, std::uint16_t);
-void op_0x07(Processor&, std::uint16_t, std::uint16_t);
-void op_0x08(Processor&, std::uint16_t, std::uint16_t);
-void op_0x09(Processor&, std::uint16_t, std::uint16_t);
-void op_0x0A(Processor&, std::uint16_t, std::uint16_t);
-void op_0x0B(Processor&, std::uint16_t, std::uint16_t);
-void op_0x0C(Processor&, std::uint16_t, std::uint16_t);
-void op_0x0D(Processor&, std::uint16_t, std::uint16_t);
-void op_0x0E(Processor&, std::uint16_t, std::uint16_t);
-void op_0x0F(Processor&, std::uint16_t, std::uint16_t);
+void op_NOP(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_STOP(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_HALT(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_EI(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_DI(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_LD(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_PUSH(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_POP(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_INC(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_DEC(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
-std::function<void(Processor&, std::uint16_t, std::uint16_t)> Instructions[256] =
+void op_ADD(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_SUB(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
+void op_RLCA(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RRCA(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
+std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instructions[256] =
 {
-	op_0x00, op_0x01, op_0x02, op_0x03, op_0x04, op_0x05, op_0x06, op_0x07, op_0x08, op_0x09, op_0x0A, op_0x0B, op_0x0C, op_0x0D, op_0x0E, op_0x0F,
+	op_NOP  , op_LD  , op_LD  , op_INC , op_DEC , op_INC, op_DEC, op_LD, op_RLCA, op_LD, op_ADD, op_LD, op_DEC, op_INC, op_DEC, op_LD, op_RRCA,
+
 };
 
-#pragma region Operations 0x00 - 0x0F
-// NOP
-void op_0x00(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	// do nothing
-}
-
-// LD BC,d16
-void op_0x01(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::BC, source);
-}
-
-// LD (BC),A
-void op_0x02(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::BC, source, false);
-}
-
-// INC BC
-void op_0x03(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::BC, (source + 1) % 0xFFFF);
-}
-
-// INC B
-void op_0x04(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::B, (source + 1) % 0xFF);
-	processor.SetFlag(Processor::FLAGS::Z, source == 0xFF);
-	processor.SetFlag(Processor::FLAGS::N, false);
-	processor.SetFlag(Processor::FLAGS::H, source == 0xFF);
-}
-
-// DEC B
-void op_0x05(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::B, (source - 1) % 0xFF);
-	processor.SetFlag(Processor::FLAGS::Z, source == 0x1);
-	processor.SetFlag(Processor::FLAGS::N, true);
-	processor.SetFlag(Processor::FLAGS::H, source == 0x00);
-}
-
-// LD B,d8
-void op_0x06(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::B, source);
-}
-
-// RLCA
-void op_0x07(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	processor.SetDestinationValue(Register::A, (source << 1));
-	processor.SetFlag(Processor::FLAGS::Z, 0);
-	processor.SetFlag(Processor::FLAGS::N, 0);
-	processor.SetFlag(Processor::FLAGS::H, 0);
-	processor.SetFlag(Processor::FLAGS::C, source & 0b10000000);
-}
-
-
-void op_0x08(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x09(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x0A(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x0B(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x0C(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x0D(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x0E(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-
-
-void op_0x0F(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-
-}
-#pragma endregion
 
 // Misc.
-void op_NOP(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_NOP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// Do Nothing
 }
 
-void op_STOP(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_STOP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// TODO
 }
 
-void op_HALT(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_HALT(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// TODO
 }
 
-void op_EI(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_EI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	processor.ime = true;
 }
 
-void op_DI(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_DI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	processor.ime = false;
 }
 
-
-// Loads
-void op_LD8(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	// TODO
-}
-
-void op_LD16(Processor& processor, std::uint16_t dest, std::uint16_t source)
-{
-	OperandType operandType = (OperandType)dest;
-	switch (operandType)
+	
+	switch (destType)
 	{
+	case OperandType::None:
+		break;
+	case OperandType::Acculumator:
+	case OperandType::RegisterB:
+	case OperandType::RegisterC:
+	case OperandType::RegisterD:
+	case OperandType::RegisterE:
+	case OperandType::RegisterH:
+	case OperandType::RegisterL:
+		processor.SetRegister((Register)((uint16_t)(destType) - 1), source & 0xFF);
+		break;
 
+	case OperandType::RegisterAF:
+	case OperandType::RegisterBC:
+	case OperandType::RegisterDE:
+	case OperandType::RegisterHL:
+	case OperandType::Stackpointer:
+	case OperandType::ProgramCounter:
+		processor.SetRegister((Register)((uint16_t)(destType) - 8), source & 0xFFFF);
+		break;
+
+		
+	case OperandType::RegisterCIndirect:
+		processor.SetDestinationValue(0xFF + processor.GetRegister(Register::C), source, false);
+		break;
+	case OperandType::RegisterBCIndirect:
+		processor.SetDestinationValue(processor.GetRegister(Register::BC), source, false);
+		break;
+	case OperandType::RegisterDEIndirect:
+		processor.SetDestinationValue(processor.GetRegister(Register::DE), source, false);
+		break;
+	case OperandType::RegisterHLIndirect:
+		processor.SetDestinationValue(processor.GetRegister(Register::HL), source, false);
+		break;
+
+	case OperandType::DataUINT8:
+		break;
+	case OperandType::DataUINT16:
+		break;
+
+	case OperandType::AddressUINT8:
+		break;
+	case OperandType::AddressUINT16:
+		processor.SetDestinationValue();
+		break;
+	case OperandType::DataINT8:
+		break;
 	}
 
 }
 
-void op_PUSH(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_PUSH(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// TODO
 }
 
-void op_POP(Processor& processor, std::uint16_t dest, std::uint16_t source)
+void op_POP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// TODO
+}
+
+void op_INC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	switch (destType)
+	{
+	case OperandType::None:
+		break;
+	case OperandType::Acculumator:
+	case OperandType::RegisterB:
+	case OperandType::RegisterC:
+	case OperandType::RegisterD:
+	case OperandType::RegisterE:
+	case OperandType::RegisterH:
+	case OperandType::RegisterL:
+		processor.SetRegister((Register)((uint16_t)((OperandType)destType) - 1), (source + 1) & 0xFF);
+		processor.SetFlag(Processor::FLAGS::Z, source == 0xFF);
+		processor.SetFlag(Processor::FLAGS::N, false);
+		processor.SetFlag(Processor::FLAGS::H, source == 0xFF);
+		break;
+
+	case OperandType::RegisterAF:
+	case OperandType::RegisterBC:
+	case OperandType::RegisterDE:
+	case OperandType::RegisterHL:
+	case OperandType::Stackpointer:
+	case OperandType::ProgramCounter:
+		processor.SetRegister((Register)((uint16_t)((OperandType)destType) - 8), (source + 1) & 0xFFFF);
+		break;
+	}
+}
+void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	switch (destType)
+	{
+	case OperandType::None:
+		break;
+	case OperandType::Acculumator:
+	case OperandType::RegisterB:
+	case OperandType::RegisterC:
+	case OperandType::RegisterD:
+	case OperandType::RegisterE:
+	case OperandType::RegisterH:
+	case OperandType::RegisterL:
+		processor.SetRegister((Register)((uint16_t)((OperandType)destType) - 1), (source - 1) & 0xFF);
+		processor.SetFlag(Processor::FLAGS::Z, source == 1);
+		processor.SetFlag(Processor::FLAGS::N, false);
+		processor.SetFlag(Processor::FLAGS::H, source == 0);
+		break;
+
+	case OperandType::RegisterAF:
+	case OperandType::RegisterBC:
+	case OperandType::RegisterDE:
+	case OperandType::RegisterHL:
+	case OperandType::Stackpointer:
+	case OperandType::ProgramCounter:
+		processor.SetRegister((Register)((uint16_t)((OperandType)destType) - 8), (source - 1) & 0xFFFF);
+		break;
+	}
+}
+
+void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	switch (destType)
+	{
+	case OperandType::Acculumator:
+		uint16_t a = processor.GetRegister(Register::A);
+		processor.SetRegister(Register::A, (a + source) & 0xFF);
+		processor.SetFlag(Processor::FLAGS::Z, a + source == 0);
+		processor.SetFlag(Processor::FLAGS::N, false);
+		processor.SetFlag(Processor::FLAGS::H, (a + source) > 0xFF);
+		processor.SetFlag(Processor::FLAGS::C, (a + source) > 0xFF);
+		break;
+
+	case OperandType::RegisterHL:
+		uint16_t hl = processor.GetRegister(Register::HL);
+		processor.SetRegister(Register::HL, (hl + source) & 0xFFFF);
+		processor.SetFlag(Processor::N, false);
+		processor.SetFlag(Processor::H, (hl + source) > 0xFFFF);
+		processor.SetFlag(Processor::C, (hl + source) > 0xFFFF);
+		break;
+
+	case OperandType::Stackpointer:
+		uint16_t sp = processor.GetRegister(Register::SP);
+		processor.SetRegister(Register::SP, (sp + source) & 0xFFFF);
+		processor.SetFlag(Processor::Z, false);
+		processor.SetFlag(Processor::N, false);
+		processor.SetFlag(Processor::H, (sp + source) > 0xFFFF);
+		processor.SetFlag(Processor::C, (sp + source) > 0xFFFF);
+		break;
+	}
+}
+void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	switch (destType)
+	{
+	case OperandType::Acculumator:
+		uint16_t a = processor.GetRegister(Register::A);
+		processor.SetRegister(Register::A, (a - source) & 0xFF);
+		processor.SetFlag(Processor::FLAGS::Z, a + source == 0);
+		processor.SetFlag(Processor::FLAGS::N, true);
+		processor.SetFlag(Processor::FLAGS::H, (a - source) > 0xFF);
+		processor.SetFlag(Processor::FLAGS::C, (a - source) > 0xFF);
+		break;
+	}
+}
+
+void op_RLCA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	uint16_t a = processor.GetRegister(Register::A);
+	processor.SetRegister(Register::A, (a << 1) & 0xFF);
+	processor.SetFlag(Processor::FLAGS::Z, false);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, (a & 0b1 << 15));
+}
+
+void op_RRCA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	uint16_t a = processor.GetRegister(Register::A);
+	processor.SetRegister(Register::A, (a >> 1) & 0xFF);
+	processor.SetFlag(Processor::FLAGS::Z, false);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, (a & 0b1));
 }
