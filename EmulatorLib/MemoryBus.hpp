@@ -2,6 +2,7 @@
 
 #include "Constants.hpp"
 
+#include <vector>
 
 class MemoryBus
 {
@@ -15,4 +16,5 @@ public:
 	void Write(const uint16_t& address, const uint8_t& value);
 	uint8_t Read(const uint16_t& address);
 
+	void WriteROM(const std::vector<uint8_t>& data);
 };

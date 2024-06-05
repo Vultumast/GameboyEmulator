@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace EmulatorGUI.EmulatorLib
 {
-    public abstract class ObjectBase : IDisposable
+    public abstract partial class ObjectBase : IDisposable
     {
         private nint _cPointer = nint.Zero;
         private bool disposedValue;
 
         public nint CPointer => _cPointer;
+
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void pointer_delete(in nint pointer);
+
 
         protected virtual void Dispose(bool disposing)
         {
@@ -23,7 +29,10 @@ namespace EmulatorGUI.EmulatorLib
                 }
 
                 if (_cPointer != nint.Zero)
+                {
+                    pointer_delete(_cPointer);
                     Destroy();
+                }
 
                 _cPointer = nint.Zero;
                 disposedValue = true;

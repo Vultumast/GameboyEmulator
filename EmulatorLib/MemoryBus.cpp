@@ -1,5 +1,6 @@
 #include "MemoryBus.hpp";
 #include <algorithm>
+#include <iostream>
 
 void MemoryBus::Randomize()
 {
@@ -27,13 +28,14 @@ bool MemoryBus::IsAddressMapped(const std::uint16_t& address)
 
 void MemoryBus::Write(const std::uint16_t& address, const std::uint8_t& value)
 {
-	if (IsAddressMapped(address))
+	if (!IsAddressMapped(address))
 		return;
 
 	std::uint16_t realAddress = address;
 	if (realAddress >= Addr_ERAM_Start && realAddress <= Addr_ERAM_End)
 		realAddress -= 0x2000;
 
+	// std::cout << "writing \"" << std::hex << value << std::dec << "\" at addr: \"" << std::hex << address << std::dec << "\"" << std::endl;
 	_ram[address] = value;
 }
 std::uint8_t MemoryBus::Read(const std::uint16_t& address)
@@ -46,4 +48,14 @@ std::uint8_t MemoryBus::Read(const std::uint16_t& address)
 		realAddress -= 0x2000;
 
 	return _ram[realAddress];
+}
+
+void MemoryBus::WriteROM(const std::vector<uint8_t>& data)
+{
+	uint16_t expectedLength = (Addr_ROM_End - Addr_ROM_Start) + 1;
+
+	if (expectedLength == data.size())
+		std::copy(data.begin(), data.end(), _ram);
+	else
+		std::cout << "Rom data was outside of expected range." << std::endl;
 }

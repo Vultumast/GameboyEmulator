@@ -7,19 +7,20 @@ using System.Threading.Tasks;
 
 namespace EmulatorGUI.EmulatorLib
 {
-    public class Video : ObjectBase
+    public partial class Video : ObjectBase
     {
-        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern nint video_create(nint memorybus, nint hwnd);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial nint video_create(nint memorybus, nint hwnd);
 
-        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void video_delete(nint pointer);
 
-        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void video_clear(nint pointer);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void video_clear(nint pointer);
 
-        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void video_present(nint pointer);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void video_present(nint pointer);
 
         public Video(MemoryBus memoryBus, nint WindowHandle) : base(video_create(memoryBus.CPointer, WindowHandle))
         {
@@ -28,7 +29,7 @@ namespace EmulatorGUI.EmulatorLib
 
         public override void Destroy()
         {
-            video_delete(CPointer);
+
         }
 
         public void Clear() => video_clear(CPointer);

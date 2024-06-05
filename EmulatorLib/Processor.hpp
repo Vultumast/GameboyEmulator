@@ -14,18 +14,6 @@ class Processor
 public:
 	Processor(MemoryBus* memoryBus);
 
-	// Registers
-	uint8_t a = 0x00;
-	uint8_t b = 0x00;
-	uint8_t c = 0x00;
-	uint8_t d = 0x00;
-	uint8_t e = 0x00;
-	uint8_t f = 0x00;
-	uint8_t h = 0x00;
-	uint8_t l = 0x00;
-	uint16_t sp = 0x0000;
-	uint16_t pc = 0x0000;
-
 	bool ime = false; // This should be private but it's never gonna get accessed outside the CPU anyway (hopefully)
 
 	// "Event" functions
@@ -60,8 +48,30 @@ public:
 	uint8_t read(uint16_t addr);
 	void write(uint16_t addr, uint8_t value);
 
+	/// <summary>
+	/// Pushes a value onto the stack and moves it back
+	/// </summary>
+	/// <param name="value"></param>
+	void Push(uint16_t value);
+
+	/// <summary>
+	/// Stops current execution, pushing program counter to the stack and then jumping execution to the given address
+	/// </summary>
+	/// <param name="address"></param>
+	void ResetVector(uint16_t address);
 private:
-	
+	// Registers
+	uint8_t a = 0x00;
+	uint8_t b = 0x00;
+	uint8_t c = 0x00;
+	uint8_t d = 0x00;
+	uint8_t e = 0x00;
+	uint8_t f = 0x00;
+	uint8_t h = 0x00;
+	uint8_t l = 0x00;
+	uint16_t sp = 0x0000;
+	uint16_t pc = 0x0000;
+
 	MemoryBus* _memoryBus = nullptr;
 
 	uint8_t _byteLength = 1;

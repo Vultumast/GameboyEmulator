@@ -7,22 +7,58 @@ using System.Threading.Tasks;
 
 namespace EmulatorGUI.EmulatorLib
 {
-    public class Processor : ObjectBase
+    public enum Register
     {
-        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern nint processor_create();
+        A,
+        B,
+        C,
+        D,
+        E,
+        H,
+        L,
 
-        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void processor_delete(nint pointer);
+        AF,
+        BC,
+        DE,
+        HL,
+        SP,
+        PC
+    };
 
-        public Processor() : base(processor_create())
+    public partial class Processor : ObjectBase
+    {
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial nint processor_create(nint memoryBus);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void processor_reset(nint processor);
+
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void processor_setregister(nint processor, byte register, ushort value);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial ushort processor_getregister(nint processor, byte register);
+
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void processor_pulseclock(nint processor);
+
+        public Processor(MemoryBus memoryBus) : base(processor_create(memoryBus.CPointer))
         {
 
         }
 
         public override void Destroy()
         {
-            processor_delete(CPointer);
+
         }
+        public void Reset() => processor_reset(CPointer);
+
+        public void SetRegister(Register register, ushort value) => processor_setregister(CPointer, (byte)register, value);
+        public ushort GetRegister(Register register) => processor_getregister(CPointer, (byte)register);
+
+        public void PulseClock() => processor_pulseclock(CPointer);
     }
 }

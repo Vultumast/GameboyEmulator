@@ -154,6 +154,7 @@
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="MemoryBus.hpp" />
     <ClInclude Include="Processor.hpp" />
+    <ClInclude Include="RomInfo.hpp" />
     <ClInclude Include="Video.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +164,7 @@
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="OpCodeInfo.cpp" />
     <ClCompile Include="OpCodeInfo.hpp" />
+    <ClCompile Include="RomInfo.cpp" />
     <ClCompile Include="Video.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

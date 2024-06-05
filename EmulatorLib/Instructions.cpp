@@ -1,6 +1,8 @@
 #include "Processor.hpp"
 #include "MemoryBus.hpp"
 
+#include <iostream>
+
 void op_NOP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_STOP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_HALT(Processor&, OperandType, std::uint16_t, std::uint16_t);
@@ -18,10 +20,7 @@ void op_CCF(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_ADD(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_SUB(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_CPL(Processor&, OperandType, std::uint16_t, std::uint16_t);
-void op_CP(Processor&, OperandType, std::uint16_t, std::uint16_t)
-{
-
-}
+void op_CP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_ADC(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
 void op_AND(Processor&, OperandType, std::uint16_t, std::uint16_t);
@@ -36,10 +35,13 @@ void op_RRA(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
 // Jumps
 void op_JR(Processor&, OperandType, std::uint16_t, std::uint16_t);
-void op_JP(Processor&, OperandType, std::uint16_t, std::uint16_t)
-{
+void op_JP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
-}
+void op_RST08H(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RST18H(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RST28H(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RST38H(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
 
 
 // SORT THIS!!!
@@ -53,7 +55,6 @@ void op_PREFIX(Processor&, OperandType, std::uint16_t, std::uint16_t)
 {
 	// TODO
 }
-
 
 std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instructions[256] =
 {
@@ -72,10 +73,10 @@ std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instr
 	op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_AND  , op_XOR  , op_XOR  , op_XOR  , op_XOR   , op_XOR  , op_XOR  , op_XOR  , op_XOR  ,
 	op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_OR   , op_CP   , op_CP   , op_CP   , op_CP    , op_CP   , op_CP   , op_CP   , op_CP   ,
 
-	op_RET  , op_POP  , op_JP   , op_JP   , op_CALL , op_PUSH , op_ADD  , op_CALL , op_RET  , op_RET  , op_JP   , op_PREFIX, op_CALL , op_CALL , op_ADC  , op_CALL ,
-	op_RET  , op_POP  , op_JP   , op_XXX  , op_CALL , op_PUSH , op_SUB  , op_CALL , op_RET  , op_RETI , op_JP   , op_XXX   , op_CALL , op_XXX  , op_SBC  , op_CALL ,
-	op_LD   , op_POP  , op_LD   , op_XXX  , op_XXX  , op_PUSH , op_AND  , op_CALL , op_ADD  , op_JP   , op_LD   , op_XXX   , op_XXX  , op_XXX  , op_XOR  , op_CALL ,
-	op_LD   , op_POP  , op_LD   , op_DI   , op_XXX  , op_PUSH , op_OR   , op_CALL , op_LD   , op_LD   , op_LD   , op_EI    , op_XXX  , op_XXX  , op_CP   , op_CALL
+	op_RET  , op_POP  , op_JP   , op_JP   , op_CALL , op_PUSH , op_ADD  , op_CALL , op_RET  , op_RET  , op_JP   , op_PREFIX, op_CALL , op_CALL , op_ADC  , op_RST08H ,
+	op_RET  , op_POP  , op_JP   , op_XXX  , op_CALL , op_PUSH , op_SUB  , op_CALL , op_RET  , op_RETI , op_JP   , op_XXX   , op_CALL , op_XXX  , op_SBC  , op_RST18H ,
+	op_LD   , op_POP  , op_LD   , op_XXX  , op_XXX  , op_PUSH , op_AND  , op_CALL , op_ADD  , op_JP   , op_LD   , op_XXX   , op_XXX  , op_XXX  , op_XOR  , op_RST28H ,
+	op_LD   , op_POP  , op_LD   , op_DI   , op_XXX  , op_PUSH , op_OR   , op_CALL , op_LD   , op_LD   , op_LD   , op_EI    , op_XXX  , op_XXX  , op_CP   , op_RST38H
 
 };
 
@@ -291,6 +292,16 @@ void op_CPL(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	processor.SetFlag(Processor::FLAGS::N, true);
 	processor.SetFlag(Processor::FLAGS::H, true);
 }
+void op_CP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	uint8_t a = processor.GetRegister(Register::A);
+
+	std::cout << "cp instruction with val: " << source << std::endl;
+	processor.SetFlag(Processor::FLAGS::Z, a - source == 0);
+	processor.SetFlag(Processor::FLAGS::N, true);
+	processor.SetFlag(Processor::FLAGS::H, a >= 0x0F && source != 0);
+	processor.SetFlag(Processor::FLAGS::C, source > a);
+}
 
 void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
@@ -440,6 +451,29 @@ void op_JR(Processor& processor, OperandType destType, std::uint16_t dest, std::
 {
 	if (dest)
 		processor.SetRegister(Register::PC, source);
+}
+
+void op_JP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	if (dest)
+		processor.SetRegister(Register::PC, source);
+}
+
+void op_RST08H(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.ResetVector(0x08);
+}
+void op_RST18H(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.ResetVector(0x18);
+}
+void op_RST28H(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.ResetVector(0x28);
+}
+void op_RST38H(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	processor.ResetVector(0x38);
 }
 
 void op_XXX(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)

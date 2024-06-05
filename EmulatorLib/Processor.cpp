@@ -2,6 +2,10 @@
 #include "Constants.hpp"
 #include "MemoryBus.hpp"
 #include "OpCodeInfo.hpp"
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 Processor::Processor(MemoryBus* memoryBus)
 {
@@ -17,6 +21,19 @@ uint8_t Processor::read(uint16_t addr)
 void Processor::write(uint16_t addr, uint8_t value)
 {
 	_memoryBus->Write(addr, value);
+}
+
+void Processor::Push(uint16_t value)
+{
+	sp -= 2;
+	_memoryBus->Write(sp, value & 0xFF);
+	_memoryBus->Write(sp, (value & 0x00FF) >> 8);
+}
+
+void Processor::ResetVector(uint16_t address)
+{
+	Push(pc);
+	pc = address;
 }
 
 void Processor::Reset()
@@ -43,7 +60,6 @@ void Processor::interrupt()
 void Processor::PulseClock()
 {
 	_cycleCount = (_cycleCount + 1) % 0xFF;
-	_remainingCycles--;
 
 	// Cycle timer finished?
 	if (IsInstructionCompleted())
@@ -71,7 +87,7 @@ void Processor::PulseClock()
 		{
 			data = 1;
 
-			if (info.GetLeftHandOperand() != OperandType::None)
+			if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
 				data = GetOperand(info.GetLeftHandOperand());
 		}
 
@@ -82,9 +98,13 @@ void Processor::PulseClock()
 			data = ((op & 0xF0) - 0xC0) + (op & 0x08);
 		}
 
+		std::stringstream sstream;
+		sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
+		std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
 		func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
 	}
-
+	else
+		_remainingCycles--;
 }
 
 void Processor::SetRegister(Register destination, uint16_t value)
@@ -258,11 +278,19 @@ uint16_t Processor::GetOperand(OperandType operand)
 		break;
 
 	case OperandType::DataUINT16:
+	case OperandType::AddressUINT16:
 		data = fetch();
 		data |= (fetch() << 8);
 		break;
 	case OperandType::DataUINT8:
 		data = fetch();
+		break;
+	case OperandType::AddressUINT8:
+		data = 0xFF00 | fetch();
+		break;
+	case OperandType::DataINT8:
+		data = fetch();
+		data = pc + static_cast<int8_t>(data & 0xFF);
 		break;
 
 	case OperandType::FlagCarry:
