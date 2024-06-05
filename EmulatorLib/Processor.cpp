@@ -1,8 +1,7 @@
 #include "Processor.hpp"
 #include "Constants.hpp"
 #include "MemoryBus.hpp"
-
-
+#include "OpCodeInfo.hpp"
 
 Processor::Processor(MemoryBus* memoryBus)
 {
@@ -49,7 +48,7 @@ void Processor::PulseClock()
 	// Cycle timer finished?
 	if (IsInstructionCompleted())
 	{
-		OpCodeInfo& info = OpCodes[fetch()];
+		OpCodeInfo& info = OpCodeInfo::OpCodes[fetch()];
 
 		std::function<void(Processor&, OperandType, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
 
@@ -68,7 +67,7 @@ void Processor::PulseClock()
 		}
 
 		// Special case for conditionals
-		if (info.GetOpCode() == OpCode::JR)
+		if (info.GetOpCode() == OpCode::JR || info.GetOpCode() == OpCode::JP)
 		{
 			data = 1;
 
@@ -270,14 +269,14 @@ uint16_t Processor::GetOperand(OperandType operand)
 	case OperandType::FlagHalfCarry:
 	case OperandType::FlagNegative:
 	case OperandType::FlagZero:
-		data = GetFlag(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry);
+		data = GetFlag((Processor::FLAGS)(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry));
 		break;
 
 	case OperandType::FlagNotCarry:
 	case OperandType::FlagNotHalfCarry:
 	case OperandType::FlagNotNegative:
 	case OperandType::FlagNotZero:
-		data = !GetFlag(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry);
+		data = !GetFlag((Processor::FLAGS)(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry));
 		break;
 	}
 

@@ -42,7 +42,7 @@ public:
 
 	bool LeftHandOperatorIsRegister() const { return _lhs >= OperandType::Acculumator && _lhs <= OperandType::RegisterHLIndirect; }
 	bool RightHandOperatorIsRegister() const { return _rhs >= OperandType::Acculumator && _rhs <= OperandType::RegisterHLIndirect; }
-};
 
-extern OpCodeInfo OpCodes[256];
-extern OpCodeInfo OpCodesCB[256];
+	static OpCodeInfo OpCodes[256];
+	static OpCodeInfo OpCodesCB[256];
+};

@@ -18,7 +18,10 @@ void op_CCF(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_ADD(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_SUB(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_CPL(Processor&, OperandType, std::uint16_t, std::uint16_t);
-void op_CP(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_CP(Processor&, OperandType, std::uint16_t, std::uint16_t)
+{
+
+}
 void op_ADC(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
 void op_AND(Processor&, OperandType, std::uint16_t, std::uint16_t);
@@ -33,7 +36,24 @@ void op_RRA(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
 // Jumps
 void op_JR(Processor&, OperandType, std::uint16_t, std::uint16_t);
-void op_JP(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_JP(Processor&, OperandType, std::uint16_t, std::uint16_t)
+{
+
+}
+
+
+// SORT THIS!!!
+void op_CALL(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_XXX(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_SBC(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RET(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RETI(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_DAA(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_PREFIX(Processor&, OperandType, std::uint16_t, std::uint16_t)
+{
+	// TODO
+}
+
 
 std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instructions[256] =
 {
@@ -93,7 +113,7 @@ void op_SCF(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	processor.SetFlag(Processor::FLAGS::H, false);
 	processor.SetFlag(Processor::FLAGS::C, true);
 }
-void op_SCF(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+void op_CCF(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	processor.SetFlag(Processor::FLAGS::N, false);
 	processor.SetFlag(Processor::FLAGS::H, false);
@@ -274,10 +294,13 @@ void op_CPL(Processor& processor, OperandType destType, std::uint16_t dest, std:
 
 void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
+	uint16_t a = 0;
+	uint16_t hl = 0;
+	uint16_t sp = 0;
 	switch (destType)
 	{
 	case OperandType::Acculumator:
-		uint16_t a = processor.GetRegister(Register::A);
+		a = processor.GetRegister(Register::A);
 		processor.SetRegister(Register::A, (a + source) & 0xFF);
 		processor.SetFlag(Processor::FLAGS::Z, a + source == 0);
 		processor.SetFlag(Processor::FLAGS::N, false);
@@ -286,7 +309,7 @@ void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		break;
 
 	case OperandType::RegisterHL:
-		uint16_t hl = processor.GetRegister(Register::HL);
+		hl = processor.GetRegister(Register::HL);
 		processor.SetRegister(Register::HL, (hl + source) & 0xFFFF);
 		processor.SetFlag(Processor::N, false);
 		processor.SetFlag(Processor::H, (hl + source) > 0x7FFF);
@@ -294,7 +317,7 @@ void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		break;
 
 	case OperandType::Stackpointer:
-		uint16_t sp = processor.GetRegister(Register::SP);
+		sp = processor.GetRegister(Register::SP);
 		processor.SetRegister(Register::SP, (sp + (int8_t)source) & 0xFFFF);
 		processor.SetFlag(Processor::Z, false);
 		processor.SetFlag(Processor::N, false);
@@ -303,7 +326,7 @@ void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std:
 		break;
 	}
 }
-void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+void op_SUB(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	switch (destType)
 	{

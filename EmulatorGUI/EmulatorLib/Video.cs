@@ -10,12 +10,18 @@ namespace EmulatorGUI.EmulatorLib
     public class Video : ObjectBase
     {
         [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern nint video_create();
+        public static extern nint video_create(nint memorybus, nint hwnd);
 
         [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void video_delete(nint pointer);
 
-        public Video() : base(video_create())
+        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void video_clear(nint pointer);
+
+        [DllImport("EmulatorLib.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void video_present(nint pointer);
+
+        public Video(MemoryBus memoryBus, nint WindowHandle) : base(video_create(memoryBus.CPointer, WindowHandle))
         {
 
         }
@@ -24,5 +30,8 @@ namespace EmulatorGUI.EmulatorLib
         {
             video_delete(CPointer);
         }
+
+        public void Clear() => video_clear(CPointer);
+        public void Present() => video_present(CPointer);
     }
 }

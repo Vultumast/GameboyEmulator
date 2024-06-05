@@ -1,6 +1,6 @@
 #include "OpCodeInfo.hpp"
 
-OpCodeInfo OpCodes[256] =
+OpCodeInfo OpCodeInfo::OpCodes[256] =
 {
 	// 0x00 - 0x0F
 	OpCodeInfo(0x00, OpCode::NOP, 1, 4),
@@ -293,7 +293,7 @@ OpCodeInfo OpCodes[256] =
 
 
 
-OpCodeInfo OpCodesCB[256] =
+OpCodeInfo OpCodeInfo::OpCodesCB[256] =
 {
 	OpCodeInfo(0x00, OpCode::RLC, 2, 8, OperandType::RegisterB),
 	OpCodeInfo(0x01, OpCode::RLC, 2, 8, OperandType::RegisterC),
