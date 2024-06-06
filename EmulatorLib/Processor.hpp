@@ -7,13 +7,6 @@
 
 #include "Constants.hpp"
 
-enum class Interrupt : uint8_t
-{
-	VBlank = 0b00000001,
-	LCD = 0b00000010,
-	Timer = 0b00000100,
-	Joypad = 0b00001000,
-};
 
 class MemoryBus;
 
@@ -27,7 +20,7 @@ public:
 	// "Event" functions
 	void Reset();
 	void PulseClock();
-	void Interrupt(Interrupt interrupt);
+	void RequestInterrupt();
 
 	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 

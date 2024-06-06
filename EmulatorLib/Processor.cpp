@@ -102,7 +102,7 @@ void Processor::PulseClock()
 		_remainingCycles--;
 }
 
-void Processor::Interrupt(Interrupt interrupt)
+void Processor::RequestInterrupt()
 {
 
 }

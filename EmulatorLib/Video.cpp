@@ -117,9 +117,7 @@ void Video::Update(uint32_t cycles)
 		_scanlineCounter = 456;
 
 		if (currentline == 144) // V Blank?
-		{
-			// TODO: CALL INTERRUPT
-		}
+			_memoryBus->SetInterrupt(Interrupt::VBlank);
 		else if (currentline >= 153)
 			_memoryBus->Write(0xFF44, 0);
 		else
@@ -178,17 +176,13 @@ void Video::SetLCDStatus()
 	}
 
 	if (reqInt && (newMode != currentMode))
-	{
-		// TODO: req interrupt on modeswitch
-	}
+		_memoryBus->SetInterrupt(Interrupt::LCD);
 
 	if (_memoryBus->Read(0xFF45) == lcdStatus.LYCeqLY)
 	{
 		lcdStatus.LYCeqLY = true;
 		if (lcdStatus.LYCIntSelect)
-		{
-			// TODO: INTERRUPT
-		}
+			_memoryBus->SetInterrupt(Interrupt::LCD);
 	}
 	else
 		lcdStatus.LYCeqLY = false;

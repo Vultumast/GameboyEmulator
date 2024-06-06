@@ -31,6 +31,14 @@ enum class PPUMode : uint8_t
 };
 
 #pragma pack(push, 1)
+struct BackgroundDisplayInfo
+{
+	uint8_t ScrollY = 0;
+	uint8_t ScrollX = 0;
+	uint8_t WindowY = 0;
+	uint8_t WindowX = 0;
+};
+
 struct LCDControlRegister
 {
 public:

@@ -4,6 +4,15 @@
 
 #include <vector>
 
+enum class Interrupt : uint8_t
+{
+	None  = 0b00000000,
+	VBlank = 0b00000001,
+	LCD = 0b00000010,
+	Timer = 0b00000100,
+	Joypad = 0b00001000,
+};
+
 class MemoryBus
 {
 private:
@@ -17,5 +26,8 @@ public:
 	uint8_t Read(const uint16_t& address);
 
 	void WriteROM(const std::vector<uint8_t>& data);
+
+	void SetInterrupt(Interrupt interrupt, bool value);
+	Interrupt GetInterrupts();
 
 };
