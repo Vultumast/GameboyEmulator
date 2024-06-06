@@ -97,6 +97,13 @@ void Processor::PulseClock()
 		sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
 		std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
 		func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
+
+		// INTERRUPT HANDLING
+		uint8_t IE = read(0xFFFF);
+		uint8_t IF = read(0xFF0F);
+
+		if (ime && (IE & IF) != 0)
+			DoInterrupt();
 	}
 	else
 		_remainingCycles--;
@@ -104,7 +111,44 @@ void Processor::PulseClock()
 
 void Processor::DoInterrupt()
 {
+	uint8_t IE = read(0xFFFF);
+	uint8_t IF = read(0xFF0F);
+	uint8_t INTERRUPT_FLAG = IE & IF;
 
+	uint8_t handler = 0x40;
+
+	// This should be a switch statement but I couldn't think of how
+	if (INTERRUPT_FLAG & Interrupt::VBLANK)
+	{
+		handler = 0x40;
+	}
+	else if (INTERRUPT_FLAG & Interrupt::LCD)
+	{
+		handler = 0x48;
+	}
+	else if (INTERRUPT_FLAG & Interrupt::TIMER)
+	{
+		handler = 0x50;
+	}
+	else if (INTERRUPT_FLAG & Interrupt::SERIAL)
+	{
+		handler = 0x58;
+	}
+	else if (INTERRUPT_FLAG & Interrupt::JOYPAD)
+	{
+		handler = 0x60;
+	}
+
+	// di; call $00hh (copied from Instructions.cpp)
+	ime = false;
+
+	SetDestinationValue(GetRegister(Register::SP), GetRegister(Register::PC));
+	SetRegister(Register::SP, (GetRegister(Register::SP) + 2) & 0xFFFF);
+
+	SetRegister(Register::PC, handler);
+
+	// This process takes 5 M-cycles
+	_remainingCycles = 20;
 }
 
 void Processor::SetRegister(Register destination, uint16_t value)

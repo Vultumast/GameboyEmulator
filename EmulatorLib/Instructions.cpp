@@ -203,8 +203,8 @@ void op_CALL(Processor& processor, OperandType destType, std::uint16_t dest, std
 {
 	// This doesn't care about conditionals, that needs to be added
 
-	// push pc+3
-	processor.SetDestinationValue(processor.GetRegister(Register::SP), processor.GetRegister(Register::PC) + 3);
+	// push pc
+	processor.SetDestinationValue(processor.GetRegister(Register::SP), processor.GetRegister(Register::PC));
 	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) + 2) & 0xFFFF);
 
 	processor.SetRegister(Register::PC, dest);

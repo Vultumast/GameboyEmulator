@@ -196,4 +196,12 @@ enum class OperandType
 	FlagNotZero,
 };
 
-
+// Interrupt flags are in Constants.hpp instead of Processor.hpp for IRQs from external sources (eg. video)
+enum Interrupt
+{
+	VBLANK = (1 << 0),
+	LCD    = (1 << 1),
+	TIMER  = (1 << 2),
+	SERIAL = (1 << 3),
+	JOYPAD = (1 << 4),
+};
