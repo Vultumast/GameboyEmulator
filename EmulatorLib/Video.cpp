@@ -47,8 +47,8 @@ Video::Video(MemoryBus* memoryBus, HWND hwnd)
 
 
 	DXGI_SWAP_CHAIN_DESC1 swapChainDescriptor = { };
-	swapChainDescriptor.Width = 100;
-	swapChainDescriptor.Height = 100;
+	swapChainDescriptor.Width = 160;
+	swapChainDescriptor.Height = 144;
 	swapChainDescriptor.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
 	swapChainDescriptor.SampleDesc.Count = 1;
 	swapChainDescriptor.SampleDesc.Quality = 0;
@@ -94,6 +94,122 @@ Video::Video(MemoryBus* memoryBus, HWND hwnd)
 		return; // false;
 	}
 	std::cout << "[DX11] Created DX Context" << std::endl;
+}
+
+
+void Video::Update(uint32_t cycles)
+{
+	SetLCDStatus();
+
+	LCDControlRegister lcdControl = (LCDControlRegister)(unsigned char)_memoryBus->Read(0xFF40);
+
+	if (lcdControl.LCDPPUEnable)
+		_scanlineCounter -= cycles;
+	else
+		return;
+
+	if (_scanlineCounter <= 0)
+	{
+		uint8_t currentline = _memoryBus->Read(0xFF44) + 1;
+		// Inc scanline counter
+		_memoryBus->Write(0xFF44, currentline);
+
+		_scanlineCounter = 456;
+
+		if (currentline == 144) // V Blank?
+		{
+			// TODO: CALL INTERRUPT
+		}
+		else if (currentline >= 153)
+			_memoryBus->Write(0xFF44, 0);
+		else
+			DrawScanline();
+	}
+}
+
+void Video::SetLCDStatus()
+{
+	LCDStatusRegister lcdStatus = (LCDStatusRegister)(unsigned char)_memoryBus->Read(0xFF41);
+	LCDControlRegister lcdControl = (LCDControlRegister)(unsigned char)_memoryBus->Read(0xFF40);
+
+	if (!lcdControl.LCDPPUEnable)
+	{
+		_scanlineCounter = 456;
+		_memoryBus->Write(0xFF44, 0);
+		lcdStatus.PPUMode = PPUMode::WaitingForHBlank;
+		_memoryBus->Write(0xFF41, reinterpret_cast<uint8_t>(&lcdStatus));
+	}
+
+	PPUMode currentMode = lcdStatus.PPUMode;
+	PPUMode newMode = PPUMode::WaitingForHBlank;
+
+	uint8_t scanline = _memoryBus->Read(0xFF44);
+
+	bool reqInt = false;
+
+	if (scanline >= 144) // V BLANK
+	{
+		newMode = PPUMode::WaitingForVBlank;
+		lcdStatus.PPUMode = PPUMode::WaitingForVBlank;
+		reqInt = lcdStatus.Mode1IntSelect;
+	}
+	else
+	{
+		uint32_t mode2Bounds = 376;
+		uint32_t mode3Bounds = 204;
+
+		if (_scanlineCounter >= mode2Bounds)
+		{
+			newMode = PPUMode::SearchingForObjects;
+			lcdStatus.PPUMode = PPUMode::SearchingForObjects;
+			reqInt = lcdStatus.Mode2IntSelect;
+		}
+		else if (_scanlineCounter >= mode3Bounds)
+		{
+			newMode = PPUMode::SendingPixels;
+			lcdStatus.PPUMode = PPUMode::SendingPixels;
+		}
+		else
+		{
+			newMode = PPUMode::WaitingForHBlank;
+			lcdStatus.PPUMode = PPUMode::WaitingForHBlank;
+			reqInt = lcdStatus.Mode0IntSelect;
+		}
+	}
+
+	if (reqInt && (newMode != currentMode))
+	{
+		// TODO: req interrupt on modeswitch
+	}
+
+	if (_memoryBus->Read(0xFF45) == lcdStatus.LYCeqLY)
+	{
+		lcdStatus.LYCeqLY = true;
+		if (lcdStatus.LYCIntSelect)
+		{
+			// TODO: INTERRUPT
+		}
+	}
+	else
+		lcdStatus.LYCeqLY = false;
+
+	_memoryBus->Write(0xFF41, reinterpret_cast<uint8_t>(&lcdStatus));
+}
+
+void Video::DrawScanline()
+{
+	LCDControlRegister lcdControl = (LCDControlRegister)(unsigned char)_memoryBus->Read(0xFF40);
+
+	if (lcdControl.BGWindowEnablePriority)
+	{
+
+	}
+
+	if (lcdControl.ObjectsEnabled)
+	{
+
+	}
+
 }
 
 void Video::Clear()

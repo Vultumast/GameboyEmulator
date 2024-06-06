@@ -17,4 +17,5 @@ public:
 	uint8_t Read(const uint16_t& address);
 
 	void WriteROM(const std::vector<uint8_t>& data);
+
 };

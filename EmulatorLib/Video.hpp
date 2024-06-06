@@ -22,9 +22,71 @@ class MemoryBus;
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+enum class PPUMode : uint8_t
+{
+	WaitingForHBlank,
+	WaitingForVBlank,
+	SearchingForObjects,
+	SendingPixels
+};
+
+#pragma pack(push, 1)
+struct LCDControlRegister
+{
+public:
+	LCDControlRegister()
+	{
+		LCDPPUEnable = false;
+		WindowTileMapOffset = false;
+		WindowEnable = false;
+		BGWindowTileDataOffset = false;
+		BGTileMapOffset = false;
+		ObjectBigSize = false;
+		ObjectsEnabled = false;
+		BGWindowEnablePriority = false;
+	}
+
+	bool LCDPPUEnable : 1;
+	bool WindowTileMapOffset : 1;
+	bool WindowEnable : 1;
+	bool BGWindowTileDataOffset : 1;
+	bool BGTileMapOffset : 1;
+	bool ObjectBigSize : 1;
+	bool ObjectsEnabled : 1;
+	bool BGWindowEnablePriority : 1;
+};
+
+struct LCDStatusRegister
+{
+public:
+	LCDStatusRegister()
+	{
+		Unused = false;
+		LYCIntSelect = false;
+		Mode2IntSelect = false;
+		Mode1IntSelect = false;
+		Mode0IntSelect = false;
+		LYCeqLY = false;
+		PPUMode = PPUMode::WaitingForHBlank;
+	}
+
+	bool Unused : 1;
+	bool LYCIntSelect : 1;
+	bool Mode2IntSelect : 1;
+	bool Mode1IntSelect : 1;
+	bool Mode0IntSelect : 1;
+
+	bool LYCeqLY : 1;
+	PPUMode PPUMode : 2;
+};
+
+#pragma pack(pop)
+
 class Video
 {
 private:
+	int32_t _scanlineCounter = 0;
+
 	MemoryBus* _memoryBus = nullptr;
 
 	ComPtr<ID3D11Device> _dxDevice = nullptr;
@@ -39,6 +101,12 @@ private:
 
 public:
 	Video(MemoryBus* memoryBus, HWND hwnd);
+
+	void Update(uint32_t cycles);
+
+	void SetLCDStatus();
+
+	void DrawScanline();
 
 	void Clear();
 

@@ -52,11 +52,6 @@ void Processor::Reset()
 	l = 0x4D;
 }
 
-void Processor::interrupt()
-{
-	// TODO
-}
-
 void Processor::PulseClock()
 {
 	_cycleCount = (_cycleCount + 1) % 0xFF;
@@ -105,6 +100,11 @@ void Processor::PulseClock()
 	}
 	else
 		_remainingCycles--;
+}
+
+void Processor::Interrupt(Interrupt interrupt)
+{
+
 }
 
 void Processor::SetRegister(Register destination, uint16_t value)
