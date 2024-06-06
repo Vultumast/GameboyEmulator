@@ -20,7 +20,7 @@ public:
 	// "Event" functions
 	void Reset();
 	void PulseClock();
-	void RequestInterrupt();
+	void DoInterrupt();
 
 	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 

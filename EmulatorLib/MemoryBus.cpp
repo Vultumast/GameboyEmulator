@@ -60,14 +60,9 @@ void MemoryBus::WriteROM(const std::vector<uint8_t>& data)
 		std::cout << "Rom data was outside of expected range." << std::endl;
 }
 
-void MemoryBus::SetInterrupt(Interrupt interrupt, bool value)
+void MemoryBus::RequestInterrupt(Interrupt interrupt)
 {
-	uint8_t currentInterrupt = (_ram[0xFF0F] & (uint8_t)interrupt);
-
-	if (value)
-		currentInterrupt |= (uint8_t)interrupt;
-
-	_ram[0xFF0F] = currentInterrupt;
+	_ram[0xFF0F] |= (uint8_t)interrupt;
 }
 Interrupt MemoryBus::GetInterrupts()
 {

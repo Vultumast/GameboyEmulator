@@ -27,7 +27,7 @@ public:
 
 	void WriteROM(const std::vector<uint8_t>& data);
 
-	void SetInterrupt(Interrupt interrupt, bool value);
+	void RequestInterrupt(Interrupt interrupt);
 	Interrupt GetInterrupts();
 
 };
