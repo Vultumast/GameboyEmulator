@@ -23,16 +23,23 @@ void Processor::write(uint16_t addr, uint8_t value)
 	_memoryBus->Write(addr, value);
 }
 
-void Processor::Push(uint16_t value)
+void Processor::StackPush(uint16_t value)
 {
 	sp -= 2;
-	_memoryBus->Write(sp, value & 0xFF);
-	_memoryBus->Write(sp, (value & 0x00FF) >> 8);
+	_memoryBus->Write(sp + 2, value & 0xFF);
+	_memoryBus->Write(sp + 1, (value & 0x00FF) >> 8);
+}
+
+uint16_t Processor::StackPop()
+{
+	sp += 2;
+	uint16_t returnValue = _memoryBus->Read(sp - 2);
+	returnValue |= (_memoryBus->Read(sp - 1) << 8);
 }
 
 void Processor::ResetVector(uint16_t address)
 {
-	Push(pc);
+	StackPush(pc);
 	pc = address;
 }
 
@@ -59,96 +66,67 @@ void Processor::PulseClock()
 	// Cycle timer finished?
 	if (IsInstructionCompleted())
 	{
-		OpCodeInfo& info = OpCodeInfo::OpCodes[fetch()];
-
-		std::function<void(Processor&, OperandType, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
-
-		uint16_t data = 0;
-		switch (info.GetLeftHandOperand())
+		Interrupt reqInterrupts = _memoryBus->GetInterrupts();
+		// Service all pending interrupts first
+		if (InterruptMasterEnable && (_memoryBus->Read(Addr_InterruptEnableRegister) != 0 && reqInterrupts != 0))
 		{
-		case OperandType::DataUINT8:
-		case OperandType::AddressUINT8:
-			data = fetch();
-			break;
-		case OperandType::DataUINT16:
-		case OperandType::AddressUINT16:
-			data = fetch();
-			data |= (fetch() << 8);
-			break;
-		}
+			for (uint8_t i = 0; i <= Interrupt::JOYPAD; i++)
+			{
+				uint8_t interrupt = reqInterrupts & i;
+				
+				if (interrupt == 0)
+					continue;
 
-		// Special case for conditionals
-		if (info.GetOpCode() == OpCode::JR || info.GetOpCode() == OpCode::JP)
+				serviceInterrupt((Interrupt)interrupt);
+				break;
+			}
+		}
+		else
 		{
-			data = 1;
+			// Normal Execution
 
-			if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
-				data = GetOperand(info.GetLeftHandOperand());
+			OpCodeInfo& info = OpCodeInfo::OpCodes[fetch()];
+
+			std::function<void(Processor&, OperandType, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
+
+			uint16_t data = 0;
+			switch (info.GetLeftHandOperand())
+			{
+			case OperandType::DataUINT8:
+			case OperandType::AddressUINT8:
+				data = fetch();
+				break;
+			case OperandType::DataUINT16:
+			case OperandType::AddressUINT16:
+				data = fetch();
+				data |= (fetch() << 8);
+				break;
+			}
+
+			// Special case for conditionals
+			if (info.GetOpCode() == OpCode::JR || info.GetOpCode() == OpCode::JP)
+			{
+				data = 1;
+
+				if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
+					data = GetOperand(info.GetLeftHandOperand());
+			}
+
+			// Special case for RST instructions
+			if ((info.GetHexCode() & 0xC7) == 0xC7)
+			{
+				uint8_t op = info.GetHexCode();
+				data = ((op & 0xF0) - 0xC0) + (op & 0x08);
+			}
+
+			std::stringstream sstream;
+			sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
+			std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
+			func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
 		}
-
-		// Special case for RST instructions
-		if ((info.GetHexCode() & 0xC7) == 0xC7)
-		{
-			uint8_t op = info.GetHexCode();
-			data = ((op & 0xF0) - 0xC0) + (op & 0x08);
-		}
-
-		std::stringstream sstream;
-		sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
-		std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
-		func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
-
-		// INTERRUPT HANDLING
-		uint8_t IE = read(0xFFFF);
-		uint8_t IF = read(0xFF0F);
-
-		if (ime && (IE & IF) != 0)
-			DoInterrupt();
 	}
 	else
 		_remainingCycles--;
-}
-
-void Processor::DoInterrupt()
-{
-	uint8_t IE = read(0xFFFF);
-	uint8_t IF = read(0xFF0F);
-	uint8_t INTERRUPT_FLAG = IE & IF;
-
-	uint8_t handler = 0x40;
-
-	// This should be a switch statement but I couldn't think of how
-	if (INTERRUPT_FLAG & Interrupt::VBLANK)
-	{
-		handler = 0x40;
-	}
-	else if (INTERRUPT_FLAG & Interrupt::LCD)
-	{
-		handler = 0x48;
-	}
-	else if (INTERRUPT_FLAG & Interrupt::TIMER)
-	{
-		handler = 0x50;
-	}
-	else if (INTERRUPT_FLAG & Interrupt::SERIAL)
-	{
-		handler = 0x58;
-	}
-	else if (INTERRUPT_FLAG & Interrupt::JOYPAD)
-	{
-		handler = 0x60;
-	}
-
-	// di; call $00hh (copied from Instructions.cpp)
-	ime = false;
-
-	SetDestinationValue(GetRegister(Register::SP), GetRegister(Register::PC));
-	SetRegister(Register::SP, (GetRegister(Register::SP) + 2) & 0xFFFF);
-
-	SetRegister(Register::PC, handler);
-
-	// This process takes 5 M-cycles
-	_remainingCycles = 20;
 }
 
 void Processor::SetRegister(Register destination, uint16_t value)
@@ -360,4 +338,38 @@ uint8_t Processor::fetch()
 	uint8_t value = _memoryBus->Read(pc);
 	pc = (pc + 1) & 0xFFFF;
 	return value;
+}
+void Processor::serviceInterrupt(Interrupt interrupt)
+{
+	uint8_t handler = 0x40;
+
+	switch (interrupt)
+	{
+	case VBLANK:
+		handler = 0x40;
+		break;
+	case LCD:
+		handler = 0x48;
+		break;
+	case TIMER:
+		handler = 0x50;
+		break;
+	case SERIAL:
+		handler = 0x58;
+		break;
+	case JOYPAD:
+		handler = 0x60;
+		break;
+	}
+
+	// di; call $00hh (copied from Instructions.cpp)
+	InterruptMasterEnable = false;
+
+	SetDestinationValue(GetRegister(Register::SP), GetRegister(Register::PC));
+	SetRegister(Register::SP, (GetRegister(Register::SP) + 2) & 0xFFFF);
+
+	SetRegister(Register::PC, handler);
+
+	_remainingCycles = 20;
+	_memoryBus->Write(Addr_InterruptFlags, (uint8_t)_memoryBus->Read(Addr_InterruptFlags) & ~(1 << interrupt)); // Reset Serviced Interrupt
 }

@@ -15,13 +15,21 @@ class Processor
 public:
 	Processor(MemoryBus* memoryBus);
 
-	bool ime = false; // This should be private but it's never gonna get accessed outside the CPU anyway (hopefully)
+	bool InterruptMasterEnable = false;
 
 	// "Event" functions
-	void Reset();
-	void PulseClock();
-	void DoInterrupt();
 
+	/// <summary>
+	/// Resets the CPU, resetting all registers to what they were at boot
+	/// </summary>
+	void Reset();
+
+	void PulseClock();
+
+	/// <summary>
+	/// Has the current underlying instruction completed it's clock cycles?
+	/// </summary>
+	/// <returns></returns>
 	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 
 	void SetRegister(Register destination, uint16_t value);
@@ -50,16 +58,23 @@ public:
 	void write(uint16_t addr, uint8_t value);
 
 	/// <summary>
-	/// Pushes a value onto the stack and moves it back
+	/// Pushes a value onto the stack and decrements the stack pointer by 2
 	/// </summary>
 	/// <param name="value"></param>
-	void Push(uint16_t value);
+	void StackPush(uint16_t value);
+
+	/// <summary>
+	/// Pops a value off of the stack and increments the stack pointer by 2
+	/// </summary>
+	/// <returns></returns>
+	uint16_t StackPop();
 
 	/// <summary>
 	/// Stops current execution, pushing program counter to the stack and then jumping execution to the given address
 	/// </summary>
 	/// <param name="address"></param>
 	void ResetVector(uint16_t address);
+
 private:
 	// Registers
 	uint8_t a = 0x00;
@@ -79,7 +94,16 @@ private:
 	uint8_t _remainingCycles = 4;
 	uint8_t _cycleCount = 0;
 
+	/// <summary>
+	/// Fetches a byte from the address of the program counter and increments it by 1 (or resets if it's overflowing)
+	/// </summary>
+	/// <returns></returns>
 	uint8_t fetch();
+
+	/// <summary>
+	/// Services and performs underlying interrupts
+	/// </summary>
+	void serviceInterrupt(Interrupt interrupt);
 };
 
 extern std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t) > Instructions[256];

@@ -23,7 +23,7 @@ constexpr std::uint16_t Addr_IORegisters_End = 0xFF7F;
 constexpr std::uint16_t Addr_HRAM_Start = 0xFF80;
 constexpr std::uint16_t Addr_HRAM_End = 0xFFFE;
 
-constexpr std::uint16_t Addr_InterruptRegister = 0xFFFF;
+constexpr std::uint16_t Addr_InterruptEnableRegister = 0xFFFF;
 
 
 
@@ -34,6 +34,8 @@ constexpr std::uint16_t Reg_SerialTransfer_End = 0xFF02;
 
 constexpr std::uint16_t Reg_Timer_Start = 0xFF04;
 constexpr std::uint16_t Reg_Timer_End = 0xFF07;
+
+constexpr std::uint16_t Addr_InterruptFlags = 0xFF0F;
 
 constexpr std::uint16_t Reg_Audio_Start = 0xFF10;
 constexpr std::uint16_t Reg_Audio_End = 0xFF26;
@@ -196,8 +198,7 @@ enum class OperandType
 	FlagNotZero,
 };
 
-// Interrupt flags are in Constants.hpp instead of Processor.hpp for IRQs from external sources (eg. video)
-enum Interrupt
+enum Interrupt : uint8_t
 {
 	VBLANK = (1 << 0),
 	LCD    = (1 << 1),
@@ -205,3 +206,4 @@ enum Interrupt
 	SERIAL = (1 << 3),
 	JOYPAD = (1 << 4),
 };
+

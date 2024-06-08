@@ -4,15 +4,6 @@
 
 #include <vector>
 
-enum class Interrupt : uint8_t
-{
-	None  = 0b00000000,
-	VBlank = 0b00000001,
-	LCD = 0b00000010,
-	Timer = 0b00000100,
-	Joypad = 0b00001000,
-};
-
 class MemoryBus
 {
 private:
@@ -29,5 +20,4 @@ public:
 
 	void RequestInterrupt(Interrupt interrupt);
 	Interrupt GetInterrupts();
-
 };

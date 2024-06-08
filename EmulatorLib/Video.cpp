@@ -117,7 +117,7 @@ void Video::Update(uint32_t cycles)
 		_scanlineCounter = 456;
 
 		if (currentline == 144) // V Blank?
-			_memoryBus->RequestInterrupt(Interrupt::VBlank);
+			_memoryBus->RequestInterrupt(Interrupt::VBLANK);
 		else if (currentline >= 153)
 			_memoryBus->Write(0xFF44, 0);
 		else
@@ -209,6 +209,7 @@ void Video::DrawScanline()
 
 	}
 
+	_memoryBus->RequestInterrupt(Interrupt::LCD);
 }
 
 void Video::Clear()
