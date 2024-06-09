@@ -12,7 +12,7 @@ namespace EmulatorGUI.EmulatorLib
 
         [LibraryImport("EmulatorLib.dll")]
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
-        private static partial nint memorybus_create();
+        private static partial nint memorybus_create(nint rompointer);
 
 
         [LibraryImport("EmulatorLib.dll")]
@@ -37,7 +37,7 @@ namespace EmulatorGUI.EmulatorLib
 
 
 
-        public MemoryBus() : base(memorybus_create())
+        public MemoryBus(RomInfo romInfo) : base(memorybus_create(romInfo.CPointer))
         {
 
         }

@@ -1,13 +1,16 @@
 #include "RomInfo.hpp"
 
-RomInfo::RomInfo(MemoryBus* memoryBus)
-{
-	if (memoryBus == nullptr)
-		return;
+#include <iostream>
 
+ROMInfo::ROMInfo(uint8_t* rom, uint32_t size)
+{
+	_rom = new uint8_t[size];
+	std::memcpy(_rom, rom, size);
+
+	std::cout << "creating rom with size: " << size << std::endl;
 	for (uint16_t i = 0x0134; i < 0x143; i++)
 	{
-		char c = (char)memoryBus->Read(i);
+		char c = (char)_rom[i];
 
 		if (c == 0x00)
 			break;
@@ -15,10 +18,10 @@ RomInfo::RomInfo(MemoryBus* memoryBus)
 		_gameName += c;
 	}
 
-	_cartType = memoryBus->Read(0x147);
+	_cartType = _rom[0x147];
 
-	_romSize = 32000 << memoryBus->Read(0x148);
-	switch (memoryBus->Read(0x148))
+	_romSize = 32000 << _rom[0x148];
+	switch (_rom[0x148])
 	{
 	case 0x01:
 		_ramSize = 2000;
@@ -39,30 +42,38 @@ RomInfo::RomInfo(MemoryBus* memoryBus)
 		_ramSize = 0x00;
 		break;
 	}
-	_ramSize = 32000 << memoryBus->Read(0x148);
+	_ramSize = 32000 << _rom[0x148];
 
-	_revision = memoryBus->Read(0x14C);
+	_revision = _rom[0x14C];
+}
+ROMInfo::~ROMInfo()
+{
+	if (_rom != nullptr)
+		delete _rom;
+
+	_rom = nullptr;
+	size = 0;
 }
 
-const std::string& RomInfo::GetGameName() const
+const std::string& ROMInfo::GetGameName() const
 {
 	return _gameName;
 }
-uint8_t RomInfo::GetRevision() const
+uint8_t ROMInfo::GetRevision() const
 {
 	return _revision;
 }
 
-uint8_t RomInfo::GetRawCartridgeType() const
+uint8_t ROMInfo::GetRawCartridgeType() const
 {
 	return _cartType;
 }
 
-CartridgeType RomInfo::GetCartridgeType() const
+CartridgeType ROMInfo::GetCartridgeType() const
 {
 	return (CartridgeType)_cartType;
 }
-MapperType RomInfo::GetMapperType() const
+MapperType ROMInfo::GetMapperType() const
 {
 	switch ((CartridgeType)_cartType)
 	{
@@ -118,7 +129,7 @@ MapperType RomInfo::GetMapperType() const
 	}
 }
 
-bool RomInfo::HasRAM() const
+bool ROMInfo::HasRAM() const
 {
 	switch ((CartridgeType)_cartType)
 	{
@@ -155,7 +166,7 @@ bool RomInfo::HasRAM() const
 		return true;
 	}
 }
-bool RomInfo::HasBattery() const
+bool ROMInfo::HasBattery() const
 {
 	switch ((CartridgeType)_cartType)
 	{
@@ -191,7 +202,7 @@ bool RomInfo::HasBattery() const
 		return true;
 	}
 }
-bool RomInfo::HasRumble() const
+bool ROMInfo::HasRumble() const
 {
 	switch ((CartridgeType)_cartType)
 	{
@@ -228,11 +239,19 @@ bool RomInfo::HasRumble() const
 	}
 }
 
-uint32_t RomInfo::GetROMSize() const
+uint32_t ROMInfo::GetROMSize() const
 {
 	return _romSize;
 }
-uint32_t RomInfo::GetRAMSize() const
+uint32_t ROMInfo::GetRAMSize() const
 {
 	return _ramSize;
+}
+
+uint8_t ROMInfo::Read(uint32_t address) const
+{
+	if (_rom == nullptr || address >= _romSize)
+		return 0xFF;
+
+	return _rom[address];
 }

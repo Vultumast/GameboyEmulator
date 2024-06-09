@@ -53,15 +53,14 @@ public:
 		ObjectsEnabled = false;
 		BGWindowEnablePriority = false;
 	}
-
-	bool LCDPPUEnable : 1;
-	bool WindowTileMapOffset : 1;
-	bool WindowEnable : 1;
-	bool BGWindowTileDataOffset : 1;
-	bool BGTileMapOffset : 1;
-	bool ObjectBigSize : 1;
-	bool ObjectsEnabled : 1;
 	bool BGWindowEnablePriority : 1;
+	bool ObjectsEnabled : 1;
+	bool ObjectBigSize : 1;
+	bool BGTileMapOffset : 1;
+	bool BGWindowTileDataOffset : 1;
+	bool WindowEnable : 1;
+	bool WindowTileMapOffset : 1;
+	bool LCDPPUEnable : 1;
 };
 
 struct LCDStatusRegister
@@ -77,15 +76,13 @@ public:
 		LYCeqLY = false;
 		PPUMode = PPUMode::WaitingForHBlank;
 	}
-
-	bool Unused : 1;
-	bool LYCIntSelect : 1;
-	bool Mode2IntSelect : 1;
-	bool Mode1IntSelect : 1;
-	bool Mode0IntSelect : 1;
-
-	bool LYCeqLY : 1;
 	PPUMode PPUMode : 2;
+	bool LYCeqLY : 1;
+	bool Mode0IntSelect : 1;
+	bool Mode1IntSelect : 1;
+	bool Mode2IntSelect : 1;
+	bool LYCIntSelect : 1;
+	bool Unused : 1;
 };
 
 #pragma pack(pop)

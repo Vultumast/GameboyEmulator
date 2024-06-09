@@ -108,11 +108,8 @@ void Video::Update(uint32_t cycles)
 	else
 		return;
 
-
-
 	if (_scanlineCounter <= 0)
 	{
-		std::cout << "scanlinecounter out" << std::endl;
 		uint8_t currentline = _memoryBus->Read(HardwareRegister::LY) + 1;
 		// Inc scanline counter
 		_memoryBus->Write(HardwareRegister::LY, currentline);
@@ -198,7 +195,7 @@ void Video::SetLCDStatus()
 
 void Video::DrawScanline()
 {
-	std::cout << "draw scanline" << std::endl;
+	// std::cout << "drawing curr scanline: " << _memoryBus->Read(HardwareRegister::LY) << std::endl;
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
 
 	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);

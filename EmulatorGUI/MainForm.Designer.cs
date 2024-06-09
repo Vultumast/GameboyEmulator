@@ -31,7 +31,6 @@
             viewPanel = new Panel();
             button1 = new Button();
             button2 = new Button();
-            button3 = new Button();
             registerAFNumericUpDown = new NumericUpDown();
             registerBCNumericUpDown = new NumericUpDown();
             registerDENumericUpDown = new NumericUpDown();
@@ -50,6 +49,10 @@
             registerFNumericUpDown = new NumericUpDown();
             button4 = new Button();
             rawPanel = new Panel();
+            checkAddressNumericUpDown = new NumericUpDown();
+            checkAddressButton = new Button();
+            addressLabel = new Label();
+            button5 = new Button();
             ((System.ComponentModel.ISupportInitialize)registerAFNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)registerBCNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)registerDENumericUpDown).BeginInit();
@@ -58,6 +61,7 @@
             ((System.ComponentModel.ISupportInitialize)registerPCNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)registerANumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)registerFNumericUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
             SuspendLayout();
             // 
             // viewPanel
@@ -86,16 +90,6 @@
             button2.Text = "clear -> present";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
-            // 
-            // button3
-            // 
-            button3.Location = new Point(356, 92);
-            button3.Name = "button3";
-            button3.Size = new Size(121, 23);
-            button3.TabIndex = 3;
-            button3.Text = "read ROM";
-            button3.UseVisualStyleBackColor = true;
-            button3.Click += button3_Click;
             // 
             // registerAFNumericUpDown
             // 
@@ -245,7 +239,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(523, 79);
+            button4.Location = new Point(639, 233);
             button4.Name = "button4";
             button4.Size = new Size(149, 23);
             button4.TabIndex = 20;
@@ -261,11 +255,53 @@
             rawPanel.TabIndex = 21;
             rawPanel.Paint += rawPanel_Paint;
             // 
+            // checkAddressNumericUpDown
+            // 
+            checkAddressNumericUpDown.Hexadecimal = true;
+            checkAddressNumericUpDown.Location = new Point(533, 63);
+            checkAddressNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+            checkAddressNumericUpDown.Name = "checkAddressNumericUpDown";
+            checkAddressNumericUpDown.Size = new Size(120, 23);
+            checkAddressNumericUpDown.TabIndex = 22;
+            // 
+            // checkAddressButton
+            // 
+            checkAddressButton.Location = new Point(659, 63);
+            checkAddressButton.Name = "checkAddressButton";
+            checkAddressButton.Size = new Size(66, 23);
+            checkAddressButton.TabIndex = 23;
+            checkAddressButton.Text = "check";
+            checkAddressButton.UseVisualStyleBackColor = true;
+            checkAddressButton.Click += checkAddressButton_Click;
+            // 
+            // addressLabel
+            // 
+            addressLabel.AutoSize = true;
+            addressLabel.Location = new Point(533, 89);
+            addressLabel.Name = "addressLabel";
+            addressLabel.Size = new Size(65, 15);
+            addressLabel.TabIndex = 24;
+            addressLabel.Text = "Value: 0x00";
+            // 
+            // button5
+            // 
+            button5.Location = new Point(231, 306);
+            button5.Name = "button5";
+            button5.Size = new Size(66, 23);
+            button5.TabIndex = 25;
+            button5.Text = "check";
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(button5);
+            Controls.Add(addressLabel);
+            Controls.Add(checkAddressButton);
+            Controls.Add(checkAddressNumericUpDown);
             Controls.Add(rawPanel);
             Controls.Add(button4);
             Controls.Add(registerFNumericUpDown);
@@ -284,7 +320,6 @@
             Controls.Add(registerDENumericUpDown);
             Controls.Add(registerBCNumericUpDown);
             Controls.Add(registerAFNumericUpDown);
-            Controls.Add(button3);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(viewPanel);
@@ -299,6 +334,7 @@
             ((System.ComponentModel.ISupportInitialize)registerPCNumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)registerANumericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)registerFNumericUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -308,7 +344,6 @@
         private Panel viewPanel;
         private Button button1;
         private Button button2;
-        private Button button3;
         private NumericUpDown registerAFNumericUpDown;
         private NumericUpDown registerBCNumericUpDown;
         private NumericUpDown registerDENumericUpDown;
@@ -327,5 +362,9 @@
         private NumericUpDown registerFNumericUpDown;
         private Button button4;
         private Panel rawPanel;
+        private NumericUpDown checkAddressNumericUpDown;
+        private Button checkAddressButton;
+        private Label addressLabel;
+        private Button button5;
     }
 }

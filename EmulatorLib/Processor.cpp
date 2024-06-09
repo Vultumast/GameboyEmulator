@@ -112,9 +112,9 @@ void Processor::PulseClock()
 
 			_remainingCycles = info.GetCycleLengthMin();
 
-			std::stringstream sstream;
-			sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
-			std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
+			//std::stringstream sstream;
+			//sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
+			//std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
 			func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
 		}
 	}
@@ -149,19 +149,19 @@ void Processor::SetRegister(Register destination, uint16_t value)
 		l = value & 0xFF;
 		break;
 	case Register::AF:
-		a = value & 0xFF >> 8;
+		a = value & (0xFF >> 8);
 		f = value & 0xFF;
 		break;
 	case Register::BC:
-		b = value & 0xFF >> 8;
+		b = value & (0xFF >> 8);
 		c = value & 0xFF;
 		break;
 	case Register::DE:
-		d = value & 0xFF >> 8;
+		d = value & (0xFF >> 8);
 		e = value & 0xFF;
 		break;
 	case Register::HL:
-		h = value & 0xFF >> 8;
+		h = value & (0xFF >> 8);
 		l = value & 0xFF;
 		break;
 	case Register::SP:
@@ -253,6 +253,7 @@ void Processor::SetDestinationValue(uint16_t destination, uint16_t source, bool 
 uint16_t Processor::GetOperand(OperandType operand)
 {
 	uint16_t data = 0;
+	uint16_t addr = 0;
 
 	switch (operand)
 	{
@@ -294,15 +295,19 @@ uint16_t Processor::GetOperand(OperandType operand)
 		break;
 
 	case OperandType::DataUINT16:
-	case OperandType::AddressUINT16:
 		data = fetch();
 		data |= (fetch() << 8);
+		break;
+	case OperandType::AddressUINT16:
+		addr = fetch();
+		addr |= (fetch() << 8);
+		data = _memoryBus->Read(addr);
 		break;
 	case OperandType::DataUINT8:
 		data = fetch();
 		break;
 	case OperandType::AddressUINT8:
-		data = 0xFF00 | fetch();
+		data = _memoryBus->Read(0xFF00 + fetch());
 		break;
 	case OperandType::DataINT8:
 		data = fetch();
@@ -310,17 +315,29 @@ uint16_t Processor::GetOperand(OperandType operand)
 		break;
 
 	case OperandType::FlagCarry:
+		data = GetFlag(Processor::FLAGS::C);
+		break;
 	case OperandType::FlagHalfCarry:
+		data = GetFlag(Processor::FLAGS::H);
+		break;
 	case OperandType::FlagNegative:
+		data = GetFlag(Processor::FLAGS::N);
+		break;
 	case OperandType::FlagZero:
-		data = GetFlag((Processor::FLAGS)(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry));
+		data = GetFlag(Processor::FLAGS::Z);
 		break;
 
 	case OperandType::FlagNotCarry:
+		data = !GetFlag(Processor::FLAGS::C);
+		break;
 	case OperandType::FlagNotHalfCarry:
+		data = !GetFlag(Processor::FLAGS::H);
+		break;
 	case OperandType::FlagNotNegative:
+		data = !GetFlag(Processor::FLAGS::N);
+		break;
 	case OperandType::FlagNotZero:
-		data = !GetFlag((Processor::FLAGS)(((uint16_t)operand) - (uint16_t)OperandType::FlagCarry));
+		data = !GetFlag(Processor::FLAGS::Z);
 		break;
 	}
 

@@ -1,4 +1,5 @@
 using EmulatorGUI.EmulatorLib;
+using System.Diagnostics;
 
 namespace EmulatorGUI
 {
@@ -8,14 +9,20 @@ namespace EmulatorGUI
         {
             InitializeComponent();
         }
+        RomInfo? info = null;
 
-        MemoryBus bus = new();
+        MemoryBus? bus = null;
         Processor? processor = null;
         Video? video = null;
 
 
         private void button1_Click(object sender, EventArgs e)
         {
+            info = new RomInfo(File.ReadAllBytes("rom.gb"));
+
+            
+            bus = new MemoryBus(info);
+
             processor = new Processor(bus);
             video = new Video(bus, viewPanel.Handle);
             processor.Reset();
@@ -27,24 +34,6 @@ namespace EmulatorGUI
             video.Present();
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            byte[] data = File.ReadAllBytes("rom.gb");
-
-            RomInfo rom = new(data);
-
-            //byte[] bank0Data = new byte[0x4000];
-
-            //Array.Copy(data, bank0Data, bank0Data.Length);
-
-            //var value = bus.Read(0);
-            //bus.WriteROM(bank0Data);
-
-            for (ushort i = 0; i < 0x8000; i++)
-                bus.Write(i, data[i]);
-
-            Console.WriteLine($"\"{rom.GameName}\"");
-        }
 
         private void refreshRegistersButton_Click(object sender, EventArgs e)
         {
@@ -75,46 +64,58 @@ namespace EmulatorGUI
 
         private void button4_Click(object sender, EventArgs e)
         {
+
+            int maxCycles = 69905;
+
+
+
+
             loopTimer = new System.Timers.Timer();
-            loopTimer.Interval = 16;
+            loopTimer.Interval = 1;
             loopTimer.Elapsed += LoopTimer_Elapsed;
-            loopTimer.AutoReset = true;
+            loopTimer.AutoReset = false;
             loopTimer.Enabled = true;
         }
 
         byte cyclesThisUpdate = 0;
         private void LoopTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
+            Stopwatch watch = new Stopwatch();
 
-            int maxCycles = 69905;
+            int blah = 0;
 
-            processor.PulseClock();
-            this.Invoke(new MethodInvoker(delegate
+            while (true)
             {
-                registerANumericUpDown.Value = processor.GetRegister(Register.A);
-                registerFNumericUpDown.Value = (processor.GetRegister(Register.AF) & 0x0F);
+                processor.PulseClock();
+                /* this.Invoke(new MethodInvoker(delegate
+                {
+                    registerANumericUpDown.Value = processor.GetRegister(Register.A);
+                    registerFNumericUpDown.Value = (processor.GetRegister(Register.AF) & 0x0F);
 
-                registerAFNumericUpDown.Value = processor.GetRegister(Register.AF);
-                registerBCNumericUpDown.Value = processor.GetRegister(Register.BC);
-                registerDENumericUpDown.Value = processor.GetRegister(Register.DE);
-                registerHLNumericUpDown.Value = processor.GetRegister(Register.HL);
-                registerSPNumericUpDown.Value = processor.GetRegister(Register.SP);
-                registerPCNumericUpDown.Value = processor.GetRegister(Register.PC);
-            }));
+                    registerAFNumericUpDown.Value = processor.GetRegister(Register.AF);
+                    registerBCNumericUpDown.Value = processor.GetRegister(Register.BC);
+                    registerDENumericUpDown.Value = processor.GetRegister(Register.DE);
+                    registerHLNumericUpDown.Value = processor.GetRegister(Register.HL);
+                    registerSPNumericUpDown.Value = processor.GetRegister(Register.SP);
+                    registerPCNumericUpDown.Value = processor.GetRegister(Register.PC);
+                }));
+                */
 
+                var remainingCycles = processor.RemainingCycles;
 
-            var remainingCycles = processor.RemainingCycles;
+                if (remainingCycles == 0)
+                {
+                    blah++;
+                    video.Update(cyclesThisUpdate);
 
-            if (remainingCycles == 0)
-            {
-                // Console.WriteLine($"updating video cycles: {cyclesThisUpdate}");
-                video.Update(cyclesThisUpdate);
+                    cyclesThisUpdate = 0;
+                    //Console.WriteLine($"lines draw: {blah}");
+                    rawPanel.Invalidate();
+                }
+                else
+                    cyclesThisUpdate++;
 
-                cyclesThisUpdate = 0;
             }
-            else
-                cyclesThisUpdate++;
-            rawPanel.Invalidate();
         }
 
         private void rawPanel_Paint(object sender, PaintEventArgs e)
@@ -136,6 +137,16 @@ namespace EmulatorGUI
                 }
             }
 
+        }
+
+        private void checkAddressButton_Click(object sender, EventArgs e)
+        {
+            addressLabel.Text = $"Value: 0x{(bus.Read((ushort)checkAddressNumericUpDown.Value)).ToString("X")}";
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            rawPanel.Invalidate();
         }
     }
 }

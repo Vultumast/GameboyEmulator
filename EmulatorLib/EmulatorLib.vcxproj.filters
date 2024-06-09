@@ -16,6 +16,12 @@
     <Filter Include="Header Files\Types">
       <UniqueIdentifier>{d1dac28d-7885-4d92-a7b9-6a542ee1794f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Mappers">
+      <UniqueIdentifier>{c3aba1bb-f379-4252-80ff-ac7d81386781}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mappers">
+      <UniqueIdentifier>{7da0312d-0b76-4def-8a2b-6732b8d74952}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp">
@@ -36,10 +42,16 @@
     <ClInclude Include="Emulator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RomInfo.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="JoypadInfo.hpp">
+      <Filter>Header Files\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="MapperImpl.hpp">
+      <Filter>Header Files\Mappers</Filter>
+    </ClInclude>
+    <ClInclude Include="MBC1.hpp">
+      <Filter>Header Files\Mappers</Filter>
+    </ClInclude>
+    <ClInclude Include="ROMInfo.hpp">
       <Filter>Header Files\Types</Filter>
     </ClInclude>
   </ItemGroup>
@@ -67,6 +79,9 @@
     </ClCompile>
     <ClCompile Include="RomInfo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MBC1.cpp">
+      <Filter>Source Files\Mappers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

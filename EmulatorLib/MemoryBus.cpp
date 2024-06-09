@@ -1,7 +1,27 @@
 #include "MemoryBus.hpp";
+#include "ROMInfo.hpp"
+#include "MapperImpl.hpp"
+#include "MBC1.hpp"
+
 #include <algorithm>
 #include <iostream>
 
+MemoryBus::MemoryBus(ROMInfo* rom)
+{
+	_rom = rom;
+
+	switch (rom->GetMapperType())
+	{
+	case MapperType::MBC1:
+		_mapper = new MBC1Mapper(rom);
+		break;
+	}
+}
+MemoryBus::~MemoryBus()
+{
+	if (_mapper != nullptr)
+		delete _mapper;
+}
 void MemoryBus::Randomize()
 {
 	for (auto i = 0; i < 0x10000; i++)
@@ -89,8 +109,13 @@ void MemoryBus::Write(const std::uint16_t& address, const std::uint8_t& value)
 	if (!IsAddressMapped(address))
 		return;
 
-	std::uint16_t realAddress = address;
+	if (address <= 0x7FFF)
+	{
+		if (_mapper != nullptr)
+			return _mapper->Write(address, value);
+	}
 
+	std::uint16_t realAddress = address;
 	if (realAddress >= Addr_ERAM_Start && realAddress <= Addr_ERAM_End)
 		realAddress -= 0x2000;
 
@@ -101,6 +126,14 @@ std::uint8_t MemoryBus::Read(const std::uint16_t& address)
 {
 	if (!IsAddressMapped(address))
 		return 0xFF;
+
+	if (address <= 0x7FFF)
+	{
+		if (_mapper != nullptr)
+			return _mapper->Read(address);
+		if (_rom != nullptr)
+			return _rom->Read(address);
+	}
 
 	std::uint16_t realAddress = address;
 	if (realAddress >= Addr_ERAM_Start && realAddress <= Addr_ERAM_End)

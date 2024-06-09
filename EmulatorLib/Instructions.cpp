@@ -164,10 +164,12 @@ void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 
 	case OperandType::IncrementHL:
-		processor.SetDestinationValue(processor.GetRegister(Register::HL), (source + 1) & 0xFFFF);
+		processor.SetDestinationValue(processor.GetRegister(Register::HL), source);
+		processor.SetRegister(Register::HL, (processor.GetRegister(Register::HL) + 1) % 0xFFFF);
 		break;
 	case OperandType::DecrementHL:
-		processor.SetDestinationValue(processor.GetRegister(Register::HL), (source - 1) & 0xFFFF);
+		processor.SetDestinationValue(processor.GetRegister(Register::HL), source);
+		processor.SetRegister(Register::HL, (processor.GetRegister(Register::HL) - 1) % 0xFFFF);
 		break;
 
 
@@ -177,9 +179,10 @@ void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::
 		break;
 
 	case OperandType::AddressUINT8:
+		processor.SetDestinationValue(0xFF00 + dest, source);
 		break;
 	case OperandType::AddressUINT16:
-
+		processor.SetDestinationValue(dest, source);
 		break;
 	case OperandType::DataINT8:
 		break;
@@ -253,6 +256,9 @@ void op_INC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 }
 void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
+	uint16_t src = 0;
+	Register reg = Register::A;
+
 	switch (destType)
 	{
 	case OperandType::None:
@@ -264,10 +270,12 @@ void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	case OperandType::RegisterE:
 	case OperandType::RegisterH:
 	case OperandType::RegisterL:
-		processor.SetRegister((Register)((uint16_t)((OperandType)destType) - 1), (source - 1) & 0xFF);
-		processor.SetFlag(Processor::FLAGS::Z, source == 1);
-		processor.SetFlag(Processor::FLAGS::N, false);
-		processor.SetFlag(Processor::FLAGS::H, source == 0);
+		reg = (Register)((uint16_t)((OperandType)destType) - 1);
+		src = processor.GetRegister(reg);
+		processor.SetRegister(reg, (src - 1) & 0xFF);
+		processor.SetFlag(Processor::FLAGS::Z, src == 1);
+		processor.SetFlag(Processor::FLAGS::N, true);
+		processor.SetFlag(Processor::FLAGS::H, src == 0x10);
 		break;
 
 	case OperandType::RegisterAF:
@@ -276,7 +284,12 @@ void op_DEC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	case OperandType::RegisterHL:
 	case OperandType::Stackpointer:
 	case OperandType::ProgramCounter:
-		processor.SetRegister((Register)((uint16_t)((OperandType)destType) - 8), (source - 1) & 0xFFFF);
+		reg = (Register)((uint16_t)((OperandType)destType) - 8);
+		src = processor.GetRegister(reg);
+		processor.SetRegister(reg, (src - 1) & 0xFFFF);
+		processor.SetFlag(Processor::FLAGS::Z, src == 1);
+		processor.SetFlag(Processor::FLAGS::N, true);
+		processor.SetFlag(Processor::FLAGS::H, src == 0x0100);
 		break;
 	}
 }
@@ -291,7 +304,7 @@ void op_CP(Processor& processor, OperandType destType, std::uint16_t dest, std::
 {
 	uint8_t a = processor.GetRegister(Register::A);
 
-	processor.SetFlag(Processor::FLAGS::Z, a - source == 0);
+	processor.SetFlag(Processor::FLAGS::Z, a == source);
 	processor.SetFlag(Processor::FLAGS::N, true);
 	processor.SetFlag(Processor::FLAGS::H, a >= 0x0F && source != 0);
 	processor.SetFlag(Processor::FLAGS::C, source > a);

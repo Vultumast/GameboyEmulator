@@ -153,14 +153,17 @@
     <ClInclude Include="Emulator.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="JoypadInfo.hpp" />
+    <ClInclude Include="MapperImpl.hpp" />
+    <ClInclude Include="MBC1.hpp" />
     <ClInclude Include="MemoryBus.hpp" />
     <ClInclude Include="Processor.hpp" />
-    <ClInclude Include="RomInfo.hpp" />
+    <ClInclude Include="ROMInfo.hpp" />
     <ClInclude Include="Video.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Instructions.cpp" />
+    <ClCompile Include="MBC1.cpp" />
     <ClCompile Include="MemoryBus.cpp" />
     <ClCompile Include="Processor.cpp" />
     <ClCompile Include="OpCodeInfo.cpp" />

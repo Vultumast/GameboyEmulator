@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -61,107 +62,43 @@ namespace EmulatorGUI.EmulatorLib
 		TAMA5
 	};
 
-	public class RomInfo
+	public partial class RomInfo : ObjectBase
     {
-        public RomInfo(MemoryBus memoryBus)
-		{
-			for (ushort i = 0x134; i < 0x0143; i++)
-			{
-				char c = (char)memoryBus.Read(i);
-				if (c == '\0')
-					break;
-				GameName += c;
-			}
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial nint rominfo_create(byte[] data, int size);
 
-			RawCartridgeType = memoryBus.Read(0x147);
-			ROMSize = 32000 << memoryBus.Read(0x148);
-			switch (memoryBus.Read(0x149))
-			{
-				case 0x00:
-				default:
-					RAMSize = 0;
-					break;
-				case 0x02:
-					RAMSize = 8000;
-                    break;
-                case 0x03:
-                    RAMSize = 32000;
-                    break;
-                case 0x04:
-                    RAMSize = 128000;
-                    break;
-                case 0x05:
-                    RAMSize = 64000;
-                    break;
-            }
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial byte rominfo_getcartridgetype(nint pointer);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial byte rominfo_getmappertype(nint pointer);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial uint rominfo_getramsize(nint pointer);
 
-			Revision = memoryBus.Read(0x14C);
-        }
-        public RomInfo(byte[] data)
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial byte rominfo_read(nint pointer, uint address);
+
+        public RomInfo(byte[] data) : base(rominfo_create(data, data.Length))
         {
-            for (ushort i = 0x134; i < 0x0143; i++)
-            {
-                char c = (char)data[i];
-                if (c == '\0')
-                    break;
-                GameName += c;
-            }
 
-            RawCartridgeType = data[0x147];
-            ROMSize = 32000 << data[0x148];
-            switch (data[0x149])
-            {
-                case 0x00:
-                default:
-                    RAMSize = 0;
-                    break;
-                case 0x02:
-                    RAMSize = 8000;
-                    break;
-                case 0x03:
-                    RAMSize = 32000;
-                    break;
-                case 0x04:
-                    RAMSize = 128000;
-                    break;
-                case 0x05:
-                    RAMSize = 64000;
-                    break;
-            }
-
-            Revision = data[0x14C];
         }
+
 
         public string GameName { get; private set; } = string.Empty;
 
 		public byte Revision { get; private set; } = 0;
 
-		public byte RawCartridgeType { get; private set; } = 0;
+		public byte RawCartridgeType => (byte)CartridgeType;
 
-		public CartridgeType CartridgeType => (CartridgeType)RawCartridgeType;
+		public CartridgeType CartridgeType => (CartridgeType)rominfo_getcartridgetype(CPointer);
 
 
 
-        public MapperType MapperType
-		{
-			get
-			{
-                return CartridgeType switch
-                {
-                    CartridgeType.MBC1 or CartridgeType.MBC1_RAM or CartridgeType.MBC1_RAM_BATTERY => MapperType.MBC1,
-                    CartridgeType.MBC2 or CartridgeType.MBC2_RAM => MapperType.MBC2,
-                    CartridgeType.MMM01 or CartridgeType.MMM01_RAM or CartridgeType.MMM01_RAM_BATTERY => MapperType.MMM01,
-                    CartridgeType.MBC3_TIMER_BATTERY or CartridgeType.MBC3_TIMER_RAM_BATTERY or CartridgeType.MBC3 or CartridgeType.MBC3_RAM or CartridgeType.MBC3_RAM_BATTERY => MapperType.MBC3,
-                    CartridgeType.MBC5 or CartridgeType.MBC5_RAM or CartridgeType.MBC5_RAM_BATTERY or CartridgeType.MBC5_RUMBLE or CartridgeType.MBC5_RUMBLE_RAM or CartridgeType.MBC5_RUMBLE_RAM_BATTERY => MapperType.MBC5,
-                    CartridgeType.MBC6 => MapperType.MBC6,
-                    CartridgeType.MBC7_SENSOR_RUMBLE_RAM_BATTERY => MapperType.MBC7,
-                    CartridgeType.BANDAI_TAMA5 => MapperType.TAMA5,
-                    CartridgeType.HuC1_RAM_BATTERY => MapperType.HuC1,
-                    CartridgeType.HuC3 => MapperType.HuC3,
-                    _ => MapperType.None,
-                };
-            }
-		}
+        public MapperType MapperType => (MapperType)rominfo_getmappertype(CPointer);
 		public bool HasRAM()
 		{
             return CartridgeType switch
@@ -187,10 +124,16 @@ namespace EmulatorGUI.EmulatorLib
             };
         }
 
-		public int ROMSize { get; private set; } = 0;
-        public int RAMSize { get; private set; } = 0;
+        public override void Destroy()
+        {
+
+        }
+
+        public int ROMSize { get; private set; } = 0;
+		public uint RAMSize => rominfo_getramsize(CPointer);
 
         public int BankCount => ROMSize / 16000;
 
+		public byte Read(uint address) => rominfo_read(CPointer, address);
     }
 }

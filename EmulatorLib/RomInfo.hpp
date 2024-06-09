@@ -60,7 +60,7 @@ enum class MapperType
 	TAMA5
 };
 
-class RomInfo
+class ROMInfo
 {
 private:
 	std::string _gameName = "";
@@ -68,9 +68,12 @@ private:
 	uint8_t _ramSize = 0x00;
 	uint32_t _romSize = 0x00;
 	uint8_t _revision = 0x00;
-public:
-	RomInfo(MemoryBus* memoryBus);
 
+	uint8_t* _rom = nullptr;
+	uint32_t size = 0;
+public:
+	ROMInfo(uint8_t* rom, uint32_t size);
+	~ROMInfo();
 	const std::string& GetGameName() const;
 	uint8_t GetRevision() const;
 
@@ -85,4 +88,6 @@ public:
 
 	uint32_t GetROMSize() const;
 	uint32_t GetRAMSize() const;
+
+	uint8_t Read(uint32_t address) const;
 };

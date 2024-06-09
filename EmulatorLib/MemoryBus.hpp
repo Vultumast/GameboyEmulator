@@ -4,11 +4,19 @@
 
 #include <vector>
 
+class ROMInfo;
+class MapperImpl;
+
 class MemoryBus
 {
 private:
 		uint8_t _ram[0x10000];
+		ROMInfo* _rom = nullptr;
+		MapperImpl* _mapper = nullptr;
 public:
+	MemoryBus(ROMInfo* rom);
+	~MemoryBus();
+
 	void Randomize();
 
 	bool IsAddressMapped(const uint16_t& address);
