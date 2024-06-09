@@ -108,9 +108,12 @@ void Video::Update(uint32_t cycles)
 	else
 		return;
 
+
+
 	if (_scanlineCounter <= 0)
 	{
-		uint8_t currentline = _memoryBus->Read(0xFF44) + 1;
+		std::cout << "scanlinecounter out" << std::endl;
+		uint8_t currentline = _memoryBus->Read(HardwareRegister::LY) + 1;
 		// Inc scanline counter
 		_memoryBus->Write(HardwareRegister::LY, currentline);
 
@@ -139,7 +142,7 @@ void Video::SetLCDStatus()
 		_memoryBus->Write(HardwareRegister::LY, 0);
 		lcdStatus->PPUMode = PPUMode::WaitingForHBlank;
 		_memoryBus->Write(HardwareRegister::STAT, reinterpret_cast<uint8_t>(&lcdStatus));
-	}
+	} 
 
 	PPUMode currentMode = lcdStatus->PPUMode;
 	PPUMode newMode = PPUMode::WaitingForHBlank;
@@ -195,6 +198,7 @@ void Video::SetLCDStatus()
 
 void Video::DrawScanline()
 {
+	std::cout << "draw scanline" << std::endl;
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
 
 	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
@@ -212,6 +216,8 @@ void Video::DrawScanline()
 
 void Video::RenderTiles()
 {
+	std::cout << "rendering tiles" << std::endl;
+
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
 	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
 

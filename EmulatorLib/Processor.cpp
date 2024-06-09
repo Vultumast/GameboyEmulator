@@ -110,6 +110,8 @@ void Processor::PulseClock()
 				data = ((op & 0xF0) - 0xC0) + (op & 0x08);
 			}
 
+			_remainingCycles = info.GetCycleLengthMin();
+
 			std::stringstream sstream;
 			sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
 			std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
@@ -118,6 +120,7 @@ void Processor::PulseClock()
 	}
 	else
 		_remainingCycles--;
+	
 }
 
 void Processor::SetRegister(Register destination, uint16_t value)
@@ -358,6 +361,10 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	InterruptMasterEnable = false;
 	
 	ResetVector(handler);
+
+	std::stringstream sstream;
+	sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(handler);
+	std::cout << std::dec << "RESET VECTOR HIT: " << sstream.str() << std::endl;
 
 	_remainingCycles = 20;
 	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << interrupt)); // Reset Serviced Interrupt

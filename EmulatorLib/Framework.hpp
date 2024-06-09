@@ -22,11 +22,13 @@ extern "C"
 	DLL_EXPORT void processor_setregister(Processor* processor, uint8_t reg, uint16_t value) { processor->SetRegister(static_cast<Register>(reg), value); }
 	DLL_EXPORT uint16_t processor_getregister(Processor* processor, uint8_t reg) { return processor->GetRegister(static_cast<Register>(reg)); }
 	DLL_EXPORT void processor_pulseclock(Processor* processor) { return processor->PulseClock(); }
+	DLL_EXPORT uint8_t processor_getremainingcycles(Processor* processor) { return processor->GetRemainingCycles(); }
 
 	DLL_EXPORT Video* video_create(MemoryBus* bus, HWND hwnd) { return new Video(bus, hwnd); }
 	DLL_EXPORT void video_clear(Video* video) { video->Clear(); }
 	DLL_EXPORT void video_present(Video* video) { video->Present(); }
-
+	DLL_EXPORT void video_update(Video* video, uint32_t cycles) { video->Update(cycles); }
+	DLL_EXPORT uint32_t video_getpixel(Video* video, uint8_t x, uint8_t y) { return video->GetPixel(x, y); }
 
 	DLL_EXPORT MemoryBus* memorybus_create() { return new MemoryBus(); }
 	DLL_EXPORT void memorybus_randomize(MemoryBus* pointer) { pointer->Randomize(); }

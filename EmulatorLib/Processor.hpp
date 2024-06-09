@@ -31,6 +31,8 @@ public:
 	/// <returns></returns>
 	bool IsInstructionCompleted() const { return _remainingCycles == 0; }
 
+	uint8_t GetRemainingCycles() const { return _remainingCycles; }
+
 	void SetRegister(Register destination, uint16_t value);
 	uint16_t GetRegister(Register source) const;
 

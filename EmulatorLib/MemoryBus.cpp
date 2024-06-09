@@ -10,6 +10,7 @@ void MemoryBus::Randomize()
 
 bool MemoryBus::IsAddressMapped(const std::uint16_t& address)
 {
+	return true;
 
 	if (address >= HardwareRegister::P1_JOYP) // Check IO Registers
 	{

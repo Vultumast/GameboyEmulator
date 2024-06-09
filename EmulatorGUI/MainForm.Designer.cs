@@ -48,6 +48,8 @@
             pulseClockButton = new Button();
             registerANumericUpDown = new NumericUpDown();
             registerFNumericUpDown = new NumericUpDown();
+            button4 = new Button();
+            rawPanel = new Panel();
             ((System.ComponentModel.ISupportInitialize)registerAFNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)registerBCNumericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)registerDENumericUpDown).BeginInit();
@@ -241,11 +243,31 @@
             registerFNumericUpDown.Size = new Size(60, 23);
             registerFNumericUpDown.TabIndex = 19;
             // 
+            // button4
+            // 
+            button4.Location = new Point(523, 79);
+            button4.Name = "button4";
+            button4.Size = new Size(149, 23);
+            button4.TabIndex = 20;
+            button4.Text = "start";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
+            // 
+            // rawPanel
+            // 
+            rawPanel.Location = new Point(40, 262);
+            rawPanel.Name = "rawPanel";
+            rawPanel.Size = new Size(160, 144);
+            rawPanel.TabIndex = 21;
+            rawPanel.Paint += rawPanel_Paint;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(rawPanel);
+            Controls.Add(button4);
             Controls.Add(registerFNumericUpDown);
             Controls.Add(registerANumericUpDown);
             Controls.Add(pulseClockButton);
@@ -266,6 +288,7 @@
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(viewPanel);
+            DoubleBuffered = true;
             Name = "MainForm";
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)registerAFNumericUpDown).EndInit();
@@ -302,5 +325,7 @@
         private Button pulseClockButton;
         private NumericUpDown registerANumericUpDown;
         private NumericUpDown registerFNumericUpDown;
+        private Button button4;
+        private Panel rawPanel;
     }
 }

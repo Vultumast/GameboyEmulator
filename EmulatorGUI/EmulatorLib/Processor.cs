@@ -45,6 +45,11 @@ namespace EmulatorGUI.EmulatorLib
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
         private static partial void processor_pulseclock(nint processor);
 
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial byte processor_getremainingcycles(nint processor);
+
+
         public Processor(MemoryBus memoryBus) : base(processor_create(memoryBus.CPointer))
         {
 
@@ -60,5 +65,8 @@ namespace EmulatorGUI.EmulatorLib
         public ushort GetRegister(Register register) => processor_getregister(CPointer, (byte)register);
 
         public void PulseClock() => processor_pulseclock(CPointer);
+
+        public byte RemainingCycles => processor_getremainingcycles(CPointer);
+
     }
 }
