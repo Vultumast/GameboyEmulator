@@ -15,6 +15,12 @@ public:
 
 	void Write(const uint16_t& address, const uint8_t& value);
 	uint8_t Read(const uint16_t& address);
+	/// <summary>
+	/// Reads a word (16bit value) from a given address in Little Endianess
+	/// </summary>
+	/// <param name="address"></param>
+	/// <returns></returns>
+	uint16_t ReadWord(const uint16_t& address);
 
 	void WriteROM(const std::vector<uint8_t>& data);
 

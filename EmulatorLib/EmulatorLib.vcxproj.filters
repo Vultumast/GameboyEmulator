@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Types">
+      <UniqueIdentifier>{d1dac28d-7885-4d92-a7b9-6a542ee1794f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp">
@@ -35,6 +38,9 @@
     </ClInclude>
     <ClInclude Include="RomInfo.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JoypadInfo.hpp">
+      <Filter>Header Files\Types</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -152,6 +152,7 @@
     <ClInclude Include="Constants.hpp" />
     <ClInclude Include="Emulator.hpp" />
     <ClInclude Include="Framework.hpp" />
+    <ClInclude Include="JoypadInfo.hpp" />
     <ClInclude Include="MemoryBus.hpp" />
     <ClInclude Include="Processor.hpp" />
     <ClInclude Include="RomInfo.hpp" />

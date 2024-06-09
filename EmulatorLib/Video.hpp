@@ -90,6 +90,9 @@ public:
 
 #pragma pack(pop)
 
+constexpr uint8_t FramebufferWidth = 160;
+constexpr uint8_t FramebufferHeight = 144;
+
 class Video
 {
 private:
@@ -107,6 +110,8 @@ private:
 
 	ComPtr<IDXGISwapChain1> _dxSwapChain = nullptr;
 
+	uint32_t _frameBuffer[FramebufferWidth * FramebufferHeight];
+
 public:
 	Video(MemoryBus* memoryBus, HWND hwnd);
 
@@ -115,6 +120,11 @@ public:
 	void SetLCDStatus();
 
 	void DrawScanline();
+
+	void RenderTiles();
+
+	void SetPixel(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b);
+	uint32_t GetPixel(uint8_t x, uint8_t y);
 
 	void Clear();
 

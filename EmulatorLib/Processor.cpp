@@ -59,7 +59,7 @@ void Processor::PulseClock()
 	{
 		Interrupt reqInterrupts = _memoryBus->GetInterrupts();
 		// Service all pending interrupts first
-		if (InterruptMasterEnable && (_memoryBus->Read(Addr_InterruptEnableRegister) != 0 && reqInterrupts != 0))
+		if (InterruptMasterEnable && (_memoryBus->Read(HardwareRegister::IE) != 0 && reqInterrupts != 0))
 		{
 			for (uint8_t i = 0; i <= Interrupt::JOYPAD; i++)
 			{
@@ -354,13 +354,11 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	}
 
 	// di; call $00hh (copied from Instructions.cpp)
+	// Disable so we can actually run interrupt code at the reset vector
 	InterruptMasterEnable = false;
-
-	SetDestinationValue(GetRegister(Register::SP), GetRegister(Register::PC));
-	SetRegister(Register::SP, (GetRegister(Register::SP) + 2) & 0xFFFF);
-
-	SetRegister(Register::PC, handler);
+	
+	ResetVector(handler);
 
 	_remainingCycles = 20;
-	_memoryBus->Write(Addr_InterruptFlags, (uint8_t)_memoryBus->Read(Addr_InterruptFlags) & ~(1 << interrupt)); // Reset Serviced Interrupt
+	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << interrupt)); // Reset Serviced Interrupt
 }
