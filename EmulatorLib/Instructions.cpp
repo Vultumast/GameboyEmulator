@@ -101,12 +101,12 @@ void op_HALT(Processor& processor, OperandType destType, std::uint16_t dest, std
 
 void op_EI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.ime = true;
+	processor.InterruptMasterEnable = true;
 }
 
 void op_DI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.ime = false;
+	processor.InterruptMasterEnable = false;
 }
 void op_SCF(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
@@ -189,14 +189,12 @@ void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 void op_PUSH(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.SetDestinationValue(processor.GetRegister(Register::SP), dest);
-	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) + 2) & 0xFFFF);
+	processor.StackPush(dest);
 }
 
 void op_POP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.SetRegister((Register)((uint16_t)(destType)-1), processor.read(processor.GetRegister(Register::SP))); // dest = [sp]
-	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) - 2) & 0xFFFF);
+	processor.SetRegister((Register)((uint16_t)(destType)-1), processor.StackPop()); // dest = [sp]
 }
 
 void op_CALL(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
@@ -213,17 +211,14 @@ void op_CALL(Processor& processor, OperandType destType, std::uint16_t dest, std
 void op_RET(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// pop pc
-	processor.SetRegister(Register::PC, processor.read(processor.GetRegister(Register::SP))); // dest = [sp]
-	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) - 2) & 0xFFFF);
+	processor.SetRegister(Register::PC, processor.StackPop()); // dest = [sp]
 }
 
 void op_RETI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	// pop pc
-	processor.SetRegister(Register::PC, processor.read(processor.GetRegister(Register::SP))); // dest = [sp]
-	processor.SetRegister(Register::SP, (processor.GetRegister(Register::SP) - 2) & 0xFFFF);
-
-	processor.ime = true;
+	processor.SetRegister(Register::PC, processor.StackPop()); // dest = [sp]
+	processor.InterruptMasterEnable = true;
 }
 
 #pragma region Arthimetic
@@ -296,7 +291,6 @@ void op_CP(Processor& processor, OperandType destType, std::uint16_t dest, std::
 {
 	uint8_t a = processor.GetRegister(Register::A);
 
-	std::cout << "cp instruction with val: " << source << std::endl;
 	processor.SetFlag(Processor::FLAGS::Z, a - source == 0);
 	processor.SetFlag(Processor::FLAGS::N, true);
 	processor.SetFlag(Processor::FLAGS::H, a >= 0x0F && source != 0);

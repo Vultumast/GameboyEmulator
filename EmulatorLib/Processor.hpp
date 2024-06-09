@@ -17,7 +17,6 @@ public:
 
 	bool InterruptMasterEnable = false;
 
-	// "Event" functions
 
 	/// <summary>
 	/// Resets the CPU, resetting all registers to what they were at boot
@@ -53,9 +52,6 @@ public:
 	void SetDestinationValue(uint16_t destination, uint16_t source, bool direct = true);
 
 	uint16_t GetOperand(OperandType operand);
-
-	uint8_t read(uint16_t addr);
-	void write(uint16_t addr, uint8_t value);
 
 	/// <summary>
 	/// Pushes a value onto the stack and decrements the stack pointer by 2

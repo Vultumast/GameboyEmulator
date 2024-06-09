@@ -12,17 +12,6 @@ Processor::Processor(MemoryBus* memoryBus)
 	_memoryBus = memoryBus;
 }
 
-uint8_t Processor::read(uint16_t addr)
-{
-	uint8_t value = _memoryBus->Read(addr);
-	return value;
-}
-
-void Processor::write(uint16_t addr, uint8_t value)
-{
-	_memoryBus->Write(addr, value);
-}
-
 void Processor::StackPush(uint16_t value)
 {
 	sp -= 2;
@@ -35,6 +24,8 @@ uint16_t Processor::StackPop()
 	sp += 2;
 	uint16_t returnValue = _memoryBus->Read(sp - 2);
 	returnValue |= (_memoryBus->Read(sp - 1) << 8);
+
+	return returnValue;
 }
 
 void Processor::ResetVector(uint16_t address)
