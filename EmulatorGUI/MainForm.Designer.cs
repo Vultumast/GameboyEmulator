@@ -31,37 +31,31 @@
             viewPanel = new Panel();
             button1 = new Button();
             button2 = new Button();
-            registerAFNumericUpDown = new NumericUpDown();
-            registerBCNumericUpDown = new NumericUpDown();
-            registerDENumericUpDown = new NumericUpDown();
-            registerHLNumericUpDown = new NumericUpDown();
-            registerSPNumericUpDown = new NumericUpDown();
-            registerPCNumericUpDown = new NumericUpDown();
-            label1 = new Label();
-            label2 = new Label();
-            label3 = new Label();
-            label4 = new Label();
-            label5 = new Label();
-            label6 = new Label();
             refreshRegistersButton = new Button();
             pulseClockButton = new Button();
-            registerANumericUpDown = new NumericUpDown();
-            registerFNumericUpDown = new NumericUpDown();
             button4 = new Button();
             rawPanel = new Panel();
             checkAddressNumericUpDown = new NumericUpDown();
             checkAddressButton = new Button();
             addressLabel = new Label();
             button5 = new Button();
-            ((System.ComponentModel.ISupportInitialize)registerAFNumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerBCNumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerDENumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerHLNumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerSPNumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerPCNumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerANumericUpDown).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)registerFNumericUpDown).BeginInit();
+            hexViewControl1 = new Controls.HexViewControl();
+            afProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
+            bcProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
+            deProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
+            hlProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
+            spProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
+            pcProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
+            interruptsEnabledCheckBox = new CheckBox();
+            consumeInstructionButton = new Button();
+            groupBox1 = new GroupBox();
+            runUntilRegisterComboBox = new ComboBox();
+            runUntilRunButton = new Button();
+            runUntilRegisterOperatorComboBox = new ComboBox();
+            runUntilRegisterValueNumericUpDown = new NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
+            groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).BeginInit();
             SuspendLayout();
             // 
             // viewPanel
@@ -91,117 +85,9 @@
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
-            // registerAFNumericUpDown
-            // 
-            registerAFNumericUpDown.Hexadecimal = true;
-            registerAFNumericUpDown.Location = new Point(440, 188);
-            registerAFNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            registerAFNumericUpDown.Name = "registerAFNumericUpDown";
-            registerAFNumericUpDown.Size = new Size(120, 23);
-            registerAFNumericUpDown.TabIndex = 4;
-            // 
-            // registerBCNumericUpDown
-            // 
-            registerBCNumericUpDown.Hexadecimal = true;
-            registerBCNumericUpDown.Location = new Point(440, 217);
-            registerBCNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            registerBCNumericUpDown.Name = "registerBCNumericUpDown";
-            registerBCNumericUpDown.Size = new Size(120, 23);
-            registerBCNumericUpDown.TabIndex = 5;
-            // 
-            // registerDENumericUpDown
-            // 
-            registerDENumericUpDown.Hexadecimal = true;
-            registerDENumericUpDown.Location = new Point(440, 246);
-            registerDENumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            registerDENumericUpDown.Name = "registerDENumericUpDown";
-            registerDENumericUpDown.Size = new Size(120, 23);
-            registerDENumericUpDown.TabIndex = 6;
-            // 
-            // registerHLNumericUpDown
-            // 
-            registerHLNumericUpDown.Hexadecimal = true;
-            registerHLNumericUpDown.Location = new Point(440, 275);
-            registerHLNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            registerHLNumericUpDown.Name = "registerHLNumericUpDown";
-            registerHLNumericUpDown.Size = new Size(120, 23);
-            registerHLNumericUpDown.TabIndex = 7;
-            // 
-            // registerSPNumericUpDown
-            // 
-            registerSPNumericUpDown.Hexadecimal = true;
-            registerSPNumericUpDown.Location = new Point(440, 304);
-            registerSPNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            registerSPNumericUpDown.Name = "registerSPNumericUpDown";
-            registerSPNumericUpDown.Size = new Size(120, 23);
-            registerSPNumericUpDown.TabIndex = 8;
-            // 
-            // registerPCNumericUpDown
-            // 
-            registerPCNumericUpDown.Hexadecimal = true;
-            registerPCNumericUpDown.Location = new Point(440, 333);
-            registerPCNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            registerPCNumericUpDown.Name = "registerPCNumericUpDown";
-            registerPCNumericUpDown.Size = new Size(120, 23);
-            registerPCNumericUpDown.TabIndex = 9;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(410, 190);
-            label1.Name = "label1";
-            label1.Size = new Size(24, 15);
-            label1.TabIndex = 10;
-            label1.Text = "AF:";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(409, 335);
-            label2.Name = "label2";
-            label2.Size = new Size(25, 15);
-            label2.TabIndex = 11;
-            label2.Text = "PC:";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(411, 306);
-            label3.Name = "label3";
-            label3.Size = new Size(23, 15);
-            label3.TabIndex = 12;
-            label3.Text = "SP:";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Location = new Point(409, 277);
-            label4.Name = "label4";
-            label4.Size = new Size(25, 15);
-            label4.TabIndex = 13;
-            label4.Text = "HL:";
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Location = new Point(410, 248);
-            label5.Name = "label5";
-            label5.Size = new Size(24, 15);
-            label5.TabIndex = 14;
-            label5.Text = "DE:";
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(409, 219);
-            label6.Name = "label6";
-            label6.Size = new Size(25, 15);
-            label6.TabIndex = 15;
-            label6.Text = "BC:";
-            // 
             // refreshRegistersButton
             // 
-            refreshRegistersButton.Location = new Point(411, 362);
+            refreshRegistersButton.Location = new Point(765, 61);
             refreshRegistersButton.Name = "refreshRegistersButton";
             refreshRegistersButton.Size = new Size(149, 23);
             refreshRegistersButton.TabIndex = 16;
@@ -219,27 +105,9 @@
             pulseClockButton.UseVisualStyleBackColor = true;
             pulseClockButton.Click += pulseClockButton_Click;
             // 
-            // registerANumericUpDown
-            // 
-            registerANumericUpDown.Hexadecimal = true;
-            registerANumericUpDown.Location = new Point(566, 188);
-            registerANumericUpDown.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
-            registerANumericUpDown.Name = "registerANumericUpDown";
-            registerANumericUpDown.Size = new Size(60, 23);
-            registerANumericUpDown.TabIndex = 18;
-            // 
-            // registerFNumericUpDown
-            // 
-            registerFNumericUpDown.Hexadecimal = true;
-            registerFNumericUpDown.Location = new Point(632, 188);
-            registerFNumericUpDown.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
-            registerFNumericUpDown.Name = "registerFNumericUpDown";
-            registerFNumericUpDown.Size = new Size(60, 23);
-            registerFNumericUpDown.TabIndex = 19;
-            // 
             // button4
             // 
-            button4.Location = new Point(639, 233);
+            button4.Location = new Point(231, 352);
             button4.Name = "button4";
             button4.Size = new Size(149, 23);
             button4.TabIndex = 20;
@@ -293,48 +161,173 @@
             button5.UseVisualStyleBackColor = true;
             button5.Click += button5_Click;
             // 
+            // hexViewControl1
+            // 
+            hexViewControl1.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            hexViewControl1.Location = new Point(566, 121);
+            hexViewControl1.Name = "hexViewControl1";
+            hexViewControl1.Size = new Size(395, 366);
+            hexViewControl1.TabIndex = 26;
+            // 
+            // afProcessorRegisterView
+            // 
+            afProcessorRegisterView.Location = new Point(411, 188);
+            afProcessorRegisterView.Name = "afProcessorRegisterView";
+            afProcessorRegisterView.RegisterName = "AF";
+            afProcessorRegisterView.Size = new Size(149, 22);
+            afProcessorRegisterView.TabIndex = 27;
+            afProcessorRegisterView.Value = (ushort)0;
+            // 
+            // bcProcessorRegisterView
+            // 
+            bcProcessorRegisterView.Location = new Point(411, 216);
+            bcProcessorRegisterView.Name = "bcProcessorRegisterView";
+            bcProcessorRegisterView.RegisterName = "BC";
+            bcProcessorRegisterView.Size = new Size(149, 22);
+            bcProcessorRegisterView.TabIndex = 28;
+            bcProcessorRegisterView.Value = (ushort)0;
+            // 
+            // deProcessorRegisterView
+            // 
+            deProcessorRegisterView.Location = new Point(411, 244);
+            deProcessorRegisterView.Name = "deProcessorRegisterView";
+            deProcessorRegisterView.RegisterName = "DE";
+            deProcessorRegisterView.Size = new Size(149, 22);
+            deProcessorRegisterView.TabIndex = 29;
+            deProcessorRegisterView.Value = (ushort)0;
+            // 
+            // hlProcessorRegisterView
+            // 
+            hlProcessorRegisterView.Location = new Point(411, 272);
+            hlProcessorRegisterView.Name = "hlProcessorRegisterView";
+            hlProcessorRegisterView.RegisterName = "HL";
+            hlProcessorRegisterView.Size = new Size(149, 22);
+            hlProcessorRegisterView.TabIndex = 30;
+            hlProcessorRegisterView.Value = (ushort)0;
+            // 
+            // spProcessorRegisterView
+            // 
+            spProcessorRegisterView.Location = new Point(411, 300);
+            spProcessorRegisterView.Name = "spProcessorRegisterView";
+            spProcessorRegisterView.RegisterName = "SP";
+            spProcessorRegisterView.Size = new Size(149, 22);
+            spProcessorRegisterView.TabIndex = 31;
+            spProcessorRegisterView.Value = (ushort)0;
+            // 
+            // pcProcessorRegisterView
+            // 
+            pcProcessorRegisterView.Location = new Point(411, 328);
+            pcProcessorRegisterView.Name = "pcProcessorRegisterView";
+            pcProcessorRegisterView.RegisterName = "PC";
+            pcProcessorRegisterView.Size = new Size(149, 22);
+            pcProcessorRegisterView.TabIndex = 32;
+            pcProcessorRegisterView.Value = (ushort)0;
+            // 
+            // interruptsEnabledCheckBox
+            // 
+            interruptsEnabledCheckBox.AutoSize = true;
+            interruptsEnabledCheckBox.Location = new Point(411, 356);
+            interruptsEnabledCheckBox.Name = "interruptsEnabledCheckBox";
+            interruptsEnabledCheckBox.Size = new Size(122, 19);
+            interruptsEnabledCheckBox.TabIndex = 33;
+            interruptsEnabledCheckBox.Text = "Interrupts Enabled";
+            interruptsEnabledCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // consumeInstructionButton
+            // 
+            consumeInstructionButton.Location = new Point(411, 130);
+            consumeInstructionButton.Name = "consumeInstructionButton";
+            consumeInstructionButton.Size = new Size(149, 23);
+            consumeInstructionButton.TabIndex = 34;
+            consumeInstructionButton.Text = "consume instruction";
+            consumeInstructionButton.UseVisualStyleBackColor = true;
+            consumeInstructionButton.Click += consumeInstructionButton_Click;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(runUntilRegisterValueNumericUpDown);
+            groupBox1.Controls.Add(runUntilRegisterOperatorComboBox);
+            groupBox1.Controls.Add(runUntilRegisterComboBox);
+            groupBox1.Controls.Add(runUntilRunButton);
+            groupBox1.Location = new Point(231, 381);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(329, 100);
+            groupBox1.TabIndex = 35;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Run Until";
+            // 
+            // runUntilRegisterComboBox
+            // 
+            runUntilRegisterComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            runUntilRegisterComboBox.FormattingEnabled = true;
+            runUntilRegisterComboBox.Items.AddRange(new object[] { "A", "B", "C", "D", "E", "H", "L", "AF", "BC", "DE", "HL", "SP", "PC" });
+            runUntilRegisterComboBox.Location = new Point(6, 22);
+            runUntilRegisterComboBox.Name = "runUntilRegisterComboBox";
+            runUntilRegisterComboBox.Size = new Size(121, 23);
+            runUntilRegisterComboBox.TabIndex = 36;
+            // 
+            // runUntilRunButton
+            // 
+            runUntilRunButton.Location = new Point(6, 51);
+            runUntilRunButton.Name = "runUntilRunButton";
+            runUntilRunButton.Size = new Size(149, 23);
+            runUntilRunButton.TabIndex = 36;
+            runUntilRunButton.Text = "Run";
+            runUntilRunButton.UseVisualStyleBackColor = true;
+            runUntilRunButton.Click += runUntilRunButton_Click;
+            // 
+            // runUntilRegisterOperatorComboBox
+            // 
+            runUntilRegisterOperatorComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            runUntilRegisterOperatorComboBox.FormattingEnabled = true;
+            runUntilRegisterOperatorComboBox.Items.AddRange(new object[] { "==", "!=", "<=", ">=", ">", "<" });
+            runUntilRegisterOperatorComboBox.Location = new Point(133, 22);
+            runUntilRegisterOperatorComboBox.Name = "runUntilRegisterOperatorComboBox";
+            runUntilRegisterOperatorComboBox.Size = new Size(76, 23);
+            runUntilRegisterOperatorComboBox.TabIndex = 37;
+            // 
+            // runUntilRegisterValueNumericUpDown
+            // 
+            runUntilRegisterValueNumericUpDown.Hexadecimal = true;
+            runUntilRegisterValueNumericUpDown.Location = new Point(215, 22);
+            runUntilRegisterValueNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+            runUntilRegisterValueNumericUpDown.Name = "runUntilRegisterValueNumericUpDown";
+            runUntilRegisterValueNumericUpDown.Size = new Size(108, 23);
+            runUntilRegisterValueNumericUpDown.TabIndex = 36;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(988, 534);
+            Controls.Add(groupBox1);
+            Controls.Add(consumeInstructionButton);
+            Controls.Add(interruptsEnabledCheckBox);
+            Controls.Add(pcProcessorRegisterView);
+            Controls.Add(spProcessorRegisterView);
+            Controls.Add(hlProcessorRegisterView);
+            Controls.Add(deProcessorRegisterView);
+            Controls.Add(bcProcessorRegisterView);
+            Controls.Add(afProcessorRegisterView);
+            Controls.Add(hexViewControl1);
             Controls.Add(button5);
             Controls.Add(addressLabel);
             Controls.Add(checkAddressButton);
             Controls.Add(checkAddressNumericUpDown);
             Controls.Add(rawPanel);
             Controls.Add(button4);
-            Controls.Add(registerFNumericUpDown);
-            Controls.Add(registerANumericUpDown);
             Controls.Add(pulseClockButton);
             Controls.Add(refreshRegistersButton);
-            Controls.Add(label6);
-            Controls.Add(label5);
-            Controls.Add(label4);
-            Controls.Add(label3);
-            Controls.Add(label2);
-            Controls.Add(label1);
-            Controls.Add(registerPCNumericUpDown);
-            Controls.Add(registerSPNumericUpDown);
-            Controls.Add(registerHLNumericUpDown);
-            Controls.Add(registerDENumericUpDown);
-            Controls.Add(registerBCNumericUpDown);
-            Controls.Add(registerAFNumericUpDown);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(viewPanel);
             DoubleBuffered = true;
             Name = "MainForm";
             Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)registerAFNumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerBCNumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerDENumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerHLNumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerSPNumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerPCNumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerANumericUpDown).EndInit();
-            ((System.ComponentModel.ISupportInitialize)registerFNumericUpDown).EndInit();
+            Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).EndInit();
+            groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -344,27 +337,27 @@
         private Panel viewPanel;
         private Button button1;
         private Button button2;
-        private NumericUpDown registerAFNumericUpDown;
-        private NumericUpDown registerBCNumericUpDown;
-        private NumericUpDown registerDENumericUpDown;
-        private NumericUpDown registerHLNumericUpDown;
-        private NumericUpDown registerSPNumericUpDown;
-        private NumericUpDown registerPCNumericUpDown;
-        private Label label1;
-        private Label label2;
-        private Label label3;
-        private Label label4;
-        private Label label5;
-        private Label label6;
         private Button refreshRegistersButton;
         private Button pulseClockButton;
-        private NumericUpDown registerANumericUpDown;
-        private NumericUpDown registerFNumericUpDown;
         private Button button4;
         private Panel rawPanel;
         private NumericUpDown checkAddressNumericUpDown;
         private Button checkAddressButton;
         private Label addressLabel;
         private Button button5;
+        private Controls.HexViewControl hexViewControl1;
+        private EmulatorLib.ProcessorRegisterViewControl afProcessorRegisterView;
+        private EmulatorLib.ProcessorRegisterViewControl bcProcessorRegisterView;
+        private EmulatorLib.ProcessorRegisterViewControl deProcessorRegisterView;
+        private EmulatorLib.ProcessorRegisterViewControl hlProcessorRegisterView;
+        private EmulatorLib.ProcessorRegisterViewControl spProcessorRegisterView;
+        private EmulatorLib.ProcessorRegisterViewControl pcProcessorRegisterView;
+        private CheckBox interruptsEnabledCheckBox;
+        private Button consumeInstructionButton;
+        private GroupBox groupBox1;
+        private Button runUntilRunButton;
+        private ComboBox runUntilRegisterComboBox;
+        private ComboBox runUntilRegisterOperatorComboBox;
+        private NumericUpDown runUntilRegisterValueNumericUpDown;
     }
 }

@@ -198,7 +198,7 @@ OpCodeInfo OpCodeInfo::OpCodes[256] =
 	OpCodeInfo(0xAC, OpCode::XOR, 1, 4, OperandType::RegisterH),
 	OpCodeInfo(0xAD, OpCode::XOR, 1, 4, OperandType::RegisterL),
 	OpCodeInfo(0xAE, OpCode::XOR, 1, 4, OperandType::RegisterHLIndirect),
-	OpCodeInfo(0xAF, OpCode::XOR, 1, 4, OperandType::Acculumator),
+	OpCodeInfo(0xAF, OpCode::XOR, 1, 4, OperandType::Acculumator, OperandType::Acculumator),
 
 	// 0xB0 - 0xBF
 	OpCodeInfo(0xB0, OpCode::OR, 1, 4, OperandType::RegisterB),
@@ -216,7 +216,7 @@ OpCodeInfo OpCodeInfo::OpCodes[256] =
 	OpCodeInfo(0xBC, OpCode::CP, 1, 4, OperandType::RegisterH),
 	OpCodeInfo(0xBD, OpCode::CP, 1, 4, OperandType::RegisterL),
 	OpCodeInfo(0xBE, OpCode::CP, 1, 4, OperandType::RegisterHLIndirect),
-	OpCodeInfo(0xBF, OpCode::CP, 1, 4, OperandType::Acculumator),
+	OpCodeInfo(0xBF, OpCode::CP, 1, 4, OperandType::Acculumator, OperandType::Acculumator),
 
 	// 0xC0 - 0xCF
 	OpCodeInfo(0xC0, OpCode::RET, 1, 8, OperandType::FlagNotZero, OperandType::None, 20),

@@ -31,10 +31,6 @@ namespace EmulatorGUI.EmulatorLib
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
         private static partial byte memorybus_isaddressmapped(nint pointer, ushort address);
 
-        [LibraryImport("EmulatorLib.dll")]
-        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
-        private static partial byte memorybus_writerom(in nint pointer, in byte[] data, in ushort length);
-
 
 
         public MemoryBus(RomInfo romInfo) : base(memorybus_create(romInfo.CPointer))
@@ -47,12 +43,12 @@ namespace EmulatorGUI.EmulatorLib
 
         }
 
-
+        /// <summary>
+        /// Completely randomizes the entire memory space of the memory bus
+        /// </summary>
         public void Randomize() => memorybus_randomize(CPointer);
         public bool IsAddressMapped(ushort address) => memorybus_isaddressmapped(CPointer, address) != 0;
         public void Write(ushort address, byte value) => memorybus_write(CPointer, address, value);
         public byte Read(ushort address) => memorybus_read(CPointer, address);
-
-        public void WriteROM(byte[] data) => memorybus_writerom(CPointer, data, (ushort)data.Length);
     }
 }

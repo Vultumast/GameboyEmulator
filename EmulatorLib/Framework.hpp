@@ -26,6 +26,9 @@ extern "C"
 	DLL_EXPORT uint16_t processor_getregister(Processor* processor, uint8_t reg) { return processor->GetRegister(static_cast<Register>(reg)); }
 	DLL_EXPORT void processor_pulseclock(Processor* processor) { return processor->PulseClock(); }
 	DLL_EXPORT uint8_t processor_getremainingcycles(Processor* processor) { return processor->GetRemainingCycles(); }
+	DLL_EXPORT uint8_t processor_getinterruptsenabled(Processor* processor) { return processor->InterruptMasterEnable; }
+	DLL_EXPORT void processor_setinterruptsenabled(Processor* processor, uint8_t value) { processor->InterruptMasterEnable = value; }
+
 
 	DLL_EXPORT Video* video_create(MemoryBus* bus, HWND hwnd) { return new Video(bus, hwnd); }
 	DLL_EXPORT void video_clear(Video* video) { video->Clear(); }

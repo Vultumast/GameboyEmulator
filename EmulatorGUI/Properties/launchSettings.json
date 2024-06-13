@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EmulatorGUI": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

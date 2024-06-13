@@ -149,19 +149,19 @@ void Processor::SetRegister(Register destination, uint16_t value)
 		l = value & 0xFF;
 		break;
 	case Register::AF:
-		a = value & (0xFF >> 8);
+		a = (value >> 8) & 0xFF;
 		f = value & 0xFF;
 		break;
 	case Register::BC:
-		b = value & (0xFF >> 8);
+		b = (value >> 8) & 0xFF;
 		c = value & 0xFF;
 		break;
 	case Register::DE:
-		d = value & (0xFF >> 8);
+		d = (value >> 8) & 0xFF;
 		e = value & 0xFF;
 		break;
 	case Register::HL:
-		h = value & (0xFF >> 8);
+		h = (value >> 8) & 0xFF;
 		l = value & 0xFF;
 		break;
 	case Register::SP:
@@ -255,6 +255,7 @@ uint16_t Processor::GetOperand(OperandType operand)
 	uint16_t data = 0;
 	uint16_t addr = 0;
 
+	uint16_t hl = 0;
 	switch (operand)
 	{
 	case OperandType::Acculumator:
@@ -273,12 +274,15 @@ uint16_t Processor::GetOperand(OperandType operand)
 		data = GetRegister((Register)(((uint16_t)operand) - 1));
 		break;
 	case OperandType::IncrementHL:
-		data = (GetRegister(Register::HL) + 1) & 0xFFFF;
-		SetRegister(Register::HL, data);
+		hl = GetRegister(Register::HL);
+		data = _memoryBus->Read(hl);
+
+		SetRegister(Register::HL, hl + 1);
 		break;
 	case OperandType::DecrementHL:
-		data = (GetRegister(Register::HL) - 1) & 0xFFFF;
-		SetRegister(Register::HL, data);
+		hl = GetRegister(Register::HL);
+		data = _memoryBus->Read(hl);
+		SetRegister(Register::HL, hl - 1);
 		break;
 
 	case OperandType::RegisterCIndirect:

@@ -49,6 +49,13 @@ namespace EmulatorGUI.EmulatorLib
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
         private static partial byte processor_getremainingcycles(nint processor);
 
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial byte processor_getinterruptsenabled(nint processor);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void processor_setinterruptsenabled(nint processor, byte value);
+
 
         public Processor(MemoryBus memoryBus) : base(processor_create(memoryBus.CPointer))
         {
@@ -66,7 +73,23 @@ namespace EmulatorGUI.EmulatorLib
 
         public void PulseClock() => processor_pulseclock(CPointer);
 
+        /// <summary>
+        /// Pulses the clock until the current instruction timer reaches 0
+        /// </summary>
+        public void ConsumeInstruction()
+        {
+            while (RemainingCycles != 0)
+                PulseClock();
+            PulseClock();
+        }
+
         public byte RemainingCycles => processor_getremainingcycles(CPointer);
+
+        public bool InterruptsMasterEnabled
+        {
+            get => processor_getinterruptsenabled(CPointer) == 1;
+            set => processor_setinterruptsenabled(CPointer, (byte)(value ? 1 : 0));
+        }
 
     }
 }

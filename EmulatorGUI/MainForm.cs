@@ -1,5 +1,6 @@
 using EmulatorGUI.EmulatorLib;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace EmulatorGUI
 {
@@ -20,7 +21,7 @@ namespace EmulatorGUI
         {
             info = new RomInfo(File.ReadAllBytes("rom.gb"));
 
-            
+
             bus = new MemoryBus(info);
 
             processor = new Processor(bus);
@@ -37,27 +38,46 @@ namespace EmulatorGUI
 
         private void refreshRegistersButton_Click(object sender, EventArgs e)
         {
-            registerAFNumericUpDown.Value = processor.GetRegister(Register.AF);
-            registerBCNumericUpDown.Value = processor.GetRegister(Register.BC);
-            registerDENumericUpDown.Value = processor.GetRegister(Register.DE);
-            registerHLNumericUpDown.Value = processor.GetRegister(Register.HL);
-            registerSPNumericUpDown.Value = processor.GetRegister(Register.SP);
-            registerPCNumericUpDown.Value = processor.GetRegister(Register.PC);
+            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
+            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
+            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
+            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
+            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
+            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
+
+            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
         }
 
         private void pulseClockButton_Click(object sender, EventArgs e)
         {
             processor.PulseClock();
 
-            registerANumericUpDown.Value = processor.GetRegister(Register.A);
-            registerFNumericUpDown.Value = (processor.GetRegister(Register.AF) & 0x0F);
+            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
+            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
+            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
+            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
+            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
+            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
 
-            registerAFNumericUpDown.Value = processor.GetRegister(Register.AF);
-            registerBCNumericUpDown.Value = processor.GetRegister(Register.BC);
-            registerDENumericUpDown.Value = processor.GetRegister(Register.DE);
-            registerHLNumericUpDown.Value = processor.GetRegister(Register.HL);
-            registerSPNumericUpDown.Value = processor.GetRegister(Register.SP);
-            registerPCNumericUpDown.Value = processor.GetRegister(Register.PC);
+            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
+        }
+
+        private void consumeInstructionButton_Click(object sender, EventArgs e)
+        {
+            var cycle = processor.RemainingCycles;
+            processor.ConsumeInstruction();
+
+           //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
+            video.Update(cycle);
+
+            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
+            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
+            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
+            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
+            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
+            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
+
+            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
         }
 
         System.Timers.Timer? loopTimer = null;
@@ -87,19 +107,18 @@ namespace EmulatorGUI
             while (true)
             {
                 processor.PulseClock();
-                /* this.Invoke(new MethodInvoker(delegate
+                this.Invoke(new MethodInvoker(delegate
                 {
-                    registerANumericUpDown.Value = processor.GetRegister(Register.A);
-                    registerFNumericUpDown.Value = (processor.GetRegister(Register.AF) & 0x0F);
+                    afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
+                    bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
+                    deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
+                    hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
+                    spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
+                    pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
 
-                    registerAFNumericUpDown.Value = processor.GetRegister(Register.AF);
-                    registerBCNumericUpDown.Value = processor.GetRegister(Register.BC);
-                    registerDENumericUpDown.Value = processor.GetRegister(Register.DE);
-                    registerHLNumericUpDown.Value = processor.GetRegister(Register.HL);
-                    registerSPNumericUpDown.Value = processor.GetRegister(Register.SP);
-                    registerPCNumericUpDown.Value = processor.GetRegister(Register.PC);
+                    interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
                 }));
-                */
+
 
                 var remainingCycles = processor.RemainingCycles;
 
@@ -147,6 +166,53 @@ namespace EmulatorGUI
         private void button5_Click(object sender, EventArgs e)
         {
             rawPanel.Invalidate();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            runUntilRegisterComboBox.SelectedIndex = 0;
+            runUntilRegisterOperatorComboBox.SelectedIndex = 0;
+
+        }
+
+
+
+        private void runUntilRunButton_Click(object sender, EventArgs e)
+        {
+            runUntilRegisterComboBox.Enabled = false;
+            runUntilRegisterOperatorComboBox.Enabled = false;
+            runUntilRegisterValueNumericUpDown.Enabled = false;
+
+            while (!getCondition())
+            {
+                consumeInstructionButton.PerformClick();
+            }
+
+            runUntilRegisterComboBox.Enabled = true;
+            runUntilRegisterOperatorComboBox.Enabled = true;
+            runUntilRegisterValueNumericUpDown.Enabled = true;
+
+            Console.Write("\n");
+
+            return;
+
+            bool getCondition()
+            {
+                ushort value = processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex);
+                ushort valueToMatch = (ushort)runUntilRegisterValueNumericUpDown.Value;
+
+                Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
+                return runUntilRegisterOperatorComboBox.SelectedIndex switch
+                {
+                    0 => value == valueToMatch, // ==
+                    1 => value != valueToMatch, // !=
+                    2 => value <= valueToMatch,// <=
+                    3 => value >= valueToMatch,// >=
+                    4 => value < valueToMatch,// <
+                    5 => value > valueToMatch,// >
+                    _ => false
+                };
+            }
         }
     }
 }
