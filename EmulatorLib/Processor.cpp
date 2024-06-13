@@ -14,16 +14,19 @@ Processor::Processor(MemoryBus* memoryBus)
 
 void Processor::StackPush(uint16_t value)
 {
-	sp -= 2;
-	_memoryBus->Write(sp + 2, value & 0xFF);
-	_memoryBus->Write(sp + 1, (value & 0x00FF) >> 8);
+	std::stringstream sstream;
+	sstream << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(value);
+	std::cout << std::dec << "wrote: " << sstream.str() << " to the stack" << std::endl;
+
+	_memoryBus->Write(sp--, (value & 0x00FF));
+	_memoryBus->Write(sp--, (value & 0xFF00) >> 8);
 }
 
 uint16_t Processor::StackPop()
 {
-	sp += 2;
-	uint16_t returnValue = _memoryBus->Read(sp - 2);
-	returnValue |= (_memoryBus->Read(sp - 1) << 8);
+	uint16_t returnValue = (uint16_t)(_memoryBus->Read(++sp) << 8);
+
+	returnValue |= _memoryBus->Read(++sp);
 
 	return returnValue;
 }
@@ -95,10 +98,11 @@ void Processor::PulseClock()
 			}
 
 			// Special case for conditionals
-			if (info.GetOpCode() == OpCode::JR || info.GetOpCode() == OpCode::JP)
+			if (info.GetOpCode() == OpCode::JR || info.GetOpCode() == OpCode::JP || info.GetOpCode() == OpCode::CALL)
 			{
 				data = 1;
 
+				// LHS is our conditional
 				if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
 					data = GetOperand(info.GetLeftHandOperand());
 			}

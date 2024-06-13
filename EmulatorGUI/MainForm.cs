@@ -104,9 +104,17 @@ namespace EmulatorGUI
 
             int blah = 0;
 
+            long elapsed = 0;
+
             while (true)
             {
-                processor.PulseClock();
+                watch.Restart();
+
+                var cycle = processor.RemainingCycles;
+                processor.ConsumeInstruction();
+                video.Update(cycle);
+                rawPanel.Invalidate();
+                /*
                 this.Invoke(new MethodInvoker(delegate
                 {
                     afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
@@ -118,22 +126,14 @@ namespace EmulatorGUI
 
                     interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
                 }));
+                */
 
-
-                var remainingCycles = processor.RemainingCycles;
-
-                if (remainingCycles == 0)
-                {
-                    blah++;
-                    video.Update(cyclesThisUpdate);
-
-                    cyclesThisUpdate = 0;
-                    //Console.WriteLine($"lines draw: {blah}");
-                    rawPanel.Invalidate();
-                }
-                else
-                    cyclesThisUpdate++;
-
+                Console.Write(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
+                // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");
+                watch.Stop();
+                elapsed = watch.ElapsedTicks;
+                Application.DoEvents();
+                Thread.Yield();
             }
         }
 
@@ -156,6 +156,7 @@ namespace EmulatorGUI
                 }
             }
 
+            e.Graphics.DrawImage(bmp, 0, 0);
         }
 
         private void checkAddressButton_Click(object sender, EventArgs e)
@@ -184,9 +185,7 @@ namespace EmulatorGUI
             runUntilRegisterValueNumericUpDown.Enabled = false;
 
             while (!getCondition())
-            {
-                consumeInstructionButton.PerformClick();
-            }
+                consumeInstructionButton_Click(null, EventArgs.Empty);
 
             runUntilRegisterComboBox.Enabled = true;
             runUntilRegisterOperatorComboBox.Enabled = true;
@@ -201,7 +200,7 @@ namespace EmulatorGUI
                 ushort value = processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex);
                 ushort valueToMatch = (ushort)runUntilRegisterValueNumericUpDown.Value;
 
-                Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
+                // Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
                 return runUntilRegisterOperatorComboBox.SelectedIndex switch
                 {
                     0 => value == valueToMatch, // ==

@@ -1,7 +1,11 @@
 #include "Processor.hpp"
 #include "MemoryBus.hpp"
 
+
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 void op_NOP(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_STOP(Processor&, OperandType, std::uint16_t, std::uint16_t);
@@ -312,12 +316,12 @@ void op_CPL(Processor& processor, OperandType destType, std::uint16_t dest, std:
 }
 void op_CP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	uint8_t a = processor.GetRegister(Register::A);
+	uint8_t result = processor.GetRegister(Register::A) - source;
 
-	processor.SetFlag(Processor::FLAGS::Z, a == source);
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, true);
-	processor.SetFlag(Processor::FLAGS::H, a >= 0x0F && source != 0);
-	processor.SetFlag(Processor::FLAGS::C, source > a);
+	processor.SetFlag(Processor::FLAGS::H, (result & 0b1000) != 0);
+	processor.SetFlag(Processor::FLAGS::C, (result & 0b10000000) != 0);
 }
 
 void op_ADD(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
@@ -414,15 +418,33 @@ void op_DAA(Processor& processor, OperandType destType, std::uint16_t dest, std:
 
 void op_AND(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.SetRegister(Register::A, (processor.GetRegister(Register::A) & source) & 0xFF);
+	uint8_t result = (processor.GetRegister(Register::A) & source) & 0xFF;
+
+	processor.SetRegister(Register::A, result);
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, false);
 }
 void op_XOR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.SetRegister(Register::A, (processor.GetRegister(Register::A) ^ source) & 0xFF);
+	uint8_t result = (processor.GetRegister(Register::A) ^ source) & 0xFF;
+
+	processor.SetRegister(Register::A, result);
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, false);
 }
 void op_OR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.SetRegister(Register::A, (processor.GetRegister(Register::A) | source) & 0xFF);
+	uint8_t result = (processor.GetRegister(Register::A) | source) & 0xFF;
+
+	processor.SetRegister(Register::A, result);
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, false);
 }
 #pragma region Rotate and Shift
 void op_RLCA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
