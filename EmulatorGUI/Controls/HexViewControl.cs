@@ -31,6 +31,31 @@ namespace EmulatorGUI.Controls
         private float lineSize => fontSize.Width * 3;
 
         private ushort _selectedAddress = 0;
+        public ushort SelectedAddress
+        {
+            get => _selectedAddress;
+            set
+            {
+                if (_selectedAddress != value)
+                    Invalidate();
+
+                _selectedAddress = value;
+                infoGroupBox.Text = $"Info - {_selectedAddress.ToString("X04")}";
+            }
+        }
+
+        private ushort _pcAddress = 0;
+        public ushort PCAddress
+        {
+            get => _pcAddress;
+            set
+            {
+                if (_pcAddress != value)
+                    Invalidate();
+
+                _pcAddress = value;
+            }
+        }
 
 
         private Point _hotTrackPosition = Point.Empty;
@@ -57,6 +82,7 @@ namespace EmulatorGUI.Controls
             set
             {
                 _memoryBus = value;
+                UpdateInfo();
                 Invalidate();
             }
         }
@@ -117,37 +143,44 @@ namespace EmulatorGUI.Controls
                     else
                         c = (char)value;
 
-                    if (address == _selectedAddress)
-                    {
-                        e.Graphics.FillRectangle(SystemBrushes.Highlight, finalX - 1.0f, finalY, (fontSize.Width * 2.0f) + 2.0f, fontSize.Height);
-                        e.Graphics.FillRectangle(SystemBrushes.Highlight, sidebarStartX + (r * fontSize.Width), finalY, fontSize.Width, fontSize.Height); ;
+                    Pen BGPen = SystemPens.Control;
+                    Brush BGBrush = SystemBrushes.Control;
+                    Brush textBrush = Brushes.Black;
 
-                        drawString(string.Format("{0:X02}", value), finalX, finalY, SystemBrushes.HighlightText);
-                        drawString(c.ToString(), sidebarStartX + (r * fontSize.Width), finalY, SystemBrushes.HighlightText);
-                    }
-                    else
+                    if (address == SelectedAddress)
                     {
-                        if (offsetX == HotTrackPosition.Y && r == HotTrackPosition.X)
-                        {
-                            e.Graphics.DrawRectangle(SystemPens.HotTrack, finalX - 1.0f, finalY, (fontSize.Width * 2.0f) + 2.0f, fontSize.Height);
-                            e.Graphics.DrawRectangle(SystemPens.HotTrack, sidebarStartX + (r * fontSize.Width), finalY, fontSize.Width, fontSize.Height); ;
-
-                            drawString(string.Format("{0:X02}", value), finalX, finalY, Brushes.Black);
-                            drawString(c.ToString(), sidebarStartX + (r * fontSize.Width), finalY, Brushes.Black);
-                        }
-                        else
-                        {
-                            drawString(string.Format("{0:X02}", value), finalX, finalY, Brushes.Black);
-                            drawString(c.ToString(), sidebarStartX + (r * fontSize.Width), finalY, Brushes.Black);
-                        }
+                        BGBrush = SystemBrushes.Highlight;
+                        textBrush = SystemBrushes.HighlightText;
                     }
+
+                    if (offsetX == HotTrackPosition.Y && r == HotTrackPosition.X)
+                        BGPen = SystemPens.HotTrack;
+                    
+                    if (address == PCAddress)
+                    {
+                        BGBrush = Brushes.Red;
+                        textBrush = Brushes.White;
+                    }
+
+                    RectangleF mainBounds = new(finalX - 1.0f, finalY, (fontSize.Width * 2.0f) + 2.0f, fontSize.Height);
+                    RectangleF sidebarBounds = new(sidebarStartX + (r * fontSize.Width), finalY, fontSize.Width - 1, fontSize.Height - 1);
+
+                    if (BGBrush != SystemBrushes.Control)
+                    {
+                        e.Graphics.FillRectangle(BGBrush, mainBounds);
+                        e.Graphics.FillRectangle(BGBrush, sidebarBounds);
+                    }
+
+                    if (BGPen != SystemPens.Control)
+                    {
+                        e.Graphics.DrawRectangle(BGPen, mainBounds);
+                        e.Graphics.DrawRectangle(BGPen, sidebarBounds);
+                    }
+
+                    drawString(string.Format("{0:X02}", value), finalX, finalY, textBrush);
+                    drawString(c.ToString(), sidebarStartX + (r * fontSize.Width), finalY, textBrush);
 
                 }
-
-
-
-                // drawString(charBuffer.ToString(), (int)((uiSize + descentSize) + (0x11 * lineSize)), finalY, Brushes.Black);
-
             }
 
             drawTopBar();
@@ -172,6 +205,7 @@ namespace EmulatorGUI.Controls
 
                 drawString("Text", (int)((uiSize + descentSize) + (0x11 * lineSize)), (int)(uiSize - fontSize.Height), Brushes.Blue);
             }
+
         }
 
         private void HexViewControl_MouseMove(object sender, MouseEventArgs e)
@@ -193,10 +227,7 @@ namespace EmulatorGUI.Controls
 
             if (e.Button == MouseButtons.Left)
             {
-                if (_selectedAddress != address)
-                    Invalidate();
-
-                _selectedAddress = address;
+                SelectedAddress = address;
 
                 UpdateInfo();
             }

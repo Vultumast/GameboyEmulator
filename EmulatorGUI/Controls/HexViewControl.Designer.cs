@@ -30,13 +30,13 @@
         {
             vScrollBar = new VScrollBar();
             infoGroupBox = new GroupBox();
+            prefixedLabel = new Label();
             opcodeLabel = new Label();
             int16Label = new Label();
             uint16Label = new Label();
             int8Label = new Label();
             uint8Label = new Label();
             binaryLabel = new Label();
-            prefixedLabel = new Label();
             infoGroupBox.SuspendLayout();
             SuspendLayout();
             // 
@@ -65,7 +65,16 @@
             infoGroupBox.Size = new Size(536, 100);
             infoGroupBox.TabIndex = 1;
             infoGroupBox.TabStop = false;
-            infoGroupBox.Text = "Info";
+            infoGroupBox.Text = "Info - 0000";
+            // 
+            // prefixedLabel
+            // 
+            prefixedLabel.AutoSize = true;
+            prefixedLabel.Location = new Point(131, 32);
+            prefixedLabel.Name = "prefixedLabel";
+            prefixedLabel.Size = new Size(112, 14);
+            prefixedLabel.TabIndex = 6;
+            prefixedLabel.Text = "Prefixed: RLC B";
             // 
             // opcodeLabel
             // 
@@ -120,15 +129,6 @@
             binaryLabel.Size = new Size(119, 14);
             binaryLabel.TabIndex = 0;
             binaryLabel.Text = "Binary: 00000000";
-            // 
-            // prefixedLabel
-            // 
-            prefixedLabel.AutoSize = true;
-            prefixedLabel.Location = new Point(131, 32);
-            prefixedLabel.Name = "prefixedLabel";
-            prefixedLabel.Size = new Size(112, 14);
-            prefixedLabel.TabIndex = 6;
-            prefixedLabel.Text = "Prefixed: RLC B";
             // 
             // HexViewControl
             // 
