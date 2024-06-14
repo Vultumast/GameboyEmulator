@@ -39,7 +39,7 @@
             checkAddressButton = new Button();
             addressLabel = new Label();
             button5 = new Button();
-            hexViewControl1 = new Controls.HexViewControl();
+            hexViewControl = new Controls.HexViewControl();
             afProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
             bcProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
             deProcessorRegisterView = new EmulatorLib.ProcessorRegisterViewControl();
@@ -49,10 +49,10 @@
             interruptsEnabledCheckBox = new CheckBox();
             consumeInstructionButton = new Button();
             groupBox1 = new GroupBox();
+            runUntilRegisterValueNumericUpDown = new NumericUpDown();
+            runUntilRegisterOperatorComboBox = new ComboBox();
             runUntilRegisterComboBox = new ComboBox();
             runUntilRunButton = new Button();
-            runUntilRegisterOperatorComboBox = new ComboBox();
-            runUntilRegisterValueNumericUpDown = new NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).BeginInit();
@@ -107,7 +107,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(231, 352);
+            button4.Location = new Point(411, 412);
             button4.Name = "button4";
             button4.Size = new Size(149, 23);
             button4.TabIndex = 20;
@@ -153,21 +153,23 @@
             // 
             // button5
             // 
-            button5.Location = new Point(231, 306);
+            button5.Location = new Point(206, 262);
             button5.Name = "button5";
-            button5.Size = new Size(66, 23);
+            button5.Size = new Size(102, 23);
             button5.TabIndex = 25;
-            button5.Text = "check";
+            button5.Text = "invalidate panel";
             button5.UseVisualStyleBackColor = true;
             button5.Click += button5_Click;
             // 
-            // hexViewControl1
+            // hexViewControl
             // 
-            hexViewControl1.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            hexViewControl1.Location = new Point(566, 121);
-            hexViewControl1.Name = "hexViewControl1";
-            hexViewControl1.Size = new Size(395, 366);
-            hexViewControl1.TabIndex = 26;
+            hexViewControl.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            hexViewControl.HotTrackPosition = new Point(0, 0);
+            hexViewControl.Location = new Point(566, 121);
+            hexViewControl.MemoryBus = null;
+            hexViewControl.Name = "hexViewControl";
+            hexViewControl.Size = new Size(540, 451);
+            hexViewControl.TabIndex = 26;
             // 
             // afProcessorRegisterView
             // 
@@ -249,12 +251,31 @@
             groupBox1.Controls.Add(runUntilRegisterOperatorComboBox);
             groupBox1.Controls.Add(runUntilRegisterComboBox);
             groupBox1.Controls.Add(runUntilRunButton);
-            groupBox1.Location = new Point(231, 381);
+            groupBox1.Location = new Point(40, 412);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(329, 100);
             groupBox1.TabIndex = 35;
             groupBox1.TabStop = false;
             groupBox1.Text = "Run Until";
+            // 
+            // runUntilRegisterValueNumericUpDown
+            // 
+            runUntilRegisterValueNumericUpDown.Hexadecimal = true;
+            runUntilRegisterValueNumericUpDown.Location = new Point(215, 22);
+            runUntilRegisterValueNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+            runUntilRegisterValueNumericUpDown.Name = "runUntilRegisterValueNumericUpDown";
+            runUntilRegisterValueNumericUpDown.Size = new Size(108, 23);
+            runUntilRegisterValueNumericUpDown.TabIndex = 36;
+            // 
+            // runUntilRegisterOperatorComboBox
+            // 
+            runUntilRegisterOperatorComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            runUntilRegisterOperatorComboBox.FormattingEnabled = true;
+            runUntilRegisterOperatorComboBox.Items.AddRange(new object[] { "==", "!=", "<=", ">=", ">", "<" });
+            runUntilRegisterOperatorComboBox.Location = new Point(133, 22);
+            runUntilRegisterOperatorComboBox.Name = "runUntilRegisterOperatorComboBox";
+            runUntilRegisterOperatorComboBox.Size = new Size(76, 23);
+            runUntilRegisterOperatorComboBox.TabIndex = 37;
             // 
             // runUntilRegisterComboBox
             // 
@@ -276,30 +297,11 @@
             runUntilRunButton.UseVisualStyleBackColor = true;
             runUntilRunButton.Click += runUntilRunButton_Click;
             // 
-            // runUntilRegisterOperatorComboBox
-            // 
-            runUntilRegisterOperatorComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            runUntilRegisterOperatorComboBox.FormattingEnabled = true;
-            runUntilRegisterOperatorComboBox.Items.AddRange(new object[] { "==", "!=", "<=", ">=", ">", "<" });
-            runUntilRegisterOperatorComboBox.Location = new Point(133, 22);
-            runUntilRegisterOperatorComboBox.Name = "runUntilRegisterOperatorComboBox";
-            runUntilRegisterOperatorComboBox.Size = new Size(76, 23);
-            runUntilRegisterOperatorComboBox.TabIndex = 37;
-            // 
-            // runUntilRegisterValueNumericUpDown
-            // 
-            runUntilRegisterValueNumericUpDown.Hexadecimal = true;
-            runUntilRegisterValueNumericUpDown.Location = new Point(215, 22);
-            runUntilRegisterValueNumericUpDown.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            runUntilRegisterValueNumericUpDown.Name = "runUntilRegisterValueNumericUpDown";
-            runUntilRegisterValueNumericUpDown.Size = new Size(108, 23);
-            runUntilRegisterValueNumericUpDown.TabIndex = 36;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(988, 534);
+            ClientSize = new Size(1118, 584);
             Controls.Add(groupBox1);
             Controls.Add(consumeInstructionButton);
             Controls.Add(interruptsEnabledCheckBox);
@@ -309,7 +311,7 @@
             Controls.Add(deProcessorRegisterView);
             Controls.Add(bcProcessorRegisterView);
             Controls.Add(afProcessorRegisterView);
-            Controls.Add(hexViewControl1);
+            Controls.Add(hexViewControl);
             Controls.Add(button5);
             Controls.Add(addressLabel);
             Controls.Add(checkAddressButton);
@@ -345,7 +347,7 @@
         private Button checkAddressButton;
         private Label addressLabel;
         private Button button5;
-        private Controls.HexViewControl hexViewControl1;
+        private Controls.HexViewControl hexViewControl;
         private EmulatorLib.ProcessorRegisterViewControl afProcessorRegisterView;
         private EmulatorLib.ProcessorRegisterViewControl bcProcessorRegisterView;
         private EmulatorLib.ProcessorRegisterViewControl deProcessorRegisterView;

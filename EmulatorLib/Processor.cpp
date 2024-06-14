@@ -14,10 +14,6 @@ Processor::Processor(MemoryBus* memoryBus)
 
 void Processor::StackPush(uint16_t value)
 {
-	std::stringstream sstream;
-	sstream << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(value);
-	std::cout << std::dec << "wrote: " << sstream.str() << " to the stack" << std::endl;
-
 	_memoryBus->Write(sp--, (value & 0x00FF));
 	_memoryBus->Write(sp--, (value & 0xFF00) >> 8);
 }
@@ -108,7 +104,7 @@ void Processor::PulseClock()
 			}
 
 			// Special case for RST instructions
-			if ((info.GetHexCode() & 0xC7) == 0xC7)
+			if (info.GetOpCode() == OpCode::RST)
 			{
 				uint8_t op = info.GetHexCode();
 				data = ((op & 0xF0) - 0xC0) + (op & 0x08);

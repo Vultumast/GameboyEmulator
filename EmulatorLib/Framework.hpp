@@ -9,6 +9,7 @@
 #include "MemoryBus.hpp"
 #include "ROMInfo.hpp"
 #include "MBC1.hpp"
+#include "OpCodeInfo.hpp"
 
 #include <iterator>
 #include <vector>
@@ -48,5 +49,14 @@ extern "C"
 	DLL_EXPORT uint8_t rominfo_getmappertype(ROMInfo* pointer) { return (uint8_t)pointer->GetMapperType(); }
 	DLL_EXPORT uint32_t rominfo_getramsize(ROMInfo* pointer) { return pointer->GetRAMSize(); }
 	DLL_EXPORT uint8_t rominfo_read(ROMInfo* pointer, uint32_t address) { return pointer->Read(address); }
+
+
+	DLL_EXPORT uint8_t opcode_getopcode(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodes[value].GetOpCode(); }
+	DLL_EXPORT uint8_t opcode_getprefixopcode(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodesCB[value].GetOpCode(); }
+
+	DLL_EXPORT uint8_t opcode_getlhsoperand(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodes[value].GetLeftHandOperand(); }
+	DLL_EXPORT uint8_t opcode_getrhsoperand(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodes[value].GetRightHandOperand(); }
+	DLL_EXPORT uint8_t opcode_getprefixlhsoperand(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodesCB[value].GetLeftHandOperand(); }
+	DLL_EXPORT uint8_t opcode_getprefixrhsoperand(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodesCB[value].GetRightHandOperand(); }
 
 }

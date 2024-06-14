@@ -27,6 +27,8 @@ namespace EmulatorGUI
             processor = new Processor(bus);
             video = new Video(bus, viewPanel.Handle);
             processor.Reset();
+
+            hexViewControl.MemoryBus = bus;
         }
 
         private void button2_Click(object sender, EventArgs e)
