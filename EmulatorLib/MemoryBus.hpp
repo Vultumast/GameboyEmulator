@@ -13,6 +13,8 @@ private:
 		uint8_t _ram[0x10000];
 		ROMInfo* _rom = nullptr;
 		MapperImpl* _mapper = nullptr;
+
+		uint16_t translateAddress(uint16_t address);
 public:
 	MemoryBus(ROMInfo* rom);
 	~MemoryBus();
@@ -30,8 +32,8 @@ public:
 	/// <returns></returns>
 	uint16_t ReadWord(const uint16_t& address);
 
-	void WriteROM(const std::vector<uint8_t>& data);
-
 	void RequestInterrupt(Interrupt interrupt);
 	Interrupt GetInterrupts();
+
+	bool EchoRAMUsable = false;
 };

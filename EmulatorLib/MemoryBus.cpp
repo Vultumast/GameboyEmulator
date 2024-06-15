@@ -6,6 +6,15 @@
 #include <algorithm>
 #include <iostream>
 
+uint16_t MemoryBus::translateAddress(uint16_t address)
+{
+	std::uint16_t realAddress = address;
+	if (!EchoRAMUsable && (realAddress >= Addr_ERAM_Start && realAddress <= Addr_ERAM_End))
+		realAddress -= 0x2000;
+
+	return realAddress;
+}
+
 MemoryBus::MemoryBus(ROMInfo* rom)
 {
 	_rom = rom;
@@ -155,16 +164,6 @@ uint16_t MemoryBus::ReadWord(const uint16_t& address)
 	returnValue |= ((uint16_t)_ram[realAddress + 1] << 8);
 
 	return returnValue;
-}
-
-void MemoryBus::WriteROM(const std::vector<uint8_t>& data)
-{
-	uint16_t expectedLength = (Addr_ROM_End - Addr_ROM_Start) + 1;
-
-	if (expectedLength == data.size())
-		std::copy(data.begin(), data.end(), _ram);
-	else
-		std::cout << "Rom data was outside of expected range." << std::endl;
 }
 
 void MemoryBus::RequestInterrupt(Interrupt interrupt)

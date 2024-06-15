@@ -95,11 +95,10 @@ namespace EmulatorGUI
             loopTimer = new System.Timers.Timer();
             loopTimer.Interval = 1;
             loopTimer.Elapsed += LoopTimer_Elapsed;
-            loopTimer.AutoReset = false;
+            loopTimer.AutoReset = true;
             loopTimer.Enabled = true;
         }
 
-        byte cyclesThisUpdate = 0;
         private void LoopTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
             Stopwatch watch = new Stopwatch();
@@ -134,8 +133,8 @@ namespace EmulatorGUI
                 // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");
                 watch.Stop();
                 elapsed = watch.ElapsedTicks;
-                Application.DoEvents();
-                Thread.Yield();
+                //Application.DoEvents();
+                //Thread.Yield();
             }
         }
 

@@ -53,9 +53,11 @@
             runUntilRegisterOperatorComboBox = new ComboBox();
             runUntilRegisterComboBox = new ComboBox();
             runUntilRunButton = new Button();
+            groupBox2 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).BeginInit();
+            groupBox2.SuspendLayout();
             SuspendLayout();
             // 
             // viewPanel
@@ -97,9 +99,9 @@
             // 
             // pulseClockButton
             // 
-            pulseClockButton.Location = new Point(411, 159);
+            pulseClockButton.Location = new Point(400, 150);
             pulseClockButton.Name = "pulseClockButton";
-            pulseClockButton.Size = new Size(149, 23);
+            pulseClockButton.Size = new Size(160, 23);
             pulseClockButton.TabIndex = 17;
             pulseClockButton.Text = "pulse clock";
             pulseClockButton.UseVisualStyleBackColor = true;
@@ -107,9 +109,9 @@
             // 
             // button4
             // 
-            button4.Location = new Point(411, 412);
+            button4.Location = new Point(400, 549);
             button4.Name = "button4";
-            button4.Size = new Size(149, 23);
+            button4.Size = new Size(160, 23);
             button4.TabIndex = 20;
             button4.Text = "start";
             button4.UseVisualStyleBackColor = true;
@@ -168,78 +170,86 @@
             hexViewControl.Location = new Point(566, 121);
             hexViewControl.MemoryBus = null;
             hexViewControl.Name = "hexViewControl";
+            hexViewControl.PCAddress = (ushort)0;
+            hexViewControl.SelectedAddress = (ushort)0;
             hexViewControl.Size = new Size(540, 451);
             hexViewControl.TabIndex = 26;
             // 
             // afProcessorRegisterView
             // 
-            afProcessorRegisterView.Location = new Point(411, 188);
+            afProcessorRegisterView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            afProcessorRegisterView.Location = new Point(6, 21);
             afProcessorRegisterView.Name = "afProcessorRegisterView";
             afProcessorRegisterView.RegisterName = "AF";
-            afProcessorRegisterView.Size = new Size(149, 22);
+            afProcessorRegisterView.Size = new Size(148, 22);
             afProcessorRegisterView.TabIndex = 27;
             afProcessorRegisterView.Value = (ushort)0;
             // 
             // bcProcessorRegisterView
             // 
-            bcProcessorRegisterView.Location = new Point(411, 216);
+            bcProcessorRegisterView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            bcProcessorRegisterView.Location = new Point(6, 49);
             bcProcessorRegisterView.Name = "bcProcessorRegisterView";
             bcProcessorRegisterView.RegisterName = "BC";
-            bcProcessorRegisterView.Size = new Size(149, 22);
+            bcProcessorRegisterView.Size = new Size(148, 22);
             bcProcessorRegisterView.TabIndex = 28;
             bcProcessorRegisterView.Value = (ushort)0;
             // 
             // deProcessorRegisterView
             // 
-            deProcessorRegisterView.Location = new Point(411, 244);
+            deProcessorRegisterView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            deProcessorRegisterView.Location = new Point(6, 77);
             deProcessorRegisterView.Name = "deProcessorRegisterView";
             deProcessorRegisterView.RegisterName = "DE";
-            deProcessorRegisterView.Size = new Size(149, 22);
+            deProcessorRegisterView.Size = new Size(148, 22);
             deProcessorRegisterView.TabIndex = 29;
             deProcessorRegisterView.Value = (ushort)0;
             // 
             // hlProcessorRegisterView
             // 
-            hlProcessorRegisterView.Location = new Point(411, 272);
+            hlProcessorRegisterView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            hlProcessorRegisterView.Location = new Point(6, 105);
             hlProcessorRegisterView.Name = "hlProcessorRegisterView";
             hlProcessorRegisterView.RegisterName = "HL";
-            hlProcessorRegisterView.Size = new Size(149, 22);
+            hlProcessorRegisterView.Size = new Size(148, 22);
             hlProcessorRegisterView.TabIndex = 30;
             hlProcessorRegisterView.Value = (ushort)0;
             // 
             // spProcessorRegisterView
             // 
-            spProcessorRegisterView.Location = new Point(411, 300);
+            spProcessorRegisterView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            spProcessorRegisterView.Location = new Point(6, 133);
             spProcessorRegisterView.Name = "spProcessorRegisterView";
             spProcessorRegisterView.RegisterName = "SP";
-            spProcessorRegisterView.Size = new Size(149, 22);
+            spProcessorRegisterView.Size = new Size(148, 22);
             spProcessorRegisterView.TabIndex = 31;
             spProcessorRegisterView.Value = (ushort)0;
             // 
             // pcProcessorRegisterView
             // 
-            pcProcessorRegisterView.Location = new Point(411, 328);
+            pcProcessorRegisterView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            pcProcessorRegisterView.Location = new Point(6, 161);
             pcProcessorRegisterView.Name = "pcProcessorRegisterView";
             pcProcessorRegisterView.RegisterName = "PC";
-            pcProcessorRegisterView.Size = new Size(149, 22);
+            pcProcessorRegisterView.Size = new Size(148, 22);
             pcProcessorRegisterView.TabIndex = 32;
             pcProcessorRegisterView.Value = (ushort)0;
             // 
             // interruptsEnabledCheckBox
             // 
             interruptsEnabledCheckBox.AutoSize = true;
-            interruptsEnabledCheckBox.Location = new Point(411, 356);
+            interruptsEnabledCheckBox.Location = new Point(6, 189);
             interruptsEnabledCheckBox.Name = "interruptsEnabledCheckBox";
-            interruptsEnabledCheckBox.Size = new Size(122, 19);
+            interruptsEnabledCheckBox.Size = new Size(152, 18);
             interruptsEnabledCheckBox.TabIndex = 33;
             interruptsEnabledCheckBox.Text = "Interrupts Enabled";
             interruptsEnabledCheckBox.UseVisualStyleBackColor = true;
             // 
             // consumeInstructionButton
             // 
-            consumeInstructionButton.Location = new Point(411, 130);
+            consumeInstructionButton.Location = new Point(400, 121);
             consumeInstructionButton.Name = "consumeInstructionButton";
-            consumeInstructionButton.Size = new Size(149, 23);
+            consumeInstructionButton.Size = new Size(160, 23);
             consumeInstructionButton.TabIndex = 34;
             consumeInstructionButton.Text = "consume instruction";
             consumeInstructionButton.UseVisualStyleBackColor = true;
@@ -251,7 +261,7 @@
             groupBox1.Controls.Add(runUntilRegisterOperatorComboBox);
             groupBox1.Controls.Add(runUntilRegisterComboBox);
             groupBox1.Controls.Add(runUntilRunButton);
-            groupBox1.Location = new Point(40, 412);
+            groupBox1.Location = new Point(21, 458);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(329, 100);
             groupBox1.TabIndex = 35;
@@ -297,20 +307,31 @@
             runUntilRunButton.UseVisualStyleBackColor = true;
             runUntilRunButton.Click += runUntilRunButton_Click;
             // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(afProcessorRegisterView);
+            groupBox2.Controls.Add(bcProcessorRegisterView);
+            groupBox2.Controls.Add(deProcessorRegisterView);
+            groupBox2.Controls.Add(interruptsEnabledCheckBox);
+            groupBox2.Controls.Add(hlProcessorRegisterView);
+            groupBox2.Controls.Add(pcProcessorRegisterView);
+            groupBox2.Controls.Add(spProcessorRegisterView);
+            groupBox2.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            groupBox2.Location = new Point(400, 179);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(160, 364);
+            groupBox2.TabIndex = 36;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Processor State";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1118, 584);
+            Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(consumeInstructionButton);
-            Controls.Add(interruptsEnabledCheckBox);
-            Controls.Add(pcProcessorRegisterView);
-            Controls.Add(spProcessorRegisterView);
-            Controls.Add(hlProcessorRegisterView);
-            Controls.Add(deProcessorRegisterView);
-            Controls.Add(bcProcessorRegisterView);
-            Controls.Add(afProcessorRegisterView);
             Controls.Add(hexViewControl);
             Controls.Add(button5);
             Controls.Add(addressLabel);
@@ -330,6 +351,8 @@
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).EndInit();
             groupBox1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).EndInit();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -361,5 +384,6 @@
         private ComboBox runUntilRegisterComboBox;
         private ComboBox runUntilRegisterOperatorComboBox;
         private NumericUpDown runUntilRegisterValueNumericUpDown;
+        private GroupBox groupBox2;
     }
 }
