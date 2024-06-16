@@ -30,12 +30,15 @@ uint8_t MBC1Mapper::Read(uint16_t address)
 {
 	ROMInfo* rom = GetROMInfo();
 
-	if (address <= 0x7FFF && address > 0x3FFFF)
-		return rom->Read(0x4000 * _romBank);
-
-	if (address <= 0x3FFF)
+	if (_romBank == 1)
 		return rom->Read(address);
-
+	else
+	{
+		if (address <= 0x3FFF)
+			return rom->Read(address);
+		else
+			return rom->Read((0x4000 * _romBank) + ( address - 0x3FFF));
+	}
 }
 
 void MBC1Mapper::Reset()
