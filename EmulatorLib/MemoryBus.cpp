@@ -168,9 +168,31 @@ uint16_t MemoryBus::ReadWord(const uint16_t& address)
 
 void MemoryBus::RequestInterrupt(Interrupt interrupt)
 {
-	_ram[0xFF0F] |= (uint8_t)interrupt;
+	/*
+	std::cout << "Interrupt Requested: ";
+	switch (interrupt)
+	{
+	case Interrupt::VBLANK:
+		std::cout << "VBLANK" << std::endl;
+		break;
+	case Interrupt::LCD:
+		std::cout << "LCD" << std::endl;
+		break;
+	case Interrupt::TIMER:
+		std::cout << "TIMER" << std::endl;
+		break;
+	case Interrupt::SERIAL:
+		std::cout << "SERIAL" << std::endl;
+		break;
+	case Interrupt::JOYPAD:
+		std::cout << "JOYPAD" << std::endl;
+		break;
+	}
+	*/
+
+	_ram[HardwareRegister::IF] |= (uint8_t)interrupt;
 }
 Interrupt MemoryBus::GetInterrupts()
 {
-	return (Interrupt)_ram[0xFF0F];
+	return (Interrupt)_ram[HardwareRegister::IF];
 }

@@ -66,12 +66,10 @@ void Processor::PulseClock()
 		{
 			for (uint8_t i = 0; i <= Interrupt::JOYPAD; i++)
 			{
-				uint8_t interrupt = reqInterrupts & i;
-				
-				if (interrupt == 0)
+				if ((reqInterrupts & i) == 0)
 					continue;
 
-				serviceInterrupt((Interrupt)interrupt);
+				serviceInterrupt((Interrupt)i);
 				break;
 			}
 		}
@@ -105,13 +103,6 @@ void Processor::PulseClock()
 				// LHS is our conditional
 				if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
 					data = GetOperand(info.GetLeftHandOperand());
-			}
-
-			// Special case for RST instructions
-			if (info.GetOpCode() == OpCode::RST)
-			{
-				uint8_t op = info.GetHexCode();
-				data = ((op & 0xF0) - 0xC0) + (op & 0x08);
 			}
 
 			_remainingCycles = info.GetCycleLengthMin();
@@ -401,6 +392,8 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	std::cout << std::dec << "RESET VECTOR HIT: " << sstream.str() << std::endl;
 
 	_remainingCycles = 20;
-	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << interrupt)); // Reset Serviced Interrupt
+
+	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << (interrupt - 1))); // Reset Serviced Interrupt
+
 }
 #pragma endregion

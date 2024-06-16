@@ -12,12 +12,13 @@ void MBC1Mapper::Write(uint16_t address, uint8_t value)
 		_ramEnabled = (value & 0xF) == 0xA;
 	else if (address <= 0x3FFF)
 	{
-		std::cout << "ROM BANKED SWITCHED" << std::endl;
 
 		_romBank = value & 0b00011111;
 
 		if (_romBank == 0)
 			_romBank = 1;
+
+		std::cout << "ROM Bank switched to: "  << std::to_string(_romBank) << std::endl;
 	}
 	else if (rom->HasRAM())
 	{
