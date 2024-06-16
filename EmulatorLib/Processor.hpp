@@ -17,6 +17,11 @@ public:
 
 	bool InterruptMasterEnable = false;
 
+	/// <summary>
+	/// Should the CPUs execution be halted until an interrupt is requested?
+	/// <para>Interrupts are only serviced if <c>InterruptMasterEnable</c> is enabled otherwise execution just resumes from where it was halted.</para>
+	/// </summary>
+	bool Halted = false;
 
 	/// <summary>
 	/// Resets the CPU, resetting all registers to what they were at boot
@@ -73,12 +78,6 @@ public:
 	/// <param name="address"></param>
 	void ResetVector(uint16_t address);
 
-	/// <summary>
-	/// Should the CPUs execution be halted until an interrupt is requested?
-	/// <para>Interrupts are only serviced if <c>InterruptMasterEnable</c> is enabled otherwise execution just resumes from where it was halted.</para>
-	/// </summary>
-	bool Halted = false;
-
 private:
 	// Registers
 	uint8_t a = 0x00;
@@ -111,3 +110,4 @@ private:
 };
 
 extern std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t) > Instructions[256];
+extern std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t) > InstructionsCB[256];

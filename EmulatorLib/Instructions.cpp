@@ -1,5 +1,6 @@
 #include "Processor.hpp"
 #include "MemoryBus.hpp"
+#include "InstructionArguments.hpp"
 
 
 #include <iostream>
@@ -84,6 +85,100 @@ std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instr
 
 };
 
+#pragma region 16-bit Opcodes
+void op_RLC(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RRC(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
+void op_RL(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RR(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
+void op_SLA(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_SRA(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_SRL(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
+std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t) > InstructionsCB[256] =
+{
+	op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC,
+	op_RL , op_RL , op_RL , op_RL , op_RL , op_RL , op_RL , op_RL , op_RR , op_RR , op_RR , op_RR , op_RR , op_RR , op_RR , op_RR ,
+};
+
+
+
+void op_RLC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+
+	uint16_t result = source << 1;
+
+	result |= ((result & 0x100) >> 8);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, result & (0b1 << 7));
+}
+void op_RRC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+
+	uint16_t result = (source >> 1);
+
+	result |= ((source & (0b1 << 7)) >> 7);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, result & (0b1));
+}
+
+void op_RL(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+
+	uint16_t result = (source << 1) | (processor.GetFlag(Processor::FLAGS::C));
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, source & (0b1 << 7));
+}
+
+void op_RR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+
+	uint16_t result = (source >> 1) | (processor.GetFlag(Processor::FLAGS::C) << 7);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, source & (0b1));
+}
+
+void op_SLA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+
+	uint16_t result = (source << 1);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, source & (0b1 << 7));
+}
+void op_SRA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+
+	uint16_t result = (source >> 1);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, source & (0b1));
+}
+
+#pragma endregion
 
 #pragma region Misc
 
