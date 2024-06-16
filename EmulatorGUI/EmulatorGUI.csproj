@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="XCOPY &quot;$(SolutionDir)build\x64\Debug\EmulatorLib.*&quot; &quot;$(OutDir)&quot; /y" />
+    <Exec Command="CALL &quot;$(SolutionDir)\CopyUnmanaged.bat&quot; &quot;$(SolutionDir)&quot; Debug" />
   </Target>
 
 </Project>

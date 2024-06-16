@@ -72,14 +72,7 @@ namespace EmulatorGUI
            //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
             video.Update(cycle);
 
-            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
-            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
-            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
-            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
-            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
-            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
-
-            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
+            updateProcessorInfo();
         }
 
         System.Timers.Timer? loopTimer = null;
@@ -177,23 +170,28 @@ namespace EmulatorGUI
 
         }
 
-
-
         private void runUntilRunButton_Click(object sender, EventArgs e)
         {
             runUntilRegisterComboBox.Enabled = false;
             runUntilRegisterOperatorComboBox.Enabled = false;
             runUntilRegisterValueNumericUpDown.Enabled = false;
 
+            Console.WriteLine($"Waiting for {processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex)} {runUntilRegisterOperatorComboBox.SelectedItem} {(ushort)runUntilRegisterValueNumericUpDown.Value}");
             while (!getCondition())
-                consumeInstructionButton_Click(null, EventArgs.Empty);
+            {
+                var cycle = processor.RemainingCycles;
+                processor.ConsumeInstruction();
+
+                //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
+                video.Update(cycle);
+            }
+            Console.WriteLine($"Done waiting!");
 
             runUntilRegisterComboBox.Enabled = true;
             runUntilRegisterOperatorComboBox.Enabled = true;
             runUntilRegisterValueNumericUpDown.Enabled = true;
 
-            Console.Write("\n");
-
+            updateProcessorInfo();
             return;
 
             bool getCondition()
@@ -213,6 +211,25 @@ namespace EmulatorGUI
                     _ => false
                 };
             }
+        }
+
+
+        private void updateProcessorInfo()
+        {
+            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
+            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
+            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
+            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
+            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
+            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
+
+            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
+
+            processorFlagsLabel.Text = $"Flags: " +
+                $"{(processor.GetFlag(Processor.Flags.Z) ? "Z" : "0")}" +
+                $"{(processor.GetFlag(Processor.Flags.N) ? "N" : "0")}" +
+                $"{(processor.GetFlag(Processor.Flags.H) ? "H" : "0")}" +
+                $"{(processor.GetFlag(Processor.Flags.C) ? "C" : "0")}";
         }
     }
 }

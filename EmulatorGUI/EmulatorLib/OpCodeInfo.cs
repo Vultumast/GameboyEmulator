@@ -179,7 +179,6 @@ namespace EmulatorGUI.EmulatorLib
         public static OpCodeInfo GetOpCodePrefixedInfo(byte index) => new((OpCode)opcode_getprefixopcode(index), (OperandType)opcode_getprefixlhsoperand(index), (OperandType)opcode_getprefixrhsoperand(index));
 
 
-
         public new string ToString()
         {
 			if (LeftHandOperand == OperandType.None && RightHandOperand == OperandType.None)

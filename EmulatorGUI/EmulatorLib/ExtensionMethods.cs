@@ -53,11 +53,13 @@ namespace EmulatorGUI.EmulatorLib
                 case OperandType.RegisterHLIndirect:
                     return "[HL]";
                 case OperandType.DataUINT8:
+                    return "d8";
                 case OperandType.AddressUINT8:
                     return "u8";
                 case OperandType.DataUINT16:
+                    return "d16"; 
                 case OperandType.AddressUINT16:
-                    return "u16";
+                    return "a16";
                 case OperandType.DataINT8:
                     return "i8";
                 case OperandType.FlagCarry:

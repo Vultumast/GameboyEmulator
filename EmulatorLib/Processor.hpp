@@ -73,6 +73,12 @@ public:
 	/// <param name="address"></param>
 	void ResetVector(uint16_t address);
 
+	/// <summary>
+	/// Should the CPUs execution be halted until an interrupt is requested?
+	/// <para>Interrupts are only serviced if <c>InterruptMasterEnable</c> is enabled otherwise execution just resumes from where it was halted.</para>
+	/// </summary>
+	bool Halted = false;
+
 private:
 	// Registers
 	uint8_t a = 0x00;

@@ -54,6 +54,7 @@
             runUntilRegisterComboBox = new ComboBox();
             runUntilRunButton = new Button();
             groupBox2 = new GroupBox();
+            processorFlagsLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).BeginInit();
@@ -238,7 +239,7 @@
             // interruptsEnabledCheckBox
             // 
             interruptsEnabledCheckBox.AutoSize = true;
-            interruptsEnabledCheckBox.Location = new Point(6, 189);
+            interruptsEnabledCheckBox.Location = new Point(6, 203);
             interruptsEnabledCheckBox.Name = "interruptsEnabledCheckBox";
             interruptsEnabledCheckBox.Size = new Size(152, 18);
             interruptsEnabledCheckBox.TabIndex = 33;
@@ -309,6 +310,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(processorFlagsLabel);
             groupBox2.Controls.Add(afProcessorRegisterView);
             groupBox2.Controls.Add(bcProcessorRegisterView);
             groupBox2.Controls.Add(deProcessorRegisterView);
@@ -323,6 +325,15 @@
             groupBox2.TabIndex = 36;
             groupBox2.TabStop = false;
             groupBox2.Text = "Processor State";
+            // 
+            // processorFlagsLabel
+            // 
+            processorFlagsLabel.AutoSize = true;
+            processorFlagsLabel.Location = new Point(6, 186);
+            processorFlagsLabel.Name = "processorFlagsLabel";
+            processorFlagsLabel.Size = new Size(105, 14);
+            processorFlagsLabel.TabIndex = 37;
+            processorFlagsLabel.Text = "Flags: 0 0 0 0";
             // 
             // MainForm
             // 
@@ -385,5 +396,6 @@
         private ComboBox runUntilRegisterOperatorComboBox;
         private NumericUpDown runUntilRegisterValueNumericUpDown;
         private GroupBox groupBox2;
+        private Label processorFlagsLabel;
     }
 }

@@ -127,6 +127,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" Debug</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy Files to C# output</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -147,6 +153,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" Debug</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy Files to C# output</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Constants.hpp" />

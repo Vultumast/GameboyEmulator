@@ -14,15 +14,15 @@ Processor::Processor(MemoryBus* memoryBus)
 
 void Processor::StackPush(uint16_t value)
 {
-	_memoryBus->Write(sp--, (value & 0x00FF));
 	_memoryBus->Write(sp--, (value & 0xFF00) >> 8);
+	_memoryBus->Write(sp--, (value & 0x00FF));
 }
 
 uint16_t Processor::StackPop()
 {
-	uint16_t returnValue = (uint16_t)(_memoryBus->Read(++sp) << 8);
+	uint16_t returnValue = (uint16_t)(_memoryBus->Read(++sp));
 
-	returnValue |= _memoryBus->Read(++sp);
+	returnValue |= _memoryBus->Read(++sp) << 8;
 
 	return returnValue;
 }
@@ -53,10 +53,14 @@ void Processor::PulseClock()
 {
 	_cycleCount = (_cycleCount + 1) % 0xFF;
 
+	if (Halted)
+		_remainingCycles = 0;
+
 	// Cycle timer finished?
 	if (IsInstructionCompleted())
 	{
 		Interrupt reqInterrupts = _memoryBus->GetInterrupts();
+
 		// Service all pending interrupts first
 		if (InterruptMasterEnable && (_memoryBus->Read(HardwareRegister::IE) != 0 && reqInterrupts != 0))
 		{
@@ -348,6 +352,7 @@ uint16_t Processor::GetOperand(OperandType operand)
 	return data;
 }
 
+#pragma region Private Methods
 uint8_t Processor::fetch()
 {
 	uint8_t value = _memoryBus->Read(pc);
@@ -356,26 +361,34 @@ uint8_t Processor::fetch()
 }
 void Processor::serviceInterrupt(Interrupt interrupt)
 {
+	std::cout << "SERVICING INTERRUPT: ";
 	uint8_t handler = 0x40;
 
 	switch (interrupt)
 	{
 	case VBLANK:
 		handler = 0x40;
+		std::cout << "VBLANK";
 		break;
 	case LCD:
 		handler = 0x48;
+		std::cout << "LCD";
 		break;
 	case TIMER:
 		handler = 0x50;
+		std::cout << "TIMER";
 		break;
 	case SERIAL:
 		handler = 0x58;
+		std::cout << "SERIAL";
 		break;
 	case JOYPAD:
 		handler = 0x60;
+		std::cout << "JOYPAD";
 		break;
 	}
+
+	std::cout << std::endl;
 
 	// di; call $00hh (copied from Instructions.cpp)
 	// Disable so we can actually run interrupt code at the reset vector
@@ -390,3 +403,4 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	_remainingCycles = 20;
 	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << interrupt)); // Reset Serviced Interrupt
 }
+#pragma endregion

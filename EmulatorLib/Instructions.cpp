@@ -195,7 +195,7 @@ void op_LD(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 void op_PUSH(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	processor.StackPush(dest);
+	processor.StackPush(processor.GetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1))));
 }
 
 void op_POP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
@@ -388,16 +388,13 @@ void op_ADC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 }
 void op_SBC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	uint8_t c = processor.GetFlag(Processor::FLAGS::C);
+	uint8_t result = (processor.GetRegister(Register::A) - source) - processor.GetFlag(Processor::FLAGS::C);
 
-	uint8_t pre = processor.GetRegister(Register::A) & 0xFF;
-	uint8_t post = (pre - source) - c;
-
-	processor.SetRegister(Register::A, post);
-	processor.SetFlag(Processor::FLAGS::Z, post == 0);
+	processor.SetRegister(Register::A, result);
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, true);
-	processor.SetFlag(Processor::FLAGS::H, post <= 0xFF && pre > 0x7F);
-	processor.SetFlag(Processor::FLAGS::C, post <= 0xFF && pre > 0xFF);
+	processor.SetFlag(Processor::FLAGS::H, (result & 0b1000) != 0);
+	processor.SetFlag(Processor::FLAGS::C, (result & 0b10000000) != 0);
 }
 
 void op_DAA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)

@@ -24,7 +24,6 @@ namespace EmulatorGUI.EmulatorLib
         SP,
         PC
     };
-
     public partial class Processor : ObjectBase
     {
         [LibraryImport("EmulatorLib.dll")]
@@ -55,6 +54,21 @@ namespace EmulatorGUI.EmulatorLib
         [LibraryImport("EmulatorLib.dll")]
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
         private static partial void processor_setinterruptsenabled(nint processor, byte value);
+
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial byte processor_getflag(nint processor, byte flag);
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void processor_setflag(nint processor, byte flag, byte value);
+
+        public enum Flags
+        {
+            C = (1 << 4),
+            H = (1 << 5),
+            N = (1 << 6),
+            Z = (1 << 7),
+        };
 
 
         public Processor(MemoryBus memoryBus) : base(processor_create(memoryBus.CPointer))
@@ -91,5 +105,7 @@ namespace EmulatorGUI.EmulatorLib
             set => processor_setinterruptsenabled(CPointer, (byte)(value ? 1 : 0));
         }
 
+        public void SetFlag(Flags flag, bool value) => processor_setflag(CPointer, (byte)flag, (byte)(value ? 1 : 0));
+        public bool GetFlag(Flags flag) => processor_getflag(CPointer, (byte)flag) == 1;
     }
 }

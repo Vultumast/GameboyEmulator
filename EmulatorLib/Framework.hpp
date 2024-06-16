@@ -29,7 +29,8 @@ extern "C"
 	DLL_EXPORT uint8_t processor_getremainingcycles(Processor* processor) { return processor->GetRemainingCycles(); }
 	DLL_EXPORT uint8_t processor_getinterruptsenabled(Processor* processor) { return processor->InterruptMasterEnable; }
 	DLL_EXPORT void processor_setinterruptsenabled(Processor* processor, uint8_t value) { processor->InterruptMasterEnable = value; }
-
+	DLL_EXPORT uint8_t processor_getflag(Processor* processor, uint8_t flag) { return processor->GetFlag((Processor::FLAGS)flag); }
+	DLL_EXPORT void processor_setflag(Processor* processor, uint8_t flag, uint8_t value) { processor->SetFlag((Processor::FLAGS)flag, value); }
 
 	DLL_EXPORT Video* video_create(MemoryBus* bus, HWND hwnd) { return new Video(bus, hwnd); }
 	DLL_EXPORT void video_clear(Video* video) { video->Clear(); }
@@ -42,7 +43,6 @@ extern "C"
 	DLL_EXPORT void memorybus_write(MemoryBus* pointer, uint16_t address, uint8_t value) { pointer->Write(address, value); }
 	DLL_EXPORT uint8_t memorybus_read(MemoryBus* pointer, uint16_t address) { return pointer->Read(address); }
 	DLL_EXPORT bool memorybus_isaddressmapped(MemoryBus* pointer, uint16_t* address) { return pointer->IsAddressMapped(*address); }
-	DLL_EXPORT void memorybus_writerom(MemoryBus* pointer, uint8_t** data, uint16_t* size) { pointer->WriteROM(std::vector<uint8_t>(*data, *data + *size)); }
 
 	DLL_EXPORT ROMInfo* rominfo_create(uint8_t* rominfo, uint32_t size) { return new ROMInfo(rominfo, size); }
 	DLL_EXPORT uint8_t rominfo_getcartridgetype(ROMInfo* pointer) { return (uint8_t)pointer->GetCartridgeType(); }
