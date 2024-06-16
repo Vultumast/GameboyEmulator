@@ -69,7 +69,7 @@ namespace EmulatorGUI
             var cycle = processor.RemainingCycles;
             processor.ConsumeInstruction();
 
-           //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
+            //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
             video.Update(cycle);
 
             updateProcessorInfo();
@@ -77,19 +77,29 @@ namespace EmulatorGUI
 
         System.Timers.Timer? loopTimer = null;
 
+
+        bool stopTimer = false;
+
         private void button4_Click(object sender, EventArgs e)
         {
 
             int maxCycles = 69905;
 
 
+            stopTimer = false;
 
 
             loopTimer = new System.Timers.Timer();
             loopTimer.Interval = 1;
             loopTimer.Elapsed += LoopTimer_Elapsed;
-            loopTimer.AutoReset = true;
+            loopTimer.AutoReset = false;
             loopTimer.Enabled = true;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            stopTimer = true;
+            updateProcessorInfo();
         }
 
         private void LoopTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
@@ -128,6 +138,9 @@ namespace EmulatorGUI
                 elapsed = watch.ElapsedTicks;
                 //Application.DoEvents();
                 //Thread.Yield();
+
+                if (stopTimer)
+                    break;
             }
         }
 
@@ -230,6 +243,9 @@ namespace EmulatorGUI
                 $"{(processor.GetFlag(Processor.Flags.N) ? "N" : "0")}" +
                 $"{(processor.GetFlag(Processor.Flags.H) ? "H" : "0")}" +
                 $"{(processor.GetFlag(Processor.Flags.C) ? "C" : "0")}";
+
+            hexViewControl.PCAddress = processor.GetRegister(Register.PC);
         }
+
     }
 }

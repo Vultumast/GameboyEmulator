@@ -100,7 +100,7 @@ void op_STOP(Processor& processor, OperandType destType, std::uint16_t dest, std
 
 void op_HALT(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	// TODO
+	processor.Halted = true;
 }
 
 void op_EI(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
@@ -112,6 +112,7 @@ void op_DI(Processor& processor, OperandType destType, std::uint16_t dest, std::
 {
 	processor.InterruptMasterEnable = false;
 }
+
 void op_SCF(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
 	processor.SetFlag(Processor::FLAGS::N, false);

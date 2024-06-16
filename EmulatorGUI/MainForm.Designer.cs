@@ -55,6 +55,7 @@
             runUntilRunButton = new Button();
             groupBox2 = new GroupBox();
             processorFlagsLabel = new Label();
+            button3 = new Button();
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).BeginInit();
@@ -110,7 +111,7 @@
             // 
             // button4
             // 
-            button4.Location = new Point(400, 549);
+            button4.Location = new Point(40, 412);
             button4.Name = "button4";
             button4.Size = new Size(160, 23);
             button4.TabIndex = 20;
@@ -335,11 +336,22 @@
             processorFlagsLabel.TabIndex = 37;
             processorFlagsLabel.Text = "Flags: 0 0 0 0";
             // 
+            // button3
+            // 
+            button3.Location = new Point(206, 412);
+            button3.Name = "button3";
+            button3.Size = new Size(160, 23);
+            button3.TabIndex = 37;
+            button3.Text = "stop";
+            button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1118, 584);
+            Controls.Add(button3);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(consumeInstructionButton);
@@ -397,5 +409,6 @@
         private NumericUpDown runUntilRegisterValueNumericUpDown;
         private GroupBox groupBox2;
         private Label processorFlagsLabel;
+        private Button button3;
     }
 }
