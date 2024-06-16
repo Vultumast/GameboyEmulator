@@ -79,6 +79,11 @@ void Processor::PulseClock()
 
 			OpCodeInfo& info = OpCodeInfo::OpCodes[fetch()];
 
+			if (info.GetOpCode() == OpCode::PREFIX)
+			{
+				info = OpCodeInfo::OpCodesCB[fetch()];
+			}
+
 			std::function<void(Processor&, OperandType, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
 
 			uint16_t data = 0;

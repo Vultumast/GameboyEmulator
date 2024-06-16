@@ -117,7 +117,7 @@ namespace EmulatorGUI
                 var cycle = processor.RemainingCycles;
                 processor.ConsumeInstruction();
                 video.Update(cycle);
-                rawPanel.Invalidate();
+                // rawPanel.Invalidate();
                 /*
                 this.Invoke(new MethodInvoker(delegate
                 {
@@ -132,7 +132,7 @@ namespace EmulatorGUI
                 }));
                 */
 
-                Console.Write(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
+                Console.WriteLine(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
                 // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");
                 watch.Stop();
                 elapsed = watch.ElapsedTicks;

@@ -421,7 +421,7 @@ void op_AND(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	processor.SetRegister(Register::A, result);
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
-	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::H, true);
 	processor.SetFlag(Processor::FLAGS::C, false);
 }
 void op_XOR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
