@@ -515,5 +515,9 @@ void op_RST38H(Processor& processor, OperandType destType, std::uint16_t dest, s
 
 void op_XXX(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
+
+	std::cout << "**** ILLEGAL INSTRUCTION! *****" << std::endl;
+	std::cout << "PC: " << std::to_string(processor.GetRegister(Register::PC)) << std::endl;
+	std::cout << "*******************************" << std::endl;
 	// This locks the processor but ignoring it doesn't break anything
 }
