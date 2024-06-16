@@ -37,7 +37,7 @@ uint8_t MBC1Mapper::Read(uint16_t address)
 		if (address <= 0x3FFF)
 			return rom->Read(address);
 		else
-			return rom->Read((0x4000 * _romBank) + ( address - 0x3FFF));
+			return rom->Read((0x4000 * (_romBank) ) + ( address - 0x4000));
 	}
 }
 
