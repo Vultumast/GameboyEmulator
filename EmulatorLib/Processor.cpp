@@ -77,14 +77,17 @@ void Processor::PulseClock()
 		{
 			// Normal Execution
 
-			OpCodeInfo& info = OpCodeInfo::OpCodes[fetch()];
+			OpCodeInfo info = OpCodeInfo::OpCodes[fetch()];
+
+			std::function<void(Processor&, OperandType, uint16_t, uint16_t)> func = Instructions[info.GetHexCode()];
+
 
 			if (info.GetOpCode() == OpCode::PREFIX)
 			{
 				info = OpCodeInfo::OpCodesCB[fetch()];
+				func = InstructionsCB[info.GetHexCode()];
 			}
 
-			std::function<void(Processor&, OperandType, uint16_t, uint16_t)>& func = Instructions[info.GetHexCode()];
 
 			uint16_t data = 0;
 			switch (info.GetLeftHandOperand())
@@ -100,15 +103,33 @@ void Processor::PulseClock()
 				break;
 			}
 
-			// Special case for conditionals
-			if (info.GetOpCode() == OpCode::JR || info.GetOpCode() == OpCode::JP || info.GetOpCode() == OpCode::CALL)
+			switch (info.GetOpCode()) // Special Cases
 			{
+			case OpCode::JR:
+			case OpCode::JP:
+			case OpCode::CALL:
 				data = 1;
 
 				// LHS is our conditional
 				if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
 					data = GetOperand(info.GetLeftHandOperand());
+				break;
+			case OpCode::BIT:
+				// Get our bit target
+				data = (info.GetHexCode() - 0x40) / 8;
+				break;
+			case OpCode::RES:
+				// Get our bit target
+				data = (info.GetHexCode() - 0x80) / 8;
+				break;
+			case OpCode::SET:
+				// Get our bit target
+				data = (info.GetHexCode() - 0xC) / 8;
+				break;
+			default:
+				break;
 			}
+
 
 			_remainingCycles = info.GetCycleLengthMin();
 
@@ -401,4 +422,5 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << (interrupt - 1))); // Reset Serviced Interrupt
 
 }
+
 #pragma endregion

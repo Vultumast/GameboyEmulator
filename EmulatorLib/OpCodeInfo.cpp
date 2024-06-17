@@ -257,7 +257,7 @@ OpCodeInfo OpCodeInfo::OpCodes[256] =
 	// 0xE0 - 0xEF
 	OpCodeInfo(0xE0, OpCode::LDH, 2, 12, OperandType::AddressUINT8, OperandType::Acculumator),
 	OpCodeInfo(0xE1, OpCode::POP, 1, 12, OperandType::RegisterHL),
-	OpCodeInfo(0xE2, OpCode::LD,  2, 8, OperandType::RegisterCIndirect, OperandType::Acculumator),
+	OpCodeInfo(0xE2, OpCode::LD,  1, 4, OperandType::RegisterCIndirect, OperandType::Acculumator),
 	OpCodeInfo(0xE3, OpCode::XXX, 1, 4),
 	OpCodeInfo(0xE4, OpCode::XXX, 1, 4),
 	OpCodeInfo(0xE5, OpCode::PUSH,1, 16, OperandType::RegisterHL),
@@ -275,7 +275,7 @@ OpCodeInfo OpCodeInfo::OpCodes[256] =
 	// 0xF0 - 0xFF
 	OpCodeInfo(0xF0, OpCode::LDH, 2, 12, OperandType::Acculumator, OperandType::AddressUINT8),
 	OpCodeInfo(0xF1, OpCode::POP, 1, 12, OperandType::RegisterAF),
-	OpCodeInfo(0xF2, OpCode::LD,  2, 8, OperandType::Acculumator, OperandType::RegisterCIndirect),
+	OpCodeInfo(0xF2, OpCode::LD,  1, 2, OperandType::Acculumator, OperandType::RegisterCIndirect),
 	OpCodeInfo(0xF3, OpCode::DI,  1, 4),
 	OpCodeInfo(0xF4, OpCode::XXX, 1, 4),
 	OpCodeInfo(0xF5, OpCode::PUSH,1, 16, OperandType::RegisterAF),

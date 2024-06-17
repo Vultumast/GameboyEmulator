@@ -19,14 +19,16 @@ namespace EmulatorGUI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            info = new RomInfo(File.ReadAllBytes("rom.gb"));
+            // info = new RomInfo(File.ReadAllBytes("rom.gb"));
 
-
+            info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
             bus = new MemoryBus(info);
 
             processor = new Processor(bus);
             video = new Video(bus, viewPanel.Handle);
             processor.Reset();
+
+            processor.PC = 0;
 
             hexViewControl.MemoryBus = bus;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -84,6 +85,34 @@ namespace EmulatorGUI.EmulatorLib
 
         public void SetRegister(Register register, ushort value) => processor_setregister(CPointer, (byte)register, value);
         public ushort GetRegister(Register register) => processor_getregister(CPointer, (byte)register);
+
+        /// <summary>
+        /// The A register
+        /// </summary>
+        public byte A
+        {
+            get => (byte)processor_getregister(CPointer, (byte)Register.A);
+            set => processor_setregister(CPointer, (byte)Register.A, value);
+        }
+
+        /// <summary>
+        /// The PC register
+        /// </summary>
+        public ushort PC
+        {
+            get => processor_getregister(CPointer, (byte)Register.PC);
+            set => processor_setregister(CPointer, (byte)Register.PC, value);
+        }
+
+        /// <summary>
+        /// The SP register
+        /// </summary>
+        public ushort SP
+        {
+            get => processor_getregister(CPointer, (byte)Register.SP);
+            set => processor_setregister(CPointer, (byte)Register.SP, value);
+        }
+
 
         public void PulseClock() => processor_pulseclock(CPointer);
 

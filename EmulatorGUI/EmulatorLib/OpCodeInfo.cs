@@ -132,7 +132,7 @@ namespace EmulatorGUI.EmulatorLib
 		FlagNotZero,
 	};
 
-	public partial struct OpCodeInfo
+    public partial struct OpCodeInfo
 	{
 		[LibraryImport("EmulatorLib.dll")]
 		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]

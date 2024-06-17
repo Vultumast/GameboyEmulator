@@ -56,9 +56,9 @@ void op_SBC(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_RET(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_RETI(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_DAA(Processor&, OperandType, std::uint16_t, std::uint16_t);
-void op_PREFIX(Processor&, OperandType, std::uint16_t, std::uint16_t)
+void op_PREFIX(Processor& processor, OperandType, std::uint16_t, std::uint16_t)
 {
-	// TODO
+
 }
 
 std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t)> Instructions[256] =
@@ -96,21 +96,48 @@ void op_SLA(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_SRA(Processor&, OperandType, std::uint16_t, std::uint16_t);
 void op_SRL(Processor&, OperandType, std::uint16_t, std::uint16_t);
 
+
+void op_SWAP(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
+void op_BITX(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_RESX(Processor&, OperandType, std::uint16_t, std::uint16_t);
+void op_SETX(Processor&, OperandType, std::uint16_t, std::uint16_t);
+
 std::function<void(Processor&, OperandType, std::uint16_t, std::uint16_t) > InstructionsCB[256] =
 {
-	op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RLC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC, op_RRC,
-	op_RL , op_RL , op_RL , op_RL , op_RL , op_RL , op_RL , op_RL , op_RR , op_RR , op_RR , op_RR , op_RR , op_RR , op_RR , op_RR ,
+	op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC ,
+	op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  ,
+	op_SLA , op_SLA , op_SLA , op_SLA , op_SLA , op_SLA , op_SLA , op_SLA , op_SRA , op_SRA , op_SRA , op_SRA , op_SRA , op_SRA , op_SRA , op_SRA ,
+	op_SWAP, op_SWAP, op_SWAP, op_SWAP, op_SWAP, op_SWAP, op_SWAP, op_SWAP, op_SRL , op_SRL , op_SRL , op_SRL , op_SRL , op_SRL , op_SRL , op_SRL ,
+
+	op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX,
+	op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX,
+	op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX,
+	op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX, op_BITX,
+
+	op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX,
+	op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX,
+	op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX,
+	op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX, op_RESX,
+
+	op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX,
+	op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX,
+	op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX,
+	op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX, op_SETX,
 };
 
 
 
 void op_RLC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
-
 	uint16_t result = source << 1;
-
 	result |= ((result & 0x100) >> 8);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
+	
 
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
@@ -119,11 +146,14 @@ void op_RLC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 }
 void op_RRC(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
-
 	uint16_t result = (source >> 1);
 
 	result |= ((source & (0b1 << 7)) >> 7);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
 
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
@@ -133,9 +163,12 @@ void op_RRC(Processor& processor, OperandType destType, std::uint16_t dest, std:
 
 void op_RL(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
-
 	uint16_t result = (source << 1) | (processor.GetFlag(Processor::FLAGS::C));
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
 
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
@@ -145,9 +178,12 @@ void op_RL(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 void op_RR(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
-
 	uint16_t result = (source >> 1) | (processor.GetFlag(Processor::FLAGS::C) << 7);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
 
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
@@ -157,9 +193,12 @@ void op_RR(Processor& processor, OperandType destType, std::uint16_t dest, std::
 
 void op_SLA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
-
 	uint16_t result = (source << 1);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
 
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
@@ -168,9 +207,26 @@ void op_SLA(Processor& processor, OperandType destType, std::uint16_t dest, std:
 }
 void op_SRA(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
 {
-	Register reg = static_cast<Register>((static_cast<uint8_t>(destType) - 1));
+	uint16_t result = (source >> 1) | (source & 0b10000000);
 
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, source & (0b1));
+}
+void op_SRL(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
 	uint16_t result = (source >> 1);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
 
 	processor.SetFlag(Processor::FLAGS::Z, result == 0);
 	processor.SetFlag(Processor::FLAGS::N, false);
@@ -178,6 +234,62 @@ void op_SRA(Processor& processor, OperandType destType, std::uint16_t dest, std:
 	processor.SetFlag(Processor::FLAGS::C, source & (0b1));
 }
 
+void op_SWAP(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	uint8_t result = ((source & 0b1111) << 4) | ((source & 0b11110000) >> 4);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
+
+	processor.SetFlag(Processor::FLAGS::Z, result == 0);
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, false);
+	processor.SetFlag(Processor::FLAGS::C, false);
+}
+
+void op_BITX(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	if (destType == OperandType::RegisterHLIndirect)
+		source = processor.GetMemoryBus()->Read(processor.GetRegister(Register::HL));
+	else
+		source = processor.GetRegister(static_cast<Register>(static_cast<uint8_t>(destType) - 1));
+
+	processor.SetFlag(Processor::FLAGS::Z, !((source & ( 0b1 << dest)) >> dest));
+	processor.SetFlag(Processor::FLAGS::N, false);
+	processor.SetFlag(Processor::FLAGS::H, true);
+}
+
+void op_RESX(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	if (destType == OperandType::RegisterHLIndirect)
+		source = processor.GetMemoryBus()->Read(processor.GetRegister(Register::HL));
+	else
+		source = processor.GetRegister(static_cast<Register>(static_cast<uint8_t>(destType) - 1));
+
+	uint8_t result = source & ~static_cast<uint8_t>(0b1 << dest);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
+}
+
+void op_SETX(Processor& processor, OperandType destType, std::uint16_t dest, std::uint16_t source)
+{
+	if (destType == OperandType::RegisterHLIndirect)
+		source = processor.GetMemoryBus()->Read(processor.GetRegister(Register::HL));
+	else
+		source = processor.GetRegister(static_cast<Register>(static_cast<uint8_t>(destType) - 1));
+
+	uint8_t result = source | static_cast<uint8_t>(0b1 << dest);
+
+	if (destType == OperandType::RegisterHLIndirect)
+		processor.GetMemoryBus()->Write(processor.GetRegister(Register::HL), result & 0xFF);
+	else
+		processor.SetRegister(static_cast<Register>((static_cast<uint8_t>(destType) - 1)), result);
+}
 #pragma endregion
 
 #pragma region Misc

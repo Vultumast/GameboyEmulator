@@ -7,6 +7,8 @@
 
 #include "Constants.hpp"
 
+#include "OpCodeInfo.hpp";
+
 
 class MemoryBus;
 
@@ -78,6 +80,11 @@ public:
 	/// <param name="address"></param>
 	void ResetVector(uint16_t address);
 
+	/// <summary>
+	/// The underlying memorybus associated with the processor
+	/// </summary>
+	/// <returns></returns>
+	MemoryBus* GetMemoryBus() { return _memoryBus;  }
 private:
 	// Registers
 	uint8_t a = 0x00;
