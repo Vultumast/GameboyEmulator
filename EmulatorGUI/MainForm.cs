@@ -1,5 +1,6 @@
 using EmulatorGUI.EmulatorLib;
 using System.Diagnostics;
+using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
 
 namespace EmulatorGUI
@@ -20,15 +21,16 @@ namespace EmulatorGUI
         private void button1_Click(object sender, EventArgs e)
         {
             // info = new RomInfo(File.ReadAllBytes("rom.gb"));
-
-            info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
+            // info = new RomInfo(File.ReadAllBytes("Tetris.gb"));
+            info = new RomInfo(File.ReadAllBytes("alleyway.gb"));
+            // info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
             bus = new MemoryBus(info);
 
             processor = new Processor(bus);
             video = new Video(bus, viewPanel.Handle);
             processor.Reset();
 
-            processor.PC = 0;
+            // processor.PC = 0;
 
             hexViewControl.MemoryBus = bus;
         }
@@ -116,9 +118,10 @@ namespace EmulatorGUI
             {
                 watch.Restart();
 
-                var cycle = processor.RemainingCycles;
-                processor.ConsumeInstruction();
-                video.Update(cycle);
+                //var cycle = processor.RemainingCycles;
+                //processor.ConsumeInstruction();
+                processor.PulseClock();
+                video.Update(1);
                 // rawPanel.Invalidate();
                 /*
                 this.Invoke(new MethodInvoker(delegate
@@ -134,7 +137,7 @@ namespace EmulatorGUI
                 }));
                 */
 
-                Console.WriteLine(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
+                // Console.WriteLine(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
                 // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");
                 watch.Stop();
                 elapsed = watch.ElapsedTicks;
@@ -155,13 +158,19 @@ namespace EmulatorGUI
 
             using Bitmap bmp = new Bitmap(rawPanel.Width, rawPanel.Height);
 
-            for (var x = 0; x < rawPanel.Width; x++)
+            for (var y = 0; y < rawPanel.Height; y++)
             {
-                for (var y = 0; y < rawPanel.Height; y++)
+                for (var x = 0; x < rawPanel.Width; x++)
                 {
+                    // Console.WriteLine($"{(y * rawPanel.Width) + x} / 23,040" );
+
                     uint color = video.GetPixel((byte)x, (byte)y);
 
-                    bmp.SetPixel(x, y, Color.FromArgb((byte)(color & 0xFF000000 >> 24), (byte)(color & 0x00FF0000 >> 16), (byte)(color & 0x0000FF00 >> 8)));
+                    byte r = (byte)((color & 0xFF000000) >> 24);
+                    byte g = (byte)((color & 0x00FF0000) >> 16);
+                    byte b = (byte)((color & 0x0000FF00) >> 8);
+
+                    bmp.SetPixel(x, y, Color.FromArgb(r, g, b));
                 }
             }
 
@@ -178,6 +187,101 @@ namespace EmulatorGUI
             rawPanel.Invalidate();
         }
 
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+
+            // 16x24 = 384
+            // where each tile is 8x8 pixels
+            using Bitmap temp = new Bitmap(16 * 8, 32 * 8);
+            ushort addr = 0x8000;
+
+            byte[] pixelBuffer = new byte[8];
+
+            byte[] tileData = new byte[16];
+
+            for (var tileID = 0; tileID < 384; tileID++)
+            {
+                ReadTileData();
+
+                RenderTileData(tileID);
+
+                ClearTileData();
+            }
+
+            temp.Save("VRAM.png", System.Drawing.Imaging.ImageFormat.Png);
+
+            return;
+
+            void ReadTileData()
+            {
+                for (var i = 0; i < 16; i++)
+                {
+                    tileData[i] = bus.Read(addr++);
+                }
+            }
+
+            void ClearTileData()
+            {
+                for (var i = 0; i < 16; i++)
+                    tileData[i] = 0x00;
+
+                for (var i = 0; i < 8; i++)
+                    pixelBuffer[i] = 0x00;
+            }
+
+            void RenderTileData(int tileID)
+            {
+                // Iterate through each scanline
+                for (var y = 0; y < 8; y++)
+                {
+                    byte lhs = tileData[(y * 2)];
+                    byte rhs = tileData[(y * 2) + 1];
+
+                    byte colorByte = 0;
+
+                    // Iterate through each pixel
+                    for (var x = 0; x < 8; x++)
+                    {
+                        var bit = 7 - x;
+
+                        colorByte = (byte)((lhs & (0b1 << (7 - x))) != 0 ? 0b01 : 0b00);
+                        colorByte |= (byte)((rhs & (0b1 << (7 - x))) != 0 ? 0b10 : 0b00);
+
+
+                        Color c = Color.FromArgb(0x08, 0x18, 0x20);
+
+                        switch (colorByte)
+                        {
+                            case 0:
+                                c = Color.FromArgb(0x08, 0x18, 0x20);
+                                break;
+                            case 1:
+                                c = Color.FromArgb(0x34, 0x68, 0x56);
+                                break;
+                            case 2:
+                                c = Color.FromArgb(0x88, 0xC0, 0x70);
+                                break;
+                            case 3:
+                                c = Color.FromArgb(0xE0, 0xF8, 0xD0);
+                                break;
+                        }
+
+                        temp.SetPixel(((tileID % 16) * 8) + x, ((tileID / 16) * 8) + y, c);
+
+                    }
+
+
+                }
+
+
+
+
+
+            }
+
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             runUntilRegisterComboBox.SelectedIndex = 0;
@@ -191,43 +295,54 @@ namespace EmulatorGUI
             runUntilRegisterOperatorComboBox.Enabled = false;
             runUntilRegisterValueNumericUpDown.Enabled = false;
 
-            Console.WriteLine($"Waiting for {processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex)} {runUntilRegisterOperatorComboBox.SelectedItem} {(ushort)runUntilRegisterValueNumericUpDown.Value}");
-            while (!getCondition())
-            {
-                var cycle = processor.RemainingCycles;
-                processor.ConsumeInstruction();
+            Register register = (Register)runUntilRegisterComboBox.SelectedIndex;
+            ushort valueToMatch = (ushort)runUntilRegisterValueNumericUpDown.Value;
+            int @operator = runUntilRegisterOperatorComboBox.SelectedIndex;
 
-                //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
-                video.Update(cycle);
-            }
-            Console.WriteLine($"Done waiting!");
+            Console.WriteLine($"Waiting for {processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex)} {runUntilRegisterOperatorComboBox.SelectedItem} {(ushort)runUntilRegisterValueNumericUpDown.Value}");
+
+            bool a = false;
+            ushort cycle = 0;
+
+        loopStart:
+            // ushort value = processor.GetRegister(register);
+
+            // Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
+            /* a = @operator switch
+            {
+                0 => value == valueToMatch, // ==
+                1 => value != valueToMatch, // !=
+                2 => value <= valueToMatch,// <=
+                3 => value >= valueToMatch,// >=
+                4 => value < valueToMatch,// <
+                5 => value > valueToMatch,// >
+                _ => false
+            }; 
+
+            if (a) */
+            if (processor.GetRegister(register) == valueToMatch)
+                goto loopEnd;
+
+            cycle = processor.RemainingCycles;
+            processor.ConsumeInstruction();
+
+
+            video.Update(cycle);
+
+            goto loopStart;
+        loopEnd:
+
 
             runUntilRegisterComboBox.Enabled = true;
             runUntilRegisterOperatorComboBox.Enabled = true;
             runUntilRegisterValueNumericUpDown.Enabled = true;
 
+
             updateProcessorInfo();
-            return;
-
-            bool getCondition()
-            {
-                ushort value = processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex);
-                ushort valueToMatch = (ushort)runUntilRegisterValueNumericUpDown.Value;
-
-                // Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
-                return runUntilRegisterOperatorComboBox.SelectedIndex switch
-                {
-                    0 => value == valueToMatch, // ==
-                    1 => value != valueToMatch, // !=
-                    2 => value <= valueToMatch,// <=
-                    3 => value >= valueToMatch,// >=
-                    4 => value < valueToMatch,// <
-                    5 => value > valueToMatch,// >
-                    _ => false
-                };
-            }
         }
 
+
+        ushort highest = 0;
 
         private void updateProcessorInfo()
         {
@@ -247,7 +362,22 @@ namespace EmulatorGUI
                 $"{(processor.GetFlag(Processor.Flags.C) ? "C" : "0")}";
 
             hexViewControl.PCAddress = processor.GetRegister(Register.PC);
-        }
 
+            if (highest < processor.PC)
+            {
+                label1.Text = $"Highest: 0x{processor.PC.ToString("X04")}";
+                highest = processor.PC;
+            }
+
+            return;
+
+            if (callstackListBox.Items.Count == 0)
+                callstackListBox.Items.Add(processor.PC.ToString("X04"));
+            else
+            {
+                if (callstackListBox.Items[callstackListBox.Items.Count - 1] != processor.PC.ToString("X04"))
+                    callstackListBox.Items.Add(processor.PC.ToString("X04"));
+            }
+        }
     }
 }

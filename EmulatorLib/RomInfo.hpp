@@ -70,7 +70,7 @@ private:
 	uint8_t _revision = 0x00;
 
 	uint8_t* _rom = nullptr;
-	uint32_t size = 0;
+	uint32_t _size = 0;
 public:
 	ROMInfo(uint8_t* rom, uint32_t size);
 	~ROMInfo();

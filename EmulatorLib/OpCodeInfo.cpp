@@ -29,7 +29,7 @@ OpCodeInfo OpCodeInfo::OpCodes[256] =
 	OpCodeInfo(0x15, OpCode::DEC, 1, 4, OperandType::RegisterD),
 	OpCodeInfo(0x16, OpCode::LD,  2, 8, OperandType::RegisterD, OperandType::DataUINT8),
 	OpCodeInfo(0x17, OpCode::RLA, 1, 4),
-	OpCodeInfo(0x18, OpCode::JR,  2, 12, OperandType::DataINT8),
+	OpCodeInfo(0x18, OpCode::JR,  2, 12, OperandType::None, OperandType::DataINT8),
 	OpCodeInfo(0x19, OpCode::ADD, 1, 8, OperandType::RegisterHL, OperandType::RegisterDE),
 	OpCodeInfo(0x1A, OpCode::LD,  1, 8, OperandType::Acculumator, OperandType::RegisterDEIndirect),
 	OpCodeInfo(0x1B, OpCode::DEC, 1, 8, OperandType::RegisterDE),

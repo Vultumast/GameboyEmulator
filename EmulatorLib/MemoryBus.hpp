@@ -25,6 +25,9 @@ public:
 
 	void Write(const uint16_t& address, const uint8_t& value);
 	uint8_t Read(const uint16_t& address);
+
+	uint8_t* Get(const uint16_t& address);
+
 	/// <summary>
 	/// Reads a word (16bit value) from a given address in Little Endianess
 	/// </summary>

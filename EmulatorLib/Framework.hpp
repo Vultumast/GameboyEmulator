@@ -31,6 +31,7 @@ extern "C"
 	DLL_EXPORT void processor_setinterruptsenabled(Processor* processor, uint8_t value) { processor->InterruptMasterEnable = value; }
 	DLL_EXPORT uint8_t processor_getflag(Processor* processor, uint8_t flag) { return processor->GetFlag((Processor::FLAGS)flag); }
 	DLL_EXPORT void processor_setflag(Processor* processor, uint8_t flag, uint8_t value) { processor->SetFlag((Processor::FLAGS)flag, value); }
+	DLL_EXPORT void processor_consumeinstruction(Processor* processor) { processor->ConsumeInstruction(); }
 
 	DLL_EXPORT Video* video_create(MemoryBus* bus, HWND hwnd) { return new Video(bus, hwnd); }
 	DLL_EXPORT void video_clear(Video* video) { video->Clear(); }

@@ -151,6 +151,11 @@ std::uint8_t MemoryBus::Read(const std::uint16_t& address)
 	return _ram[realAddress];
 }
 
+uint8_t* MemoryBus::Get(const uint16_t& address)
+{
+	return _ram + translateAddress(address);
+}
+
 uint16_t MemoryBus::ReadWord(const uint16_t& address)
 {
 	if (!IsAddressMapped(address))

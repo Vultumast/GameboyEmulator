@@ -32,6 +32,8 @@ public:
 
 	void PulseClock();
 
+	void ConsumeInstruction();
+
 	/// <summary>
 	/// Has the current underlying instruction completed it's clock cycles?
 	/// </summary>

@@ -24,10 +24,10 @@ using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 enum class PPUMode : uint8_t
 {
-	WaitingForHBlank,
-	WaitingForVBlank,
-	SearchingForObjects,
-	SendingPixels
+	HBlank,
+	VBlank,
+	OAMScan,
+	DrawingPixels
 };
 
 #pragma pack(push, 1)
@@ -53,13 +53,37 @@ public:
 		ObjectsEnabled = false;
 		BGWindowEnablePriority = false;
 	}
+	/// <summary>
+	/// Bit 7
+	/// </summary>
 	bool BGWindowEnablePriority : 1;
+	/// <summary>
+	/// Bit 6
+	/// </summary>
 	bool ObjectsEnabled : 1;
+	/// <summary>
+	/// Bit 5
+	/// </summary>
 	bool ObjectBigSize : 1;
+	/// <summary>
+	/// Bit 4
+	/// </summary>
 	bool BGTileMapOffset : 1;
+	/// <summary>
+	/// Bit 3
+	/// </summary>
 	bool BGWindowTileDataOffset : 1;
+	/// <summary>
+	/// Bit 2
+	/// </summary>
 	bool WindowEnable : 1;
+	/// <summary>
+	/// Bit 1
+	/// </summary>
 	bool WindowTileMapOffset : 1;
+	/// <summary>
+	/// Bit 0
+	/// </summary>
 	bool LCDPPUEnable : 1;
 };
 
@@ -74,7 +98,7 @@ public:
 		Mode1IntSelect = false;
 		Mode0IntSelect = false;
 		LYCeqLY = false;
-		PPUMode = PPUMode::WaitingForHBlank;
+		PPUMode = PPUMode::HBlank;
 	}
 	PPUMode PPUMode : 2;
 	bool LYCeqLY : 1;

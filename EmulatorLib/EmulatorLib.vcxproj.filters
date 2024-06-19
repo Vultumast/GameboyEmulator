@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Mappers">
       <UniqueIdentifier>{7da0312d-0b76-4def-8a2b-6732b8d74952}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Types">
+      <UniqueIdentifier>{66c6989a-430d-474d-9395-c0b2fb86a242}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Framework.hpp">
@@ -57,6 +60,12 @@
     <ClInclude Include="InstructionArguments.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tile.hpp">
+      <Filter>Header Files\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelFetcher.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -85,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="MBC1.cpp">
       <Filter>Source Files\Mappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Source Files\Types</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelFetcher.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

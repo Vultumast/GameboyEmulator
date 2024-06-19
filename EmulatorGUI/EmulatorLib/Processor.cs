@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -63,6 +64,9 @@ namespace EmulatorGUI.EmulatorLib
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
         private static partial void processor_setflag(nint processor, byte flag, byte value);
 
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void processor_consumeinstruction(nint processor);
         public enum Flags
         {
             C = (1 << 4),
@@ -119,12 +123,16 @@ namespace EmulatorGUI.EmulatorLib
         /// <summary>
         /// Pulses the clock until the current instruction timer reaches 0
         /// </summary>
-        public void ConsumeInstruction()
-        {
-            while (RemainingCycles != 0)
-                PulseClock();
+        public void ConsumeInstruction() => processor_consumeinstruction(CPointer);
+        /*{
+
+        loopStart:
             PulseClock();
-        }
+            if (RemainingCycles != 0)
+                goto loopStart;
+
+            PulseClock();
+        } */
 
         public byte RemainingCycles => processor_getremainingcycles(CPointer);
 

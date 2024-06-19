@@ -4,6 +4,7 @@
 
 ROMInfo::ROMInfo(uint8_t* rom, uint32_t size)
 {
+	_size = size;
 	_rom = new uint8_t[size];
 	std::memcpy(_rom, rom, size);
 
@@ -52,7 +53,7 @@ ROMInfo::~ROMInfo()
 		delete _rom;
 
 	_rom = nullptr;
-	size = 0;
+	_size = 0;
 }
 
 const std::string& ROMInfo::GetGameName() const
@@ -250,7 +251,7 @@ uint32_t ROMInfo::GetRAMSize() const
 
 uint8_t ROMInfo::Read(uint32_t address) const
 {
-	if (_rom == nullptr || address >= _romSize)
+	if (_rom == nullptr || address >= _size)
 		return 0xFF;
 
 	return _rom[address];

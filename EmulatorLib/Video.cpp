@@ -1,7 +1,11 @@
 #include "Video.hpp"
 #include "MemoryBus.hpp"
-
+#include "Tile.hpp"
+#include <string>
 #include <iostream>
+
+
+constexpr uint8_t VRAM_TILE_SIZE = 16;
 
 Video::Video(MemoryBus* memoryBus, HWND hwnd)
 {
@@ -94,6 +98,10 @@ Video::Video(MemoryBus* memoryBus, HWND hwnd)
 		return; // false;
 	}
 	std::cout << "[DX11] Created DX Context" << std::endl;
+
+
+	for (int i = 0; i < FramebufferHeight * FramebufferWidth; i++)
+		_frameBuffer[i] = 0x00;
 }
 
 
@@ -137,12 +145,13 @@ void Video::SetLCDStatus()
 	{
 		_scanlineCounter = 456;
 		_memoryBus->Write(HardwareRegister::LY, 0);
-		lcdStatus->PPUMode = PPUMode::WaitingForHBlank;
+		lcdStatus->PPUMode = PPUMode::HBlank;
 		_memoryBus->Write(HardwareRegister::STAT, reinterpret_cast<uint8_t>(&lcdStatus));
+		return;
 	} 
 
 	PPUMode currentMode = lcdStatus->PPUMode;
-	PPUMode newMode = PPUMode::WaitingForHBlank;
+	PPUMode newMode = PPUMode::HBlank;
 
 	uint8_t scanline = _memoryBus->Read(HardwareRegister::LY);
 
@@ -150,8 +159,8 @@ void Video::SetLCDStatus()
 
 	if (scanline >= 144) // V BLANK
 	{
-		newMode = PPUMode::WaitingForVBlank;
-		lcdStatus->PPUMode = PPUMode::WaitingForVBlank;
+		newMode = PPUMode::VBlank;
+		lcdStatus->PPUMode = PPUMode::VBlank;
 		reqInt = lcdStatus->Mode1IntSelect;
 	}
 	else
@@ -161,19 +170,19 @@ void Video::SetLCDStatus()
 
 		if (_scanlineCounter >= mode2Bounds)
 		{
-			newMode = PPUMode::SearchingForObjects;
-			lcdStatus->PPUMode = PPUMode::SearchingForObjects;
+			newMode = PPUMode::OAMScan;
+			lcdStatus->PPUMode = PPUMode::OAMScan;
 			reqInt = lcdStatus->Mode2IntSelect;
 		}
 		else if (_scanlineCounter >= mode3Bounds)
 		{
-			newMode = PPUMode::SendingPixels;
-			lcdStatus->PPUMode = PPUMode::SendingPixels;
+			newMode = PPUMode::DrawingPixels;
+			lcdStatus->PPUMode = PPUMode::DrawingPixels;
 		}
 		else
 		{
-			newMode = PPUMode::WaitingForHBlank;
-			lcdStatus->PPUMode = PPUMode::WaitingForHBlank;
+			newMode = PPUMode::HBlank;
+			lcdStatus->PPUMode = PPUMode::HBlank;
 			reqInt = lcdStatus->Mode0IntSelect;
 		}
 	}
@@ -213,7 +222,6 @@ void Video::DrawScanline()
 
 void Video::RenderTiles()
 {
-	std::cout << "rendering tiles" << std::endl;
 
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
 	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
@@ -234,9 +242,14 @@ void Video::RenderTiles()
 	uint16_t bgRamStart = lcdControl->BGTileMapOffset ? 0x9C000 : 0x9800;
 
 
-	uint8_t yPos = useWindow ? scanline - windowY : viewportY + scanline;
+	// uint8_t yPos = useWindow ? scanline - windowY : viewportY + scanline;
 
-	uint16_t tileRow = ((uint8_t)yPos / 8) * 32;
+	uint8_t yPos = scanline;
+
+	uint16_t tileRow = ((uint8_t)(yPos / 8)) * 32;
+
+
+	// std::cout << "rendering tiles" << std::endl;
 
 	for (uint8_t pixel = 0; pixel < 160; pixel++)
 	{
@@ -248,22 +261,47 @@ void Video::RenderTiles()
 
 		// 1) Find the Address of the tile we want to draw
 		uint16_t tileCol = xPos / 8;
-		int16_t tileNum = unsig ? _memoryBus->Read(bgRamStart + tileRow + tileCol) : _memoryBus->Read(bgRamStart + tileRow + tileCol) + 128;
-		uint16_t tileAddress = tileRamStart + (tileNum * 16);
+		int16_t tileID = 0;
 
+		if (unsig)
+			tileID = (uint16_t)_memoryBus->Read(bgRamStart + tileRow + tileCol);
+		else
+			tileID = (int16_t)_memoryBus->Read(bgRamStart + tileRow + tileCol);
+
+		uint16_t tileLocation = tileRamStart;
+
+		if (unsig)
+			tileLocation += (tileID * 16);
+		else
+			tileLocation += ((tileID + 128) * 16);
+
+
+		// std::cout << "X: " << std::to_string(tileCol) << " Y: " << std::to_string(tileRow / 32) << std::endl;
+		if (tileLocation == 0x8010)
+		{
+			std::cout << "butts" << std::endl;
+		}
 
 		// 2) Find the color data of the line we are going to render
 		uint16_t tileLine = (yPos % 8) * 2;
-		uint16_t tileLineColorData = _memoryBus->ReadWord(tileAddress + tileLine);
+		uint8_t lhb = _memoryBus->Read(tileLocation + tileLine);
+		uint8_t msb = _memoryBus->Read(tileLocation + tileLine + 1);
 
-		// 3) Extract the color 
-		uint8_t colorBit = xPos % 8;
+		// 3) Extract the color
+		uint8_t colorBit = (7 - (xPos % 8));
 
-		DMGColor color = (DMGColor)((((tileLineColorData & colorBit) != 0) << 1) | ((tileLineColorData & (colorBit + 8)) != 0));
+
+		uint8_t lhb2 = ((lhb & (0b1 << colorBit)) != 0) ? 0b10 : 0b00;
+		uint8_t msb2 = ((msb & (0b1 << colorBit)) != 0) ? 0b01 : 0b00;
+
+		DMGColor color = (DMGColor)(lhb2 | msb2);
+
+		// DMGColor color = DMGColor::WHITE;
 
 		if (scanline >= 0 && scanline <= 143 && pixel >= 0 && pixel <= 159)
 		{
-			uint8_t c = 0;
+			byte c = 0xFF;
+
 			switch (color)
 			{
 			case DMGColor::WHITE:
@@ -276,9 +314,13 @@ void Video::RenderTiles()
 				c = 0x4E;
 				break;
 			case DMGColor::BLACK:
-				c = 0;
+				c = 0x00;
 				break;
 			}
+
+			// if (c != 0xFF)
+			//	std::cout << "x: " << std::to_string(pixel) << " y: " << std::to_string(scanline) << "COLOR: " << std::to_string(c) << std::endl;
+
 			SetPixel(pixel, scanline, c, c, c);
 		}
 
@@ -288,7 +330,7 @@ void Video::RenderTiles()
 
 void Video::SetPixel(uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b)
 {
-	_frameBuffer[(y * FramebufferWidth) + x] = (r << 24) | (g << 16) | (b << 8) | 0xFF;
+	_frameBuffer[(y * FramebufferWidth) + x] = ((uint32_t)r << 24) | ((uint32_t)g << 16) | ((uint32_t)b << 8) | 0xFF;
 }
 uint32_t Video::GetPixel(uint8_t x, uint8_t y)
 {

@@ -54,8 +54,11 @@
             runUntilRegisterComboBox = new ComboBox();
             runUntilRunButton = new Button();
             groupBox2 = new GroupBox();
+            callstackListBox = new ListBox();
             processorFlagsLabel = new Label();
             button3 = new Button();
+            button6 = new Button();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)checkAddressNumericUpDown).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)runUntilRegisterValueNumericUpDown).BeginInit();
@@ -311,6 +314,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(callstackListBox);
             groupBox2.Controls.Add(processorFlagsLabel);
             groupBox2.Controls.Add(afProcessorRegisterView);
             groupBox2.Controls.Add(bcProcessorRegisterView);
@@ -326,6 +330,16 @@
             groupBox2.TabIndex = 36;
             groupBox2.TabStop = false;
             groupBox2.Text = "Processor State";
+            // 
+            // callstackListBox
+            // 
+            callstackListBox.FormattingEnabled = true;
+            callstackListBox.IntegralHeight = false;
+            callstackListBox.ItemHeight = 14;
+            callstackListBox.Location = new Point(6, 227);
+            callstackListBox.Name = "callstackListBox";
+            callstackListBox.Size = new Size(148, 131);
+            callstackListBox.TabIndex = 38;
             // 
             // processorFlagsLabel
             // 
@@ -346,11 +360,32 @@
             button3.UseVisualStyleBackColor = true;
             button3.Click += button3_Click;
             // 
+            // button6
+            // 
+            button6.Location = new Point(206, 291);
+            button6.Name = "button6";
+            button6.Size = new Size(102, 23);
+            button6.TabIndex = 38;
+            button6.Text = "render bg";
+            button6.UseVisualStyleBackColor = true;
+            button6.Click += button6_Click;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(406, 546);
+            label1.Name = "label1";
+            label1.Size = new Size(38, 15);
+            label1.TabIndex = 39;
+            label1.Text = "label1";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1118, 584);
+            Controls.Add(label1);
+            Controls.Add(button6);
             Controls.Add(button3);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
@@ -410,5 +445,8 @@
         private GroupBox groupBox2;
         private Label processorFlagsLabel;
         private Button button3;
+        private Button button6;
+        private ListBox callstackListBox;
+        private Label label1;
     }
 }

@@ -53,8 +53,17 @@ void Processor::PulseClock()
 {
 	_cycleCount = (_cycleCount + 1) % 0xFF;
 
+	Interrupt reqInterrupts = _memoryBus->GetInterrupts();
+
+	bool interruptPending = InterruptMasterEnable && (_memoryBus->Read(HardwareRegister::IE) != 0 && reqInterrupts != 0);
 	if (Halted)
+	{
 		_remainingCycles = 0;
+		if (interruptPending)
+			Halted = false;
+		else
+			return;
+	}
 
 	// Cycle timer finished?
 	if (IsInstructionCompleted())
@@ -62,7 +71,7 @@ void Processor::PulseClock()
 		Interrupt reqInterrupts = _memoryBus->GetInterrupts();
 
 		// Service all pending interrupts first
-		if (InterruptMasterEnable && (_memoryBus->Read(HardwareRegister::IE) != 0 && reqInterrupts != 0))
+		if (interruptPending)
 		{
 			for (uint8_t i = 0; i <= Interrupt::JOYPAD; i++)
 			{
@@ -77,20 +86,20 @@ void Processor::PulseClock()
 		{
 			// Normal Execution
 
-			OpCodeInfo info = OpCodeInfo::OpCodes[fetch()];
+			OpCodeInfo* info = OpCodeInfo::OpCodes + fetch();
 
-			std::function<void(Processor&, OperandType, uint16_t, uint16_t)> func = Instructions[info.GetHexCode()];
+			std::function<void(Processor&, OperandType, uint16_t, uint16_t)>* func = Instructions + info->GetHexCode();
 
 
-			if (info.GetOpCode() == OpCode::PREFIX)
+			if (info->GetOpCode() == OpCode::PREFIX)
 			{
-				info = OpCodeInfo::OpCodesCB[fetch()];
-				func = InstructionsCB[info.GetHexCode()];
+				info = OpCodeInfo::OpCodesCB + fetch();
+				func = InstructionsCB + info->GetHexCode();
 			}
 
 
 			uint16_t data = 0;
-			switch (info.GetLeftHandOperand())
+			switch (info->GetLeftHandOperand())
 			{
 			case OperandType::DataUINT8:
 			case OperandType::AddressUINT8:
@@ -103,7 +112,7 @@ void Processor::PulseClock()
 				break;
 			}
 
-			switch (info.GetOpCode()) // Special Cases
+			switch (info->GetOpCode()) // Special Cases
 			{
 			case OpCode::JR:
 			case OpCode::JP:
@@ -111,37 +120,43 @@ void Processor::PulseClock()
 				data = 1;
 
 				// LHS is our conditional
-				if (info.GetLeftHandOperand() >= OperandType::FlagCarry)
-					data = GetOperand(info.GetLeftHandOperand());
+				if (info->GetLeftHandOperand() >= OperandType::FlagCarry)
+					data = GetOperand(info->GetLeftHandOperand());
 				break;
 			case OpCode::BIT:
 				// Get our bit target
-				data = (info.GetHexCode() - 0x40) / 8;
+				data = (info->GetHexCode() - 0x40) / 8;
 				break;
 			case OpCode::RES:
 				// Get our bit target
-				data = (info.GetHexCode() - 0x80) / 8;
+				data = (info->GetHexCode() - 0x80) / 8;
 				break;
 			case OpCode::SET:
 				// Get our bit target
-				data = (info.GetHexCode() - 0xC) / 8;
+				data = (info->GetHexCode() - 0xC) / 8;
 				break;
 			default:
 				break;
 			}
 
 
-			_remainingCycles = info.GetCycleLengthMin();
+			_remainingCycles = info->GetCycleLengthMin();
 
 			//std::stringstream sstream;
 			//sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
 			//std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
-			func(*this, info.GetLeftHandOperand(), data, GetOperand(info.GetRightHandOperand()));
+			(*func)(*this, info->GetLeftHandOperand(), data, GetOperand(info->GetRightHandOperand()));
 		}
 	}
 	else
 		_remainingCycles--;
 	
+}	
+void Processor::ConsumeInstruction()
+{
+	_cycleCount = (_cycleCount + _remainingCycles) % 0xFF;
+	_remainingCycles = 0;
+	PulseClock();
 }
 
 void Processor::SetRegister(Register destination, uint16_t value)
@@ -378,34 +393,34 @@ uint8_t Processor::fetch()
 }
 void Processor::serviceInterrupt(Interrupt interrupt)
 {
-	std::cout << "SERVICING INTERRUPT: ";
+	// std::cout << "SERVICING INTERRUPT: ";
 	uint8_t handler = 0x40;
 
 	switch (interrupt)
 	{
 	case VBLANK:
 		handler = 0x40;
-		std::cout << "VBLANK";
+		// std::cout << "VBLANK";
 		break;
 	case LCD:
 		handler = 0x48;
-		std::cout << "LCD";
+		// std::cout << "LCD";
 		break;
 	case TIMER:
 		handler = 0x50;
-		std::cout << "TIMER";
+		// std::cout << "TIMER";
 		break;
 	case SERIAL:
 		handler = 0x58;
-		std::cout << "SERIAL";
+		// std::cout << "SERIAL";
 		break;
 	case JOYPAD:
 		handler = 0x60;
-		std::cout << "JOYPAD";
+		// std::cout << "JOYPAD";
 		break;
 	}
 
-	std::cout << std::endl;
+	// std::cout << std::endl;
 
 	// di; call $00hh (copied from Instructions.cpp)
 	// Disable so we can actually run interrupt code at the reset vector
@@ -413,10 +428,10 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	
 	ResetVector(handler);
 
-	std::stringstream sstream;
+	/* std::stringstream sstream;
 	sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(handler);
 	std::cout << std::dec << "RESET VECTOR HIT: " << sstream.str() << std::endl;
-
+	*/
 	_remainingCycles = 20;
 
 	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << (interrupt - 1))); // Reset Serviced Interrupt
