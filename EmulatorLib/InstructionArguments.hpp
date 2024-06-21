@@ -34,6 +34,7 @@ public:
 		_rhsValue = rhsValue;
 	}
 
+
 	/// <summary>
 	/// The active CPU
 	/// </summary>
@@ -75,4 +76,5 @@ public:
 		return _rhsValue;
 	}
 
+	friend class Processor;
 };

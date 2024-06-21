@@ -60,6 +60,8 @@ void Processor::PulseClock()
 {
 	static uint8_t& regInterruptEnable = *_memoryBus->Get(HardwareRegister::IE);
 	static Interrupt& reqInterrupts = reinterpret_cast<Interrupt&>(*_memoryBus->Get(HardwareRegister::IF));
+	static OpCodeInfo* info = nullptr;
+	static InstructionArguments args = { *this, *_memoryBus, *info, OperandType::None, OperandType::None, 0, 0 };
 	_cycleCount++;
 
 
@@ -94,7 +96,7 @@ void Processor::PulseClock()
 
 			
 
-			OpCodeInfo* info = OpCodeInfo::OpCodes + fetch();
+			info = OpCodeInfo::OpCodes + fetch();
 
 			std::function<void(InstructionArguments&)>* func = Instructions + info->GetHexCode();
 
@@ -105,11 +107,11 @@ void Processor::PulseClock()
 				func = InstructionsCB + info->GetHexCode();
 			}
 
-			OperandType lhsType = info->GetLeftHandOperand();
-			OperandType rhsType = info->GetRightHandOperand();
-			uint16_t lhsValue = lhsType != OperandType::None ? GetOperand(lhsType) : 0;
-			uint16_t rhsValue = rhsType != OperandType::None ? GetOperand(rhsType) : 0;
-			InstructionArguments args(*this, *_memoryBus, *info, lhsType, rhsType, lhsValue, rhsValue);
+			args._opcodeInfo = info;
+			args._lhs = info->GetLeftHandOperand();
+			args._rhs = info->GetRightHandOperand();
+			args._lhsValue = GetOperand(args._lhs);
+			args._rhsValue = GetOperand(args._rhs);
 
 			_remainingCycles = info->GetCycleLengthMin();
 
@@ -265,6 +267,12 @@ uint16_t Processor::GetOperand(OperandType operand)
 	uint16_t hl = h;
 	hl <<= 8;
 	hl |= l;
+
+
+	/*if ((static_cast<uint8_t>(operand) - 1) <= static_cast<uint8_t>(Register::PC))
+	{
+		return GetRegister(static_cast<Register>(static_cast<uint8_t>(operand) - 1));
+	}*/
 
 	switch (operand)
 	{

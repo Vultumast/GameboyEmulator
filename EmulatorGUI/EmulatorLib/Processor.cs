@@ -67,6 +67,11 @@ namespace EmulatorGUI.EmulatorLib
         [LibraryImport("EmulatorLib.dll")]
         [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
         private static partial void processor_consumeinstruction(nint processor);
+
+
+        [LibraryImport("EmulatorLib.dll")]
+        [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+        private static partial void do_the_thing(nint processor, nint video);
         public enum Flags
         {
             C = (1 << 4),
@@ -144,5 +149,11 @@ namespace EmulatorGUI.EmulatorLib
 
         public void SetFlag(Flags flag, bool value) => processor_setflag(CPointer, (byte)flag, (byte)(value ? 1 : 0));
         public bool GetFlag(Flags flag) => processor_getflag(CPointer, (byte)flag) == 1;
+
+
+        public void theThing(Video video)
+        {
+            do_the_thing(CPointer, video.CPointer);
+        }
     }
 }

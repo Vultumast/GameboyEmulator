@@ -30,6 +30,18 @@ enum class PPUMode : uint8_t
 	DrawingPixels
 };
 
+enum LCDC : uint8_t
+{
+	BGWindowEnablePriority	= 0b00000001,
+	ObjectsEnabled			= 0b00000010,
+	ObjectBGSize			= 0b00000100,
+	BGTileMapOffset			= 0b00001000,
+	BGWindowTileDataOffset	= 0b00010000,
+	WindowEnable			= 0b00100000,
+	WindowTileMapOffset		= 0b01000000,
+	LCDPPUEnable			= 0b10000000,
+};
+
 #pragma pack(push, 1)
 struct BackgroundDisplayInfo
 {
@@ -39,6 +51,7 @@ struct BackgroundDisplayInfo
 	uint8_t WindowX = 0;
 };
 
+/*
 struct LCDControlRegister
 {
 public:
@@ -86,6 +99,7 @@ public:
 	/// </summary>
 	bool LCDPPUEnable : 1;
 };
+*/
 
 struct LCDStatusRegister
 {

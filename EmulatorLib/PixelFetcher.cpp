@@ -17,12 +17,12 @@ void PixelFetcher::state_GetTile()
 
 	uint8_t scanline = _mmu->Read(HardwareRegister::LY);
 
-	LCDControlRegister* lcdc = reinterpret_cast<LCDControlRegister*>(_mmu->Get(HardwareRegister::LCDC));
+	// LCDControlRegister* lcdc = reinterpret_cast<LCDControlRegister*>(_mmu->Get(HardwareRegister::LCDC));
 
 	uint16_t tilemapAddress = 0x9800;
 
 
-	bool window = lcdc->WindowEnable && windowY <= scanline;
+	// bool window = lcdc->WindowEnable && windowY <= scanline;
 
 	_state = PixelFetcherState::ReadTileDataLow;
 }

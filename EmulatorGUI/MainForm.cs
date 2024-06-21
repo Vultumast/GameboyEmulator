@@ -114,7 +114,9 @@ namespace EmulatorGUI
 
             long elapsed = 0;
 
+            processor.theThing(video);
 
+            return;
 
             while (true)
             {

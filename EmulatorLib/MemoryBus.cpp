@@ -140,8 +140,8 @@ std::uint8_t MemoryBus::Read(const std::uint16_t& address)
 	{
 		if (_mapper != nullptr)
 			return _mapper->Read(address);
-		if (_rom != nullptr)
-			return _rom->Read(address);
+
+		return _rom->Read(address);
 	}
 
 	std::uint16_t realAddress = address;

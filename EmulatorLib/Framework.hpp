@@ -60,4 +60,13 @@ extern "C"
 	DLL_EXPORT uint8_t opcode_getprefixlhsoperand(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodesCB[value].GetLeftHandOperand(); }
 	DLL_EXPORT uint8_t opcode_getprefixrhsoperand(uint8_t value) { return (uint8_t)OpCodeInfo::OpCodesCB[value].GetRightHandOperand(); }
 
+
+	DLL_EXPORT void do_the_thing(Processor* processor, Video* video)
+	{
+		while (true)
+		{
+			processor->PulseClock();
+			video->Update(1);
+		}
+	}
 }

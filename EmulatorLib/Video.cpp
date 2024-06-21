@@ -107,11 +107,12 @@ Video::Video(MemoryBus* memoryBus, HWND hwnd)
 
 void Video::Update(uint32_t cycles)
 {
-	static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
+	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
+	//static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
 	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);
 	SetLCDStatus();
 
-	if (lcdControl->LCDPPUEnable)
+	if ((*lcdControl) & LCDC::LCDPPUEnable)
 		_scanlineCounter -= cycles;
 	else
 		return;
@@ -133,12 +134,19 @@ void Video::Update(uint32_t cycles)
 
 void Video::SetLCDStatus()
 {
+	static uint8_t lastStatus = 0;
+	static uint8_t* lcdStatusbyte = _memoryBus->Get(HardwareRegister::STAT);
+	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
+
+	if (lastStatus == *lcdStatusbyte)
+		return; // Nothing to do
+
 	static LCDStatusRegister* lcdStatus = reinterpret_cast<LCDStatusRegister*>(_memoryBus->Get(HardwareRegister::STAT));
-	static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
+	// static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
 	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);
 	static uint8_t& lyc = *_memoryBus->Get(HardwareRegister::LYC);
 
-	if (!lcdControl->LCDPPUEnable)
+	if (((*lcdControl) & LCDC::LCDPPUEnable) == 0)
 	{
 		_scanlineCounter = 456;
 		scanline = 0;
@@ -184,28 +192,30 @@ void Video::SetLCDStatus()
 		if (reqInt && (newMode != currentMode))
 			_memoryBus->RequestInterrupt(Interrupt::LCD);
 
-		if (lyc == lcdStatus->LYCeqLY)
+		uint8_t fuck = (*lcdStatusbyte);
+		// if (lyc == lcdStatus->LYCeqLY)
+		if (lyc == ((fuck & 0b00100000) != 0))
 		{
 			lcdStatus->LYCeqLY = true;
-			if (lcdStatus->LYCIntSelect)
+			if ((fuck & 0b00000010) != 0) // LYC Int Select
 				_memoryBus->RequestInterrupt(Interrupt::LCD);
 		}
 		else
 			lcdStatus->LYCeqLY = false;
+
+		lastStatus = *lcdStatusbyte;
 	}
 }
 
 void Video::DrawScanline()
 {
 	// std::cout << "drawing curr scanline: " << _memoryBus->Read(HardwareRegister::LY) << std::endl;
-	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
+	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
 
-	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
-
-	if (lcdControl->BGWindowEnablePriority)
+	if (((*lcdControl) & LCDC::BGWindowEnablePriority) != 0)
 		RenderTiles();
 
-	if (lcdControl->ObjectsEnabled)
+	if ((*lcdControl) & LCDC::ObjectsEnabled)
 	{
 
 	}
@@ -216,7 +226,8 @@ void Video::DrawScanline()
 void Video::RenderTiles()
 {
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
-	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
+	//LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
+	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
 
 	// Find where to draw
 	uint8_t viewportY = _memoryBus->Read(HardwareRegister::SCY);
@@ -227,11 +238,11 @@ void Video::RenderTiles()
 
 	uint8_t scanline = _memoryBus->Read(HardwareRegister::LY);
 
-	bool useWindow = lcdControl->WindowEnable && windowY <= scanline;
-	bool unsig = lcdControl->BGWindowTileDataOffset;
+	bool useWindow = (((*lcdControl) & LCDC::WindowEnable) != 0) && windowY <= scanline;
+	bool unsig = (((*lcdControl) & LCDC::BGWindowTileDataOffset) != 0);
 
-	uint16_t tileRamStart = lcdControl->BGWindowTileDataOffset ? 0x8000 : 0x8800;
-	uint16_t bgRamStart = lcdControl->BGTileMapOffset ? 0x9C000 : 0x9800;
+	uint16_t tileRamStart = (((*lcdControl) & LCDC::BGWindowTileDataOffset) != 0) ? 0x8000 : 0x8800;
+	uint16_t bgRamStart = (((*lcdControl) & LCDC::BGTileMapOffset) != 0) ? 0x9C000 : 0x9800;
 
 
 	uint8_t yPos = useWindow ? scanline - windowY : viewportY + scanline;
