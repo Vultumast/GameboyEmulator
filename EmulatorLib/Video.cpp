@@ -107,9 +107,9 @@ Video::Video(MemoryBus* memoryBus, HWND hwnd)
 
 void Video::Update(uint32_t cycles)
 {
+	static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
+	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);
 	SetLCDStatus();
-	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
-	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
 
 	if (lcdControl->LCDPPUEnable)
 		_scanlineCounter -= cycles;
@@ -118,16 +118,14 @@ void Video::Update(uint32_t cycles)
 
 	if (_scanlineCounter <= 0)
 	{
-		uint8_t currentline = _memoryBus->Read(HardwareRegister::LY) + 1;
-		// Inc scanline counter
-		_memoryBus->Write(HardwareRegister::LY, currentline);
+		scanline++;
 
 		_scanlineCounter = 456;
 
-		if (currentline == 144) // V Blank?
+		if (scanline == 144) // V Blank?
 			_memoryBus->RequestInterrupt(Interrupt::VBLANK);
-		else if (currentline >= 153)
-			_memoryBus->Write(HardwareRegister::LY, 0);
+		else if (scanline >= 153)
+			scanline = 0;
 		else
 			DrawScanline();
 	}
@@ -135,75 +133,71 @@ void Video::Update(uint32_t cycles)
 
 void Video::SetLCDStatus()
 {
-	char statusByte = _memoryBus->Read(HardwareRegister::STAT);
-	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
-
-	LCDStatusRegister* lcdStatus = reinterpret_cast<LCDStatusRegister*>(&statusByte);
-	LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(&controlByte);
+	static LCDStatusRegister* lcdStatus = reinterpret_cast<LCDStatusRegister*>(_memoryBus->Get(HardwareRegister::STAT));
+	static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
+	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);
+	static uint8_t& lyc = *_memoryBus->Get(HardwareRegister::LYC);
 
 	if (!lcdControl->LCDPPUEnable)
 	{
 		_scanlineCounter = 456;
-		_memoryBus->Write(HardwareRegister::LY, 0);
+		scanline = 0;
 		lcdStatus->PPUMode = PPUMode::HBlank;
-		_memoryBus->Write(HardwareRegister::STAT, reinterpret_cast<uint8_t>(&lcdStatus));
-		return;
 	} 
-
-	PPUMode currentMode = lcdStatus->PPUMode;
-	PPUMode newMode = PPUMode::HBlank;
-
-	uint8_t scanline = _memoryBus->Read(HardwareRegister::LY);
-
-	bool reqInt = false;
-
-	if (scanline >= 144) // V BLANK
-	{
-		newMode = PPUMode::VBlank;
-		lcdStatus->PPUMode = PPUMode::VBlank;
-		reqInt = lcdStatus->Mode1IntSelect;
-	}
 	else
 	{
-		uint32_t mode2Bounds = 376;
-		uint32_t mode3Bounds = 204;
+		PPUMode currentMode = lcdStatus->PPUMode;
+		PPUMode newMode = PPUMode::HBlank;
 
-		if (_scanlineCounter >= mode2Bounds)
+		bool reqInt = false;
+
+		if (scanline >= 144) // V BLANK
 		{
-			newMode = PPUMode::OAMScan;
-			lcdStatus->PPUMode = PPUMode::OAMScan;
-			reqInt = lcdStatus->Mode2IntSelect;
-		}
-		else if (_scanlineCounter >= mode3Bounds)
-		{
-			newMode = PPUMode::DrawingPixels;
-			lcdStatus->PPUMode = PPUMode::DrawingPixels;
+			newMode = PPUMode::VBlank;
+			lcdStatus->PPUMode = PPUMode::VBlank;
+			reqInt = lcdStatus->Mode1IntSelect;
 		}
 		else
 		{
-			newMode = PPUMode::HBlank;
-			lcdStatus->PPUMode = PPUMode::HBlank;
-			reqInt = lcdStatus->Mode0IntSelect;
+			uint32_t mode2Bounds = 376;
+			uint32_t mode3Bounds = 204;
+
+			if (_scanlineCounter >= 376)
+			{
+				newMode = PPUMode::OAMScan;
+				lcdStatus->PPUMode = PPUMode::OAMScan;
+				reqInt = lcdStatus->Mode2IntSelect;
+			}
+			else if (_scanlineCounter >= 204)
+			{
+				newMode = PPUMode::DrawingPixels;
+				lcdStatus->PPUMode = PPUMode::DrawingPixels;
+			}
+			else
+			{
+				newMode = PPUMode::HBlank;
+				lcdStatus->PPUMode = PPUMode::HBlank;
+				reqInt = lcdStatus->Mode0IntSelect;
+			}
 		}
-	}
 
-	if (reqInt && (newMode != currentMode))
-		_memoryBus->RequestInterrupt(Interrupt::LCD);
-
-	if (_memoryBus->Read(0xFF45) == lcdStatus->LYCeqLY)
-	{
-		lcdStatus->LYCeqLY = true;
-		if (lcdStatus->LYCIntSelect)
+		if (reqInt && (newMode != currentMode))
 			_memoryBus->RequestInterrupt(Interrupt::LCD);
-	}
-	else
-		lcdStatus->LYCeqLY = false;
 
-	_memoryBus->Write(0xFF41, statusByte);
+		if (lyc == lcdStatus->LYCeqLY)
+		{
+			lcdStatus->LYCeqLY = true;
+			if (lcdStatus->LYCIntSelect)
+				_memoryBus->RequestInterrupt(Interrupt::LCD);
+		}
+		else
+			lcdStatus->LYCeqLY = false;
+	}
 }
 
 void Video::DrawScanline()
 {
+
 	// std::cout << "drawing curr scanline: " << _memoryBus->Read(HardwareRegister::LY) << std::endl;
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
 

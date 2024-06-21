@@ -58,11 +58,12 @@ void Processor::Reset()
 
 void Processor::PulseClock()
 {
-	_cycleCount = (_cycleCount + 1) % 0xFF;
+	static uint8_t& regInterruptEnable = *_memoryBus->Get(HardwareRegister::IE);
+	static Interrupt& reqInterrupts = reinterpret_cast<Interrupt&>(*_memoryBus->Get(HardwareRegister::IF));
+	_cycleCount++;
 
-	Interrupt reqInterrupts = _memoryBus->GetInterrupts();
 
-	bool interruptPending = InterruptMasterEnable && (_memoryBus->Read(HardwareRegister::IE) != 0 && reqInterrupts != 0);
+	bool interruptPending = InterruptMasterEnable && (reqInterrupts != 0 && regInterruptEnable != 0);
 	if (Halted)
 	{
 		_remainingCycles = 0;
@@ -73,10 +74,8 @@ void Processor::PulseClock()
 	}
 
 	// Cycle timer finished?
-	if (IsInstructionCompleted())
+	if (_remainingCycles == 0)
 	{
-		Interrupt reqInterrupts = _memoryBus->GetInterrupts();
-
 		// Service all pending interrupts first
 		if (interruptPending)
 		{
@@ -106,7 +105,11 @@ void Processor::PulseClock()
 				func = InstructionsCB + info->GetHexCode();
 			}
 
-			InstructionArguments args(*this, *_memoryBus, *info, info->GetLeftHandOperand(), info->GetRightHandOperand(), GetOperand(info->GetLeftHandOperand()), GetOperand(info->GetRightHandOperand()));
+			OperandType lhsType = info->GetLeftHandOperand();
+			OperandType rhsType = info->GetRightHandOperand();
+			uint16_t lhsValue = GetOperand(lhsType);
+			uint16_t rhsValue = GetOperand(rhsType);
+			InstructionArguments args(*this, *_memoryBus, *info, lhsType, rhsType, lhsValue, rhsValue);
 
 			_remainingCycles = info->GetCycleLengthMin();
 

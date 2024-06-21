@@ -119,8 +119,6 @@ namespace EmulatorGUI.EmulatorLib
 		AddressUINT8,
 		AddressUINT16,
 
-		DataINT8,
-
 		FlagCarry,
 		FlagHalfCarry,
 		FlagNegative,

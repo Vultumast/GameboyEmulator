@@ -60,8 +60,6 @@ namespace EmulatorGUI.EmulatorLib
                     return "d16"; 
                 case OperandType.AddressUINT16:
                     return "a16";
-                case OperandType.DataINT8:
-                    return "i8";
                 case OperandType.FlagCarry:
                     return "c";
                 case OperandType.FlagHalfCarry:

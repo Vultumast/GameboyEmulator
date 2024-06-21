@@ -251,7 +251,7 @@ uint32_t ROMInfo::GetRAMSize() const
 
 uint8_t ROMInfo::Read(uint32_t address) const
 {
-	if (_rom == nullptr || address >= _size)
+	if (address >= _size)
 		return 0xFF;
 
 	return _rom[address];

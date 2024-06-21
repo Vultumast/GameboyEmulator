@@ -108,22 +108,25 @@ namespace EmulatorGUI
 
         private void LoopTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
-            Stopwatch watch = new Stopwatch();
+            // Stopwatch watch = new Stopwatch();
 
             int blah = 0;
 
             long elapsed = 0;
 
+
+
             while (true)
             {
-                watch.Restart();
+                //watch.Restart();
 
-                //var cycle = processor.RemainingCycles;
-                //processor.ConsumeInstruction();
+
+                // processor.ConsumeInstruction();
                 processor.PulseClock();
+                // var cycle = processor.RemainingCycles;
                 video.Update(1);
                 // rawPanel.Invalidate();
-                
+
                 /* this.Invoke(new MethodInvoker(delegate
                 {
                     afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
@@ -135,12 +138,12 @@ namespace EmulatorGUI
 
                     interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
                 })); */
-                
+
 
                 // Console.WriteLine(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
                 // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");
-                watch.Stop();
-                elapsed = watch.ElapsedTicks;
+                //watch.Stop();
+                //elapsed = watch.ElapsedTicks;
                 //Application.DoEvents();
                 //Thread.Yield();
 
