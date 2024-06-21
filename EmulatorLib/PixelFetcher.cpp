@@ -24,10 +24,6 @@ void PixelFetcher::state_GetTile()
 
 	bool window = lcdc->WindowEnable && windowY <= scanline;
 
-
-
-
-
 	_state = PixelFetcherState::ReadTileDataLow;
 }
 

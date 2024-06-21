@@ -1,11 +1,15 @@
-#include "Processor.hpp"
-#include "Constants.hpp"
-#include "MemoryBus.hpp"
-#include "OpCodeInfo.hpp"
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <iomanip>
+
+#include "Constants.hpp"
+#include "MemoryBus.hpp"
+#include "OpCodeInfo.hpp"
+#include "InstructionArguments.hpp"
+
+#include "Processor.hpp"
+
 
 Processor::Processor(MemoryBus* memoryBus)
 {
@@ -47,6 +51,9 @@ void Processor::Reset()
 	f = 0x30; // This is wrong if the header checksum is 0x00 but I don't care
 	h = 0x01;
 	l = 0x4D;
+
+	Halted = false;
+	InterruptMasterEnable = false;
 }
 
 void Processor::PulseClock()
@@ -86,9 +93,11 @@ void Processor::PulseClock()
 		{
 			// Normal Execution
 
+			
+
 			OpCodeInfo* info = OpCodeInfo::OpCodes + fetch();
 
-			std::function<void(Processor&, OperandType, uint16_t, uint16_t)>* func = Instructions + info->GetHexCode();
+			std::function<void(InstructionArguments&)>* func = Instructions + info->GetHexCode();
 
 
 			if (info->GetOpCode() == OpCode::PREFIX)
@@ -97,55 +106,14 @@ void Processor::PulseClock()
 				func = InstructionsCB + info->GetHexCode();
 			}
 
-
-			uint16_t data = 0;
-			switch (info->GetLeftHandOperand())
-			{
-			case OperandType::DataUINT8:
-			case OperandType::AddressUINT8:
-				data = fetch();
-				break;
-			case OperandType::DataUINT16:
-			case OperandType::AddressUINT16:
-				data = fetch();
-				data |= (fetch() << 8);
-				break;
-			}
-
-			switch (info->GetOpCode()) // Special Cases
-			{
-			case OpCode::JR:
-			case OpCode::JP:
-			case OpCode::CALL:
-				data = 1;
-
-				// LHS is our conditional
-				if (info->GetLeftHandOperand() >= OperandType::FlagCarry)
-					data = GetOperand(info->GetLeftHandOperand());
-				break;
-			case OpCode::BIT:
-				// Get our bit target
-				data = (info->GetHexCode() - 0x40) / 8;
-				break;
-			case OpCode::RES:
-				// Get our bit target
-				data = (info->GetHexCode() - 0x80) / 8;
-				break;
-			case OpCode::SET:
-				// Get our bit target
-				data = (info->GetHexCode() - 0xC) / 8;
-				break;
-			default:
-				break;
-			}
-
+			InstructionArguments args(*this, *_memoryBus, *info, info->GetLeftHandOperand(), info->GetRightHandOperand(), GetOperand(info->GetLeftHandOperand()), GetOperand(info->GetRightHandOperand()));
 
 			_remainingCycles = info->GetCycleLengthMin();
 
 			//std::stringstream sstream;
 			//sstream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(info.GetHexCode());
 			//std::cout << std::dec << "executing OpCode: " << sstream.str() << std::endl;
-			(*func)(*this, info->GetLeftHandOperand(), data, GetOperand(info->GetRightHandOperand()));
+			(*func)(args);
 		}
 	}
 	else
@@ -344,14 +312,8 @@ uint16_t Processor::GetOperand(OperandType operand)
 		data = _memoryBus->Read(addr);
 		break;
 	case OperandType::DataUINT8:
-		data = fetch();
-		break;
 	case OperandType::AddressUINT8:
-		data = _memoryBus->Read(0xFF00 + fetch());
-		break;
-	case OperandType::DataINT8:
 		data = fetch();
-		data = pc + static_cast<int8_t>(data & 0xFF);
 		break;
 
 	case OperandType::FlagCarry:
@@ -437,5 +399,6 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 	_memoryBus->Write(HardwareRegister::IF, (uint8_t)_memoryBus->Read(HardwareRegister::IF) & ~(1 << (interrupt - 1))); // Reset Serviced Interrupt
 
 }
+
 
 #pragma endregion

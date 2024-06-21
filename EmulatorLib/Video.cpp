@@ -242,9 +242,8 @@ void Video::RenderTiles()
 	uint16_t bgRamStart = lcdControl->BGTileMapOffset ? 0x9C000 : 0x9800;
 
 
-	// uint8_t yPos = useWindow ? scanline - windowY : viewportY + scanline;
+	uint8_t yPos = useWindow ? scanline - windowY : viewportY + scanline;
 
-	uint8_t yPos = scanline;
 
 	uint16_t tileRow = ((uint8_t)(yPos / 8)) * 32;
 
@@ -275,12 +274,6 @@ void Video::RenderTiles()
 		else
 			tileLocation += ((tileID + 128) * 16);
 
-
-		// std::cout << "X: " << std::to_string(tileCol) << " Y: " << std::to_string(tileRow / 32) << std::endl;
-		if (tileLocation == 0x8010)
-		{
-			std::cout << "butts" << std::endl;
-		}
 
 		// 2) Find the color data of the line we are going to render
 		uint16_t tileLine = (yPos % 8) * 2;

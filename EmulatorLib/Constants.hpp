@@ -367,7 +367,7 @@ enum class OpCode
 	XXX
 };
 
-enum class Register
+enum class Register : uint8_t
 {
 	A,
 	B,
@@ -421,8 +421,6 @@ enum class OperandType
 
 	AddressUINT8,
 	AddressUINT16,
-
-	DataINT8,
 
 	FlagCarry,
 	FlagHalfCarry,

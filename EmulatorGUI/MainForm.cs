@@ -22,15 +22,15 @@ namespace EmulatorGUI
         {
             // info = new RomInfo(File.ReadAllBytes("rom.gb"));
             // info = new RomInfo(File.ReadAllBytes("Tetris.gb"));
-            info = new RomInfo(File.ReadAllBytes("alleyway.gb"));
-            // info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
+            // info = new RomInfo(File.ReadAllBytes("alleyway.gb"));
+            info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
             bus = new MemoryBus(info);
 
             processor = new Processor(bus);
             video = new Video(bus, viewPanel.Handle);
             processor.Reset();
 
-            // processor.PC = 0;
+            processor.PC = 0;
 
             hexViewControl.MemoryBus = bus;
         }
@@ -123,8 +123,8 @@ namespace EmulatorGUI
                 processor.PulseClock();
                 video.Update(1);
                 // rawPanel.Invalidate();
-                /*
-                this.Invoke(new MethodInvoker(delegate
+                
+                /* this.Invoke(new MethodInvoker(delegate
                 {
                     afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
                     bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
@@ -134,8 +134,8 @@ namespace EmulatorGUI
                     pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
 
                     interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
-                }));
-                */
+                })); */
+                
 
                 // Console.WriteLine(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
                 // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");

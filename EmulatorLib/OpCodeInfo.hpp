@@ -2,6 +2,9 @@
 
 #include "Constants.hpp"
 
+/// <summary>
+/// Structure containing information for how long an OpCode takes, what function it invokes, and it's operands
+/// </summary>
 struct OpCodeInfo
 {
 private:
