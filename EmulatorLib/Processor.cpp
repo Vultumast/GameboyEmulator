@@ -107,8 +107,8 @@ void Processor::PulseClock()
 
 			OperandType lhsType = info->GetLeftHandOperand();
 			OperandType rhsType = info->GetRightHandOperand();
-			uint16_t lhsValue = GetOperand(lhsType);
-			uint16_t rhsValue = GetOperand(rhsType);
+			uint16_t lhsValue = lhsType != OperandType::None ? GetOperand(lhsType) : 0;
+			uint16_t rhsValue = rhsType != OperandType::None ? GetOperand(rhsType) : 0;
 			InstructionArguments args(*this, *_memoryBus, *info, lhsType, rhsType, lhsValue, rhsValue);
 
 			_remainingCycles = info->GetCycleLengthMin();
@@ -262,47 +262,71 @@ uint16_t Processor::GetOperand(OperandType operand)
 	uint16_t data = 0;
 	uint16_t addr = 0;
 
-	uint16_t hl = 0;
+	uint16_t hl = h;
+	hl <<= 8;
+	hl |= l;
+
 	switch (operand)
 	{
 	case OperandType::Acculumator:
+		data = a;
+		break;
 	case OperandType::RegisterB:
+		data = b;
+		break;
 	case OperandType::RegisterC:
+		data = c;
+		break;
 	case OperandType::RegisterD:
+		data = d;
+		break;
 	case OperandType::RegisterE:
+		data = e;
+		break;
 	case OperandType::RegisterH:
+		data = h;
+		break;
 	case OperandType::RegisterL:
+		data = l;
+		break;
 	case OperandType::RegisterAF:
+		data = (static_cast<uint16_t>(a << 8) | f);
+		break;
 	case OperandType::RegisterBC:
+		data = (static_cast<uint16_t>(b << 8) | c);
+		break;
 	case OperandType::RegisterDE:
+		data = (static_cast<uint16_t>(d << 8) | e);
+		break;
 	case OperandType::RegisterHL:
+		data = (static_cast<uint16_t>(h << 8) | l);
+		break;
 	case OperandType::Stackpointer:
+		data = sp;
+		break;
 	case OperandType::ProgramCounter:
-		data = GetRegister((Register)(((uint16_t)operand) - 1));
+		data = pc;
 		break;
 	case OperandType::IncrementHL:
-		hl = GetRegister(Register::HL);
 		data = _memoryBus->Read(hl);
-
 		SetRegister(Register::HL, hl + 1);
 		break;
 	case OperandType::DecrementHL:
-		hl = GetRegister(Register::HL);
 		data = _memoryBus->Read(hl);
 		SetRegister(Register::HL, hl - 1);
 		break;
 
 	case OperandType::RegisterCIndirect:
-		data = _memoryBus->Read(0xFF00 + GetRegister(Register::C));
+		data = _memoryBus->Read(0xFF00 + c);
 		break;
 	case OperandType::RegisterBCIndirect:
-		data = _memoryBus->Read(GetRegister(Register::BC));
+		data = _memoryBus->Read((static_cast<uint16_t>(b << 8) | c));
 		break;
 	case OperandType::RegisterDEIndirect:
-		data = _memoryBus->Read(GetRegister(Register::DE));
+		data = _memoryBus->Read((static_cast<uint16_t>(d << 8) | e));
 		break;
 	case OperandType::RegisterHLIndirect:
-		data = _memoryBus->Read(GetRegister(Register::HL));
+		data = _memoryBus->Read((static_cast<uint16_t>(h << 8) | l));
 		break;
 
 	case OperandType::DataUINT16:

@@ -197,6 +197,7 @@ void Video::SetLCDStatus()
 
 void Video::DrawScanline()
 {
+	return;
 
 	// std::cout << "drawing curr scanline: " << _memoryBus->Read(HardwareRegister::LY) << std::endl;
 	char controlByte = _memoryBus->Read(HardwareRegister::LCDC);
