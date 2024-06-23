@@ -216,6 +216,40 @@ uint16_t Processor::GetRegister(Register source) const
 	}
 }
 
+void Processor::SetRegister8Bit(Registers8Bit destination, uint8_t value)
+{
+	switch (destination)
+	{
+	case Registers8Bit::B:
+		data = v;
+		break;
+	case Registers8Bit::C:
+		data = c;
+		break;
+	case Registers8Bit::D:
+		data = d;
+		break;
+	case Registers8Bit::E:
+		data = e;
+		break;
+	case Registers8Bit::H:
+		data = h;
+		break;
+	case Registers8Bit::L:
+		data = l;
+		break;
+	case Registers8Bit::HL_Indirect:
+		break;
+	case Registers8Bit::A:
+		data =
+			break;
+	}
+}
+uint8_t Processor::GetRegister8Bit(Registers8Bit source) const
+{
+
+}
+
 bool Processor::GetFlag(FLAGS flag) const
 {
 	return ((f & flag) > 0) ? 1 : 0;
@@ -388,6 +422,13 @@ uint8_t Processor::fetch()
 	pc = (pc + 1) & 0xFFFF;
 	return value;
 }
+uint16_t Processor::fetchWord()
+{
+	uint16_t value = fetch();
+	value |= static_cast<uint16_t>(fetch()) << 8;
+	return value;
+}
+
 void Processor::serviceInterrupt(Interrupt interrupt)
 {
 	// std::cout << "SERVICING INTERRUPT: ";
@@ -435,5 +476,602 @@ void Processor::serviceInterrupt(Interrupt interrupt)
 
 }
 
+void Processor::decodeOpcode()
+{
+	uint8_t opcode = fetch();
 
+	uint8_t opcodeCateogry = (opcode & 0b11000000) >> 6;
+	switch (opcodeCateogry)
+	{
+	case 0:
+		decodeOpCodeGroup0(opcode);
+		break;
+	case 1: // 8 bit loading
+		decodeOpCodeGroup1(opcode);
+		break;
+	case 2:
+		decodeOpCodeGroup2(opcode);
+		break;
+	case 3:
+		decodeOpCodeGroup3(opcode);
+		break;
+	}
+}
+
+void Processor::decodeOpCodeGroup0(uint8_t opcode)
+{
+	uint8_t y = (opcode & 0b00111000) >> 3;
+	uint8_t z = (opcode & 0b00000111);
+
+	switch (z)
+	{
+	case 0: // Relative Jumps and Misc Ops
+		decodeOpCodeSubgroup00(opcode);
+		break;
+	case 1: // 16-bit load immediate / add
+		decodeOpCodeSubgroup01(opcode);
+		break;
+	case 2: // 16-bit load immediate / add
+		decodeOpCodeSubgroup02(opcode);
+		break;
+	case 3: // Indirect loading
+		decodeOpCodeSubgroup03(opcode);
+		break;
+	case 4: // 8-bit INC
+		decodeOpCodeSubgroup04(opcode);
+		break;
+	case 5: // 8-bit DEC
+		decodeOpCodeSubgroup05(opcode);
+		break;
+	case 6: // 8-bit load immediate
+		decodeOpCodeSubgroup06(opcode);
+		break;
+	case 7: // Misc Accumulator/Flag operations
+		decodeOpCodeSubgroup06(opcode);
+		break;
+	}
+
+}
+void Processor::decodeOpCodeGroup1(uint8_t opcode)
+{
+	_previousOpCode = OpCode::LD;
+	_remainingCycles = 4;
+	uint8_t dstReg = (opcode & 0b00111000) >> 3;
+	uint8_t srcReg = (opcode & 0b00000111);
+
+	uint8_t data = 0;
+
+	if (dstReg == Registers8Bit::HL_Indirect && srcReg == Registers8Bit::HL_Indirect) // LD (HL), (HL) == HALT
+	{
+		Halted = true;
+		return;
+	}
+
+	SetRegister8Bit(static_cast<Registers8Bit>(dstReg), GetRegister8Bit(static_cast<Registers8Bit>(srcReg)));
+}
+void Processor::decodeOpCodeGroup2(uint8_t opcode)
+{
+	uint8_t operation = (opcode & 0b00111000) >> 3;
+	uint8_t srcReg =    (opcode & 0b00000111) >> 3;
+
+	_remainingCycles = 4;
+
+	if (srcReg == Registers8Bit::HL_Indirect)
+		_remainingCycles = 8;
+
+	uint8_t temp = 0;
+	uint8_t src = GetRegister8Bit(static_cast<Registers8Bit>(srcReg));
+
+	f = 0; // Clear flags
+
+	switch (operation)
+	{
+	case ArithmeticLogicOperations::ADD_A:
+		_previousOpCode = OpCode::ADD;
+		temp = a;
+		a = src + a;
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, (((temp & 0xF) + (src & 0xF)) & 0x10) == 0x10);
+		SetFlag(FLAGS::C, (static_cast<uint32_t>(temp) + static_cast<uint32_t>(src)) > 0xFFFF);
+		break;
+	case ArithmeticLogicOperations::ADC_A:
+		_previousOpCode = OpCode::ADC;
+		temp = a;
+		a = src + a + GetFlag(FLAGS::C);
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, (((temp & 0xF) + (src & 0xF) + (GetFlag(FLAGS::C) & 0x0F)) & 0x10) == 0x10);
+		SetFlag(FLAGS::C, (static_cast<uint32_t>(temp) + static_cast<uint32_t>(src) + static_cast<uint32_t>(GetFlag(FLAGS::C))) > 0xFFFF);
+		break;
+	case ArithmeticLogicOperations::SUB:
+		_previousOpCode = OpCode::SUB;
+		temp = a;
+		a = a - src;
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, true);
+		SetFlag(FLAGS::H, (((temp & 0xF) - (src & 0xF)) < 0x10) && a >= 0x10);
+		SetFlag(FLAGS::C, temp == src);
+		break;
+	case ArithmeticLogicOperations::SBC_A:
+		_previousOpCode = OpCode::SBC;
+		temp = a;
+		a = a - src - GetFlag(FLAGS::C);
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, true);
+		SetFlag(FLAGS::H, (((temp & 0xF) - (src & 0xF) - (GetFlag(FLAGS::C) & 0x0F)) < 0x10) && a >= 0x10);
+		SetFlag(FLAGS::C, temp == src);
+		break;
+	case ArithmeticLogicOperations::AND:
+		_previousOpCode = OpCode::AND;
+		a &= src;
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, true);
+		SetFlag(FLAGS::C, false);
+		break;
+	case ArithmeticLogicOperations::XOR:
+		_previousOpCode = OpCode::XOR;
+		a ^= src;
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, false);
+		SetFlag(FLAGS::C, false);
+		break;
+	case ArithmeticLogicOperations::OR:
+		_previousOpCode = OpCode::OR;
+		a |= src;
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, false);
+		SetFlag(FLAGS::C, false);
+		break;
+	case ArithmeticLogicOperations::CP:
+		_previousOpCode = OpCode::CP;
+		SetFlag(FLAGS::Z, a - src == 0);
+		SetFlag(FLAGS::N, true);
+		SetFlag(FLAGS::H, a >= 0x10 && ((a - src) < 0x10));
+		SetFlag(FLAGS::C, src > a);
+		break;
+	}
+}
+void Processor::decodeOpCodeGroup3(uint8_t opcode)
+{
+	uint8_t y = (opcode & 0b00111000) >> 3;
+	uint8_t z = (opcode & 0b00000111);
+
+
+}
+
+
+void Processor::decodeOpCodeSubgroup00(uint8_t opcode)
+{
+	uint8_t y = (opcode & 0b00111000) >> 3;
+	switch (y)
+	{
+	case 0:
+		_previousOpCode = OpCode::NOP;
+		_remainingCycles = 4;
+		break;
+	case 1:
+		_previousOpCode = OpCode::LD;
+		sp = fetchWord();
+		_remainingCycles = 20;
+		break;
+	case 2:
+		_previousOpCode = OpCode::STOP;
+		_remainingCycles = 4;
+		pc++; // It doesn't matter what byte comes after stop
+		break;
+	case 3:
+		_previousOpCode = OpCode::JR;
+		pc += (int8_t)fetch();
+		_remainingCycles = 12;
+		break;
+	default:
+		_previousOpCode = OpCode::JR;
+		switch (y - 4) // Condition
+		{
+		case Conditionals::NZ:
+			_remainingCycles = (f & FLAGS::Z) == 0 ? 12 : 8;
+			break;
+		case Conditionals::Z:
+			_remainingCycles = (f & FLAGS::Z) != 0 ? 12 : 8;
+			break;
+		case Conditionals::NC:
+			_remainingCycles = (f & FLAGS::C) == 0 ? 12 : 8;
+			break;
+		case Conditionals::C:
+			_remainingCycles = (f & FLAGS::C) != 0 ? 12 : 8;
+			break;
+		}
+
+		if (_remainingCycles == 12) // Did we take the branch?
+			pc += (int8_t)fetch();
+		else
+			pc++; // Skip the next byte
+		break;
+	}
+}
+void Processor::decodeOpCodeSubgroup01(uint8_t opcode)
+{
+	uint8_t p = (opcode & 0b00110000) >> 4;
+	bool q =    (opcode & 0b00001000) >> 3;
+
+	if (q)
+	{
+		_previousOpCode = OpCode::LD;
+		_remainingCycles = 12;
+
+		switch (p)
+		{
+		case Registers16BitA::BC:
+			c = fetch();
+			b = fetch();
+			break;
+		case Registers16BitA::DE:
+			e = fetch();
+			d = fetch();
+			break;
+		case Registers16BitA::HL:
+			l = fetch();
+			h = fetch();
+			break;
+		case Registers16BitA::SP:
+			sp = fetchWord();
+			break;
+		}
+	}
+	else
+	{
+		uint16_t hl = (static_cast<uint16_t>(h) << 8) | l;
+		uint16_t src = 0;
+		_remainingCycles = 8;
+
+		switch (p)
+		{
+		case Registers16BitA::BC:
+			src = (static_cast<uint16_t>(b) << 8) | c;
+			break;
+		case Registers16BitA::DE:
+			src = (static_cast<uint16_t>(d) << 8) | e;
+			break;
+		case Registers16BitA::HL:
+			src = (static_cast<uint16_t>(h) << 8) | l;
+			break;
+		case Registers16BitA::SP:
+			src = sp;;
+			break;
+		}
+
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, ((hl + src) & 0x1000) == 0x1000);
+		SetFlag(FLAGS::C, (hl + src) < hl); // We could only be less if we wrapped around
+		_previousOpCode = OpCode::ADD;
+	}
+}
+void Processor::decodeOpCodeSubgroup02(uint8_t opcode)
+{
+	uint8_t p = (opcode & 0b00110000) >> 4;
+	bool flip = (opcode & 0b00001000);
+
+	uint16_t address = 0;
+
+	_remainingCycles = 8;
+	_previousOpCode = OpCode::LD;
+
+	switch (p)
+	{
+	case 0:
+		address = (static_cast<uint16_t>(b) << 8) | c;
+		break;
+	case 1:
+		address = (static_cast<uint16_t>(d) << 8) | e;
+		break;
+	case 2:
+		address = (static_cast<uint16_t>(h) << 8) | l;
+		address++;
+		h = (address & 0xFF00) >> 8;
+		l = (address & 0x00FF);
+		break;	
+	case 3:
+		address = (static_cast<uint16_t>(h) << 8) | l;
+		address--;
+		h = (address & 0xFF00) >> 8;
+		l = (address & 0x00FF);
+		break;
+	}
+
+	if (flip)
+		_memoryBus->Write(address, a);
+	else
+		a = _memoryBus->Read(address);
+}
+void Processor::decodeOpCodeSubgroup03(uint8_t opcode)
+{
+	uint8_t reg = (opcode & 0b00110000) >> 4;
+	bool opType = (opcode & 0b00001000);
+
+	uint16_t src = 0;
+
+	switch (reg)
+	{
+	case BC:
+		src = (static_cast<uint16_t>(b) << 8) | c;
+		break;
+	case DE:
+		src = (static_cast<uint16_t>(d) << 8) | e;
+		break;
+	case HL:
+		src = (static_cast<uint16_t>(h) << 8) | l;
+		break;
+	case SP:
+		src = sp;
+		break;
+	}
+
+	_remainingCycles = 8;
+
+	if (opType)
+	{
+		_previousOpCode = OpCode::INC;
+		src++;
+	}
+	else
+	{
+		_previousOpCode = OpCode::DEC;
+		src--;
+	}
+
+	switch (reg)
+	{
+	case BC:
+		b = (src & 0xFF00) >> 8;
+		c = (src & 0x00FF);
+		break;
+	case DE:
+		d = (src & 0xFF00) >> 8;
+		e = (src & 0x00FF);
+		break;
+	case HL:
+		h = (src & 0xFF00) >> 8;
+		l = (src & 0x00FF);
+		break;
+	case SP:
+		sp = src;
+		break;
+	}
+}
+void Processor::decodeOpCodeSubgroup04(uint8_t opcode)
+{
+	_remainingCycles = 4;
+	_previousOpCode = OpCode::INC;
+
+	uint8_t reg = (opcode & 0b00111000) >> 4;
+
+	uint8_t src = 0;
+	uint16_t hl = (static_cast<uint16_t>(h) << 8) | l;
+	switch (reg)
+	{
+	case Registers8Bit::B:
+		src = b;
+		b++;
+		break;
+	case Registers8Bit::C:
+		src = c;
+		c++;
+		break;
+	case Registers8Bit::D:
+		src = d;
+		d++;
+		break;
+	case Registers8Bit::E:
+		src = e;
+		e++;
+		break;
+	case Registers8Bit::H:
+		src = h;
+		h++;
+		break;
+	case Registers8Bit::L:
+		src = l;
+		l++;
+		break;
+	case Registers8Bit::HL_Indirect:
+		_remainingCycles = 12;
+		src = _memoryBus->Read(hl);
+		_memoryBus->Write(hl, src + 1);
+		break;
+	case Registers8Bit::A:
+		src = a;
+		a++;
+		break;
+	}
+
+	SetFlag(FLAGS::Z, src == 0xFF);
+	SetFlag(FLAGS::N, false);
+	SetFlag(FLAGS::H, (((1 & 0xF) + (src & 0xF)) & 0x10) == 0x10));
+}
+void Processor::decodeOpCodeSubgroup05(uint8_t opcode)
+{
+	_remainingCycles = 4;
+	_previousOpCode = OpCode::DEC;
+
+	uint8_t reg = (opcode & 0b00111000) >> 4;
+
+	uint8_t src = 0;
+	uint16_t hl = (static_cast<uint16_t>(h) << 8) | l;
+	switch (reg)
+	{
+	case Registers8Bit::B:
+		src = b;
+		b--;
+		break;
+	case Registers8Bit::C:
+		src = c;
+		c--;
+		break;
+	case Registers8Bit::D:
+		src = d;
+		d--;
+		break;
+	case Registers8Bit::E:
+		src = e;
+		e--;
+		break;
+	case Registers8Bit::H:
+		src = h;
+		h--;
+		break;
+	case Registers8Bit::L:
+		src = l;
+		l--;
+		break;
+	case Registers8Bit::HL_Indirect:
+		_remainingCycles = 12;
+		src = _memoryBus->Read(hl);
+		_memoryBus->Write(hl, src - 1);
+		break;
+	case Registers8Bit::A:
+		src = a;
+		a--;
+		break;
+	}
+
+	SetFlag(FLAGS::Z, src == 0x01);
+	SetFlag(FLAGS::N, false);
+	SetFlag(FLAGS::H, ((src - 1) & 0x10) == 0x10);
+
+}
+void Processor::decodeOpCodeSubgroup06(uint8_t opcode)
+{
+	_remainingCycles = 8;
+	_previousOpCode = OpCode::LD;
+	uint8_t reg = (opcode & 0b00111000) >> 4;
+	uint16_t hl = (static_cast<uint16_t>(h) << 8) | l;
+
+	switch (reg)
+	{
+	case Registers8Bit::B:
+		b = fetch();
+		break;
+	case Registers8Bit::C:
+		c = fetch();
+		break;
+	case Registers8Bit::D:
+		d = fetch();
+		break;
+	case Registers8Bit::E:
+		e = fetch();
+		break;
+	case Registers8Bit::H:
+		h = fetch();
+		break;
+	case Registers8Bit::L:
+		l = fetch();
+		break;
+	case Registers8Bit::HL_Indirect:
+		_remainingCycles = 12;
+		_memoryBus->Write(hl, fetch());
+		break;
+	case Registers8Bit::A:
+		a = fetch();
+		break;
+	}
+}
+void Processor::decodeOpCodeSubgroup07(uint8_t opcode)
+{
+	uint8_t operation = (opcode & 0b00111000) >> 3;
+
+	_remainingCycles = 4;
+
+	uint8_t temp = 0;
+
+	switch (operation)
+	{
+	case 0:
+		_previousOpCode = OpCode::RLCA;
+		if ((a & 0x80) == 0x80)
+		{
+			a <<= 1;
+			a |= 0b1;
+			f = FLAGS::C;
+		}
+		else
+		{
+			a <<= 1;
+			f = 0x0;
+		}
+		break;
+	case 1:
+		_previousOpCode = OpCode::RRCA;
+		if ((a & 0x1) == 0x1)
+		{
+			a >>= 1;
+			a |= 0x80;
+			f = FLAGS::C;
+		}
+		else
+		{
+			a >>= 1;
+			f = 0x0;
+		}
+		break;
+	case 2:
+		_previousOpCode = OpCode::RLA;
+		temp = f;
+		f = ((a & 0x80) == 0x80) ? FLAGS::C : 0;
+		a <<= 1;
+		a |= ((f & FLAGS::C) == FLAGS::C);
+		break;
+	case 3:
+		_previousOpCode = OpCode::RRA;
+		temp = f;
+		f = ((a & 0x1) == 0x1) ? FLAGS::C : 0;
+		a >>= 1;
+		a |= (((f & FLAGS::C) == FLAGS::C) << 7);
+		break;
+	case 4:
+		_previousOpCode = OpCode::DAA;
+
+		if ((f & FLAGS::N) == FLAGS::N)
+		{
+			if ((a & 0xF0) > 0x99 || ((f & FLAGS::C) == FLAGS::C))
+			{
+				a += 0x60;
+				SetFlag(FLAGS::C, true);
+			}
+			if ((a & 0x0F) > 0x09 || ((f & FLAGS::H) == FLAGS::H))
+				a += 0x06;
+		}
+		else
+		{
+			if ((f & FLAGS::C) == FLAGS::C)
+				a -= 0x60;
+			if ((f & FLAGS::H) == FLAGS::H)
+				a -= 0x6;
+		}
+		SetFlag(FLAGS::Z, a == 0);
+		SetFlag(FLAGS::H, false);
+		break;
+	case 5:
+		_previousOpCode = OpCode::CPL;
+		a = ~a;
+		SetFlag(FLAGS::N, true);
+		SetFlag(FLAGS::H, true);
+		break;
+	case 6:
+		_previousOpCode = OpCode::SCF;
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, false);
+		SetFlag(FLAGS::C, true);
+		break;
+	case 7:
+		_previousOpCode = OpCode::CCF;
+		SetFlag(FLAGS::N, false);
+		SetFlag(FLAGS::H, false);
+		SetFlag(FLAGS::C, !GetFlag(FLAGS::C));
+		break;
+	}
+}
 #pragma endregion

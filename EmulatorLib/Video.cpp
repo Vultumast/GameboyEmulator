@@ -138,9 +138,6 @@ void Video::SetLCDStatus()
 	static uint8_t* lcdStatusbyte = _memoryBus->Get(HardwareRegister::STAT);
 	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
 
-	if (lastStatus == *lcdStatusbyte)
-		return; // Nothing to do
-
 	static LCDStatusRegister* lcdStatus = reinterpret_cast<LCDStatusRegister*>(_memoryBus->Get(HardwareRegister::STAT));
 	// static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
 	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);

@@ -10,6 +10,62 @@
 #include "InstructionArguments.hpp"
 #include "OpCodeInfo.hpp";
 
+enum Registers8Bit : uint8_t
+{
+	B,
+	C,
+	D,
+	E,
+	H,
+	L,
+	HL_Indirect,
+	A
+};
+
+enum Registers16BitA : uint8_t
+{
+	BC,
+	DE,
+	HL,
+	SP
+};
+enum Registers16BitB : uint8_t
+{
+	BC,
+	DE,
+	HL,
+	AF
+};
+enum Conditionals : uint8_t
+{
+	NZ,
+	Z,
+	NC,
+	C
+};
+enum ArithmeticLogicOperations : uint8_t
+{
+	ADD_A,
+	ADC_A,
+	SUB,
+	SBC_A,
+	AND,
+	XOR,
+	OR,
+	CP
+};
+enum RotationShiftOperations : uint8_t
+{
+	RLC,
+	RRC,
+	RL,
+	RR,
+	SLA,
+	SRA,
+	SWAP,
+	SRL
+};
+
 
 class MemoryBus;
 
@@ -34,16 +90,45 @@ private:
 	uint8_t _remainingCycles = 4;
 	uint8_t _cycleCount = 0;
 
+	OpCode _previousOpCode = OpCode::NOP;
+
 	/// <summary>
-	/// Fetches a byte from the address of the program counter and increments it by 1 (or resets if it's overflowing)
+	/// Fetches a uint8 from the address of the program counter and increments it by 1 (or resets if it's overflowing)
 	/// </summary>
 	/// <returns></returns>
 	uint8_t fetch();
 
 	/// <summary>
+	/// Fetches a uint16 from the address of the program counter and increments it by 2 (or resets if it's overflowing)
+	/// </summary>
+	/// <returns></returns>
+	uint16_t fetchWord();
+
+	/// <summary>
 	/// Services and performs underlying interrupts
 	/// </summary>
 	void serviceInterrupt(Interrupt interrupt);
+
+
+
+
+	void decodeOpcode();
+
+	void decodeOpCodeGroup0(uint8_t opcode);
+	void decodeOpCodeGroup1(uint8_t opcode);
+	void decodeOpCodeGroup2(uint8_t opcode);
+	void decodeOpCodeGroup3(uint8_t opcode);
+
+
+	void decodeOpCodeSubgroup00(uint8_t opcode);
+	void decodeOpCodeSubgroup01(uint8_t opcode);
+	void decodeOpCodeSubgroup02(uint8_t opcode);
+	void decodeOpCodeSubgroup03(uint8_t opcode);
+	void decodeOpCodeSubgroup04(uint8_t opcode);
+	void decodeOpCodeSubgroup05(uint8_t opcode);
+	void decodeOpCodeSubgroup06(uint8_t opcode);
+	void decodeOpCodeSubgroup07(uint8_t opcode);
+
 
 public:
 	Processor(MemoryBus* memoryBus);
@@ -76,6 +161,9 @@ public:
 	void SetRegister(Register destination, uint16_t value);
 	uint16_t GetRegister(Register source) const;
 
+
+	void SetRegister8Bit(Registers8Bit destination, uint8_t value);
+	uint8_t GetRegister8Bit(Registers8Bit source) const;
 	enum FLAGS
 	{
 		/// <summary>
