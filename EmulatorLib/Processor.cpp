@@ -65,6 +65,9 @@ void Processor::PulseClock()
 	_cycleCount++;
 
 
+	if (Stopped)
+		return;
+
 	bool interruptPending = InterruptMasterEnable && (reqInterrupts != 0 && regInterruptEnable != 0);
 	if (Halted)
 	{
@@ -221,33 +224,53 @@ void Processor::SetRegister8Bit(Registers8Bit destination, uint8_t value)
 	switch (destination)
 	{
 	case Registers8Bit::B:
-		data = v;
+		b = value;
 		break;
 	case Registers8Bit::C:
-		data = c;
+		c = value;
 		break;
 	case Registers8Bit::D:
-		data = d;
+		d = value;
 		break;
 	case Registers8Bit::E:
-		data = e;
+		e = value;
 		break;
 	case Registers8Bit::H:
-		data = h;
+		h = value;
 		break;
 	case Registers8Bit::L:
-		data = l;
+		l = value;
 		break;
 	case Registers8Bit::HL_Indirect:
+		_memoryBus->Write(static_cast<uint16_t>((h << 8) | (l)), value);
 		break;
 	case Registers8Bit::A:
-		data =
-			break;
+		a = value;
+		break;
 	}
 }
 uint8_t Processor::GetRegister8Bit(Registers8Bit source) const
 {
-
+	switch (source)
+	{
+	case Registers8Bit::B:
+		return b;
+	case Registers8Bit::C:
+		return c;
+	case Registers8Bit::D:
+		return d;
+	case Registers8Bit::E:
+		return e;
+	case Registers8Bit::H:
+		return h;
+	case Registers8Bit::L:
+		return l;
+	case Registers8Bit::HL_Indirect:
+		return _memoryBus->Read(static_cast<uint16_t>((h << 8) | (l)));
+		break;
+	case Registers8Bit::A:
+		return a;
+	}
 }
 
 bool Processor::GetFlag(FLAGS flag) const
@@ -527,7 +550,7 @@ void Processor::decodeOpCodeGroup0(uint8_t opcode)
 		decodeOpCodeSubgroup06(opcode);
 		break;
 	case 7: // Misc Accumulator/Flag operations
-		decodeOpCodeSubgroup06(opcode);
+		decodeOpCodeSubgroup07(opcode);
 		break;
 	}
 
@@ -640,7 +663,33 @@ void Processor::decodeOpCodeGroup3(uint8_t opcode)
 	uint8_t y = (opcode & 0b00111000) >> 3;
 	uint8_t z = (opcode & 0b00000111);
 
-
+	switch (z)
+	{
+	case 0:
+		decodeOpCodeSubgroup30(opcode);
+		break;
+	case 1:
+		decodeOpCodeSubgroup31(opcode);
+		break;
+	case 2:
+		decodeOpCodeSubgroup32(opcode);
+		break;
+	case 3:
+		decodeOpCodeSubgroup33(opcode);
+		break;
+	case 4:
+		decodeOpCodeSubgroup34(opcode);
+		break;
+	case 5:
+		decodeOpCodeSubgroup35(opcode);
+		break;
+	case 6:
+		decodeOpCodeSubgroup36(opcode);
+		break;
+	case 7:
+		decodeOpCodeSubgroup37(opcode);
+		break;
+	}
 }
 
 
@@ -1073,5 +1122,64 @@ void Processor::decodeOpCodeSubgroup07(uint8_t opcode)
 		SetFlag(FLAGS::C, !GetFlag(FLAGS::C));
 		break;
 	}
+}
+
+
+void Processor::decodeOpCodeSubgroup30(uint8_t opcode)
+{
+	uint8_t y = (opcode & 0b00111000) >> 3;
+	switch (y)
+	{
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+		_previousOpCode = OpCode::RET;
+
+		break;
+	case 4:
+		_previousOpCode = OpCode::LDH;
+
+		break;
+	case 5:
+		_previousOpCode = OpCode::ADD;
+
+		break;
+	case 6:
+		break;
+	case 7:
+		_previousOpCode = OpCode::LD;
+
+		break;
+
+	}
+}
+void Processor::decodeOpCodeSubgroup31(uint8_t opcode)
+{
+
+}
+void Processor::decodeOpCodeSubgroup32(uint8_t opcode)
+{
+
+}
+void Processor::decodeOpCodeSubgroup33(uint8_t opcode)
+{
+
+}
+void Processor::decodeOpCodeSubgroup34(uint8_t opcode)
+{
+
+}
+void Processor::decodeOpCodeSubgroup35(uint8_t opcode)
+{
+
+}
+void Processor::decodeOpCodeSubgroup36(uint8_t opcode)
+{
+
+}
+void Processor::decodeOpCodeSubgroup37(uint8_t opcode)
+{
+
 }
 #pragma endregion

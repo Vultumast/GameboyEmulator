@@ -129,17 +129,29 @@ private:
 	void decodeOpCodeSubgroup06(uint8_t opcode);
 	void decodeOpCodeSubgroup07(uint8_t opcode);
 
-
+	void decodeOpCodeSubgroup30(uint8_t opcode);
+	void decodeOpCodeSubgroup31(uint8_t opcode);
+	void decodeOpCodeSubgroup32(uint8_t opcode);
+	void decodeOpCodeSubgroup33(uint8_t opcode);
+	void decodeOpCodeSubgroup34(uint8_t opcode);
+	void decodeOpCodeSubgroup35(uint8_t opcode);
+	void decodeOpCodeSubgroup36(uint8_t opcode);
+	void decodeOpCodeSubgroup37(uint8_t opcode);
 public:
 	Processor(MemoryBus* memoryBus);
 
 	bool InterruptMasterEnable = false;
 
 	/// <summary>
-	/// Should the CPUs execution be halted until an interrupt is requested?
+	/// Is the CPU's execution be halted until an interrupt is requested?
 	/// <para>Interrupts are only serviced if <c>InterruptMasterEnable</c> is enabled otherwise execution just resumes from where it was halted.</para>
 	/// </summary>
 	bool Halted = false;
+
+	/// <summary>
+	/// Is the CPU's execution halted?
+	/// </summary>
+	bool Stopped = false;
 
 	/// <summary>
 	/// Resets the CPU, resetting all registers to what they were at boot
