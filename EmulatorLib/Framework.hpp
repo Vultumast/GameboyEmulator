@@ -63,10 +63,12 @@ extern "C"
 
 	DLL_EXPORT void do_the_thing(Processor* processor, Video* video)
 	{
+		uint8_t cycleCount = 0;
 		while (true)
 		{
-			processor->PulseClock();
-			video->Update(1);
+			cycleCount = processor->GetRemainingCycles();
+			processor->ConsumeInstruction();
+			video->Update(cycleCount);
 		}
 	}
 }

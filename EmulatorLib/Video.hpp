@@ -22,7 +22,7 @@ class MemoryBus;
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-enum class PPUMode : uint8_t
+enum PPUMode : uint8_t
 {
 	HBlank,
 	VBlank,
@@ -40,6 +40,16 @@ enum LCDC : uint8_t
 	WindowEnable			= 0b00100000,
 	WindowTileMapOffset		= 0b01000000,
 	LCDPPUEnable			= 0b10000000,
+};
+
+enum STAT : uint8_t
+{
+	PPUModeMask		= 0b00000011,
+	LYCeqLY			= 0b00000100,
+	Mode0IntSelect	= 0b00001000,
+	Mode1IntSelect	= 0b00010000,
+	Mode2IntSelect	= 0b00100000,
+	LYCIntSelect	= 0b01000000,
 };
 
 #pragma pack(push, 1)
@@ -99,7 +109,7 @@ public:
 	/// </summary>
 	bool LCDPPUEnable : 1;
 };
-*/
+
 
 struct LCDStatusRegister
 {
@@ -122,7 +132,7 @@ public:
 	bool LYCIntSelect : 1;
 	bool Unused : 1;
 };
-
+*/
 #pragma pack(pop)
 
 constexpr uint8_t FramebufferWidth = 160;

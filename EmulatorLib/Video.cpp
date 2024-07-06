@@ -107,12 +107,12 @@ Video::Video(MemoryBus* memoryBus, HWND hwnd)
 
 void Video::Update(uint32_t cycles)
 {
-	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
+	static uint8_t& lcdControl = *_memoryBus->Get(HardwareRegister::LCDC);
 	//static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
 	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);
 	SetLCDStatus();
 
-	if ((*lcdControl) & LCDC::LCDPPUEnable)
+	if (lcdControl & LCDC::LCDPPUEnable)
 		_scanlineCounter -= cycles;
 	else
 		return;
@@ -135,23 +135,23 @@ void Video::Update(uint32_t cycles)
 void Video::SetLCDStatus()
 {
 	static uint8_t lastStatus = 0;
-	static uint8_t* lcdStatusbyte = _memoryBus->Get(HardwareRegister::STAT);
-	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
+	static uint8_t& lcdStatus = *_memoryBus->Get(HardwareRegister::STAT);
+	static uint8_t& lcdControl = *_memoryBus->Get(HardwareRegister::LCDC);
 
-	static LCDStatusRegister* lcdStatus = reinterpret_cast<LCDStatusRegister*>(_memoryBus->Get(HardwareRegister::STAT));
+	// static LCDStatusRegister* lcdStatus = reinterpret_cast<LCDStatusRegister*>(_memoryBus->Get(HardwareRegister::STAT));
 	// static LCDControlRegister* lcdControl = reinterpret_cast<LCDControlRegister*>(_memoryBus->Get(HardwareRegister::LCDC));
 	static uint8_t& scanline = *_memoryBus->Get(HardwareRegister::LY);
 	static uint8_t& lyc = *_memoryBus->Get(HardwareRegister::LYC);
 
-	if (((*lcdControl) & LCDC::LCDPPUEnable) == 0)
+	if ((lcdControl & LCDC::LCDPPUEnable) == 0)
 	{
 		_scanlineCounter = 456;
 		scanline = 0;
-		lcdStatus->PPUMode = PPUMode::HBlank;
+		(lcdStatus &= 0xFC) |= PPUMode::HBlank;
 	} 
 	else
 	{
-		PPUMode currentMode = lcdStatus->PPUMode;
+		PPUMode currentMode = static_cast<PPUMode>(lcdStatus & STAT::PPUModeMask);
 		PPUMode newMode = PPUMode::HBlank;
 
 		bool reqInt = false;
@@ -159,8 +159,8 @@ void Video::SetLCDStatus()
 		if (scanline >= 144) // V BLANK
 		{
 			newMode = PPUMode::VBlank;
-			lcdStatus->PPUMode = PPUMode::VBlank;
-			reqInt = lcdStatus->Mode1IntSelect;
+			(lcdStatus &= 0xFC) |= PPUMode::VBlank;
+			reqInt = (lcdStatus & STAT::Mode1IntSelect) == STAT::Mode1IntSelect;
 		}
 		else
 		{
@@ -170,37 +170,34 @@ void Video::SetLCDStatus()
 			if (_scanlineCounter >= 376)
 			{
 				newMode = PPUMode::OAMScan;
-				lcdStatus->PPUMode = PPUMode::OAMScan;
-				reqInt = lcdStatus->Mode2IntSelect;
+				(lcdStatus &= 0xFC) |= PPUMode::OAMScan;
+				reqInt = (lcdStatus & STAT::Mode2IntSelect) == STAT::Mode2IntSelect;
 			}
 			else if (_scanlineCounter >= 204)
 			{
 				newMode = PPUMode::DrawingPixels;
-				lcdStatus->PPUMode = PPUMode::DrawingPixels;
+				(lcdStatus &= 0xFC) |= PPUMode::DrawingPixels;
 			}
 			else
 			{
 				newMode = PPUMode::HBlank;
-				lcdStatus->PPUMode = PPUMode::HBlank;
-				reqInt = lcdStatus->Mode0IntSelect;
+				(lcdStatus &= 0xFC) |= PPUMode::HBlank;
+				reqInt = (lcdStatus & STAT::Mode0IntSelect) == STAT::Mode0IntSelect;
 			}
 		}
 
 		if (reqInt && (newMode != currentMode))
 			_memoryBus->RequestInterrupt(Interrupt::LCD);
 
-		uint8_t fuck = (*lcdStatusbyte);
-		// if (lyc == lcdStatus->LYCeqLY)
-		if (lyc == ((fuck & 0b00100000) != 0))
+
+		if (lyc == ((lcdStatus & STAT::LYCeqLY) == STAT::LYCeqLY))
 		{
-			lcdStatus->LYCeqLY = true;
-			if ((fuck & 0b00000010) != 0) // LYC Int Select
+			lcdStatus |= STAT::LYCeqLY;
+			if ((lcdStatus & STAT::LYCIntSelect) == STAT::LYCIntSelect) // LYC Int Select
 				_memoryBus->RequestInterrupt(Interrupt::LCD);
 		}
 		else
-			lcdStatus->LYCeqLY = false;
-
-		lastStatus = *lcdStatusbyte;
+			lcdStatus &= ~STAT::LYCeqLY;
 	}
 }
 
@@ -209,13 +206,17 @@ void Video::DrawScanline()
 	// std::cout << "drawing curr scanline: " << _memoryBus->Read(HardwareRegister::LY) << std::endl;
 	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
 
+	/*
+	* 
 	if (((*lcdControl) & LCDC::BGWindowEnablePriority) != 0)
 		RenderTiles();
+
 
 	if ((*lcdControl) & LCDC::ObjectsEnabled)
 	{
 
 	}
+	*/
 
 	_memoryBus->RequestInterrupt(Interrupt::LCD);
 }

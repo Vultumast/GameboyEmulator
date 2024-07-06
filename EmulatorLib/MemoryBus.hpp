@@ -28,6 +28,7 @@ public:
 
 	uint8_t* Get(const uint16_t& address);
 
+	void WriteWord(const uint16_t& address, const uint16_t& value);
 	/// <summary>
 	/// Reads a word (16bit value) from a given address in Little Endianess
 	/// </summary>
@@ -37,6 +38,10 @@ public:
 
 	void RequestInterrupt(Interrupt interrupt);
 	Interrupt GetInterrupts();
+
+	uint8_t& IF() { return _ram[HardwareRegister::IF]; }
+	uint8_t& IE() { return _ram[HardwareRegister::IE]; }
+
 
 	bool EchoRAMUsable = false;
 };

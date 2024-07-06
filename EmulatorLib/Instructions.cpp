@@ -61,7 +61,7 @@ void op_PREFIX(InstructionArguments&)
 
 }
 
-std::function<void(InstructionArguments&)> Instructions[256] =
+void(*Instructions[256])(InstructionArguments&) =
 {
 	op_NOP  , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_RLCA , op_LD   , op_ADD  , op_LD   , op_DEC   , op_INC  , op_DEC  , op_LD   , op_RRCA ,
 	op_STOP , op_LD   , op_LD   , op_INC  , op_INC  , op_DEC  , op_LD   , op_RLA  , op_JR   , op_ADD  , op_LD   , op_DEC   , op_INC  , op_DEC  , op_LD   , op_RRA  ,
@@ -103,7 +103,7 @@ void op_BITX(InstructionArguments&);
 void op_RESX(InstructionArguments&);
 void op_SETX(InstructionArguments&);
 
-std::function<void(InstructionArguments&)> InstructionsCB[256] =
+void(*InstructionsCB[256])(InstructionArguments&) =
 {
 	op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RLC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC , op_RRC ,
 	op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RL  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  , op_RR  ,

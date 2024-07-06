@@ -10,63 +10,6 @@
 #include "InstructionArguments.hpp"
 #include "OpCodeInfo.hpp";
 
-enum Registers8Bit : uint8_t
-{
-	B,
-	C,
-	D,
-	E,
-	H,
-	L,
-	HL_Indirect,
-	A
-};
-
-enum Registers16BitA : uint8_t
-{
-	BC,
-	DE,
-	HL,
-	SP
-};
-enum Registers16BitB : uint8_t
-{
-	BC,
-	DE,
-	HL,
-	AF
-};
-enum Conditionals : uint8_t
-{
-	NZ,
-	Z,
-	NC,
-	C
-};
-enum ArithmeticLogicOperations : uint8_t
-{
-	ADD_A,
-	ADC_A,
-	SUB,
-	SBC_A,
-	AND,
-	XOR,
-	OR,
-	CP
-};
-enum RotationShiftOperations : uint8_t
-{
-	RLC,
-	RRC,
-	RL,
-	RR,
-	SLA,
-	SRA,
-	SWAP,
-	SRL
-};
-
-
 class MemoryBus;
 
 class Processor
@@ -109,34 +52,6 @@ private:
 	/// </summary>
 	void serviceInterrupt(Interrupt interrupt);
 
-
-
-
-	void decodeOpcode();
-
-	void decodeOpCodeGroup0(uint8_t opcode);
-	void decodeOpCodeGroup1(uint8_t opcode);
-	void decodeOpCodeGroup2(uint8_t opcode);
-	void decodeOpCodeGroup3(uint8_t opcode);
-
-
-	void decodeOpCodeSubgroup00(uint8_t opcode);
-	void decodeOpCodeSubgroup01(uint8_t opcode);
-	void decodeOpCodeSubgroup02(uint8_t opcode);
-	void decodeOpCodeSubgroup03(uint8_t opcode);
-	void decodeOpCodeSubgroup04(uint8_t opcode);
-	void decodeOpCodeSubgroup05(uint8_t opcode);
-	void decodeOpCodeSubgroup06(uint8_t opcode);
-	void decodeOpCodeSubgroup07(uint8_t opcode);
-
-	void decodeOpCodeSubgroup30(uint8_t opcode);
-	void decodeOpCodeSubgroup31(uint8_t opcode);
-	void decodeOpCodeSubgroup32(uint8_t opcode);
-	void decodeOpCodeSubgroup33(uint8_t opcode);
-	void decodeOpCodeSubgroup34(uint8_t opcode);
-	void decodeOpCodeSubgroup35(uint8_t opcode);
-	void decodeOpCodeSubgroup36(uint8_t opcode);
-	void decodeOpCodeSubgroup37(uint8_t opcode);
 public:
 	Processor(MemoryBus* memoryBus);
 
@@ -173,9 +88,6 @@ public:
 	void SetRegister(Register destination, uint16_t value);
 	uint16_t GetRegister(Register source) const;
 
-
-	void SetRegister8Bit(Registers8Bit destination, uint8_t value);
-	uint8_t GetRegister8Bit(Registers8Bit source) const;
 	enum FLAGS
 	{
 		/// <summary>
@@ -206,7 +118,6 @@ public:
 	void SetDestinationValue(uint16_t destination, uint16_t source, bool direct = true);
 
 	uint16_t GetOperand(OperandType operand);
-
 	/// <summary>
 	/// Pushes a value onto the stack and decrements the stack pointer by 2
 	/// </summary>
@@ -232,5 +143,5 @@ public:
 	MemoryBus* GetMemoryBus() { return _memoryBus;  }
 };
 
-extern std::function<void(InstructionArguments&) > Instructions[256];
-extern std::function<void(InstructionArguments&) > InstructionsCB[256];
+extern void(*Instructions[256])(InstructionArguments&);
+extern void(*InstructionsCB	[256])(InstructionArguments&);
