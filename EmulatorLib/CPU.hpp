@@ -71,7 +71,7 @@ namespace kitsemu
 		void opBIT(uint8_t byte, uint8_t reg);
 	public:
 
-		enum Flag : uint8_t
+		enum class Flag : uint8_t
 		{
 			Z = 0x80,
 			N = 0x40,
@@ -205,30 +205,21 @@ namespace kitsemu
 		bool SetFlag(Flag flag, bool value)
 		{
 			if (value)
-				_af |= flag;
+				_af |= static_cast<uint8_t>(flag);
 			else
-				_af &= (0xFF00 | ~flag);
+				_af &= (0xFF00 | ~static_cast<uint8_t>(flag));
 		}
-		bool GetFlag(Flag flag) const { return (_af & flag) != 0; }
+		bool GetFlag(Flag flag) const { return (_af & static_cast<uint8_t>(flag)) != 0; }
 
 		void ClearFlags() { _af &= 0xFF00; };
 
-		bool GetFlagZ() const { return (_af & Flag::Z) != 0; }
-		bool GetFlagN() const { return (_af & Flag::N) != 0; }
-		bool GetFlagH() const { return (_af & Flag::H) != 0; }
-		bool GetFlagC() const { return (_af & Flag::C) != 0; }
+		bool GetFlagZ() const { return (_af & static_cast<uint8_t>(Flag::Z)) != 0; }
+		bool GetFlagN() const { return (_af & static_cast<uint8_t>(Flag::N)) != 0; }
+		bool GetFlagH() const { return (_af & static_cast<uint8_t>(Flag::H)) != 0; }
+		bool GetFlagC() const { return (_af & static_cast<uint8_t>(Flag::C)) != 0; }
 
-		uint16_t StackPop()
-		{
-			uint16_t returnValue = _mmu->ReadWord(_sp);
-			_sp += 2;
-			return returnValue;
-		}
-		void StackPush(uint16_t value)
-		{
-			_sp -= 2;
-			_mmu->WriteWord(_sp, value);
-		}
+		uint16_t StackPop();
+		void StackPush(uint16_t value);
 
 		void ResetVector(uint8_t address)
 		{

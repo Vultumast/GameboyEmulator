@@ -1,6 +1,28 @@
 #include "CPU.hpp"
 #include "MemoryBus.hpp"
 
+uint8_t CycleMap[256] = {
+	 4, 12, 8,  8,  4,
+	 4, 12, 8,  8,  4,
+	 0, 12, 8,  8,  4,
+	 0, 12, 8,  8, 12,
+	 4,  4, 4,  4,  4,
+	 4,  4, 4,  4,  4,
+	 4,  4, 4,  4,  4,
+	 8,  8, 8,  8,  8,
+	 4,  4, 4,  4,  4,
+	 4,  4, 4,  4,  4,
+	 4,  4, 4,  4,  4,
+	 4,  4, 4,  4,  4,
+	 0, 12, 0,  0,  0,
+	 0, 12, 0, -1,  0,
+	12, 12, 8, -1, -1,
+	12, 12, 8,  4, -1,
+};
+
+uint8_t CycleMapCB[256] = {
+
+};
 #pragma region OpCodes
 
 #pragma region 8-bit
@@ -626,21 +648,6 @@ void kitsemu::CPU::opBIT(uint8_t byte, uint8_t reg) // Z01-
 
 #pragma endregion
 
-void kitsemu::CPU::Reset()
-{
-	IME = false;
-	Halted = false;
-	Stopped = false;
-
-	_pc = 0;
-	_sp = 0;
-
-	_af = 0;
-	_bc = 0;
-	_de = 0;
-	_hl = 0;
-}
-
 void kitsemu::CPU::Execute()
 {
 	if (Stopped)
@@ -931,7 +938,7 @@ void kitsemu::CPU::Execute()
 
 	case 0xE8: _sp = opADDImmediate(_sp);						break;
 	case 0xE9:	_pc = _hl;										break;
-	case 0xEA: _mmu->Write(_mmu->ReadWord(_pc++));				break;
+	case 0xEA: _mmu->Write(_mmu->ReadWord(_pc++), A());				break;
 	// case 0xEB:													break;
 	// case 0xEC:													break;
 	// case 0xED:													break;
@@ -948,13 +955,44 @@ void kitsemu::CPU::Execute()
 	case 0xF6: opOR(_mmu->Read(_pc++));								break;
 	case 0xF7: ResetVector(0x30);									break;
 
-	case 0xF8:;
-	case 0xF9:;
-	case 0xFA:;
-	case 0xFB:;
-	case 0xFC:;
-	case 0xFD:;
-	case 0xFE:;
-	case 0xFF:;
+	case 0xF8: _hl = opADDImmediate(_sp);							break;
+	case 0xF9: _sp = _hl;											break;
+	case 0xFA: A() = _mmu->Read(_mmu->ReadWord(_pc)); _pc += 2;		break;
+	case 0xFB: IME = true;											break;
+	// case 0xFC:														break;
+	// case 0xFD:														break;
+	case 0xFE: opCP(_mmu->Read(_pc++));								break;
+	case 0xFF: ResetVector(0x39);									break;
 	}
+}
+void kitsemu::CPU::Reset()
+{
+	IME = false;
+	Halted = false;
+	Stopped = false;
+
+	_pc = 0;
+	_sp = 0;
+
+	_af = 0;
+	_bc = 0;
+	_de = 0;
+	_hl = 0;
+}
+
+void kitsemu::CPU::SetDefaultRegisters()
+{
+
+}
+
+uint16_t kitsemu::CPU::StackPop()
+{
+	uint16_t returnValue = _mmu->ReadWord(_sp);
+	_sp += 2;
+	return returnValue;
+}
+void kitsemu::CPU::StackPush(uint16_t value)
+{
+	_sp -= 2;
+	_mmu->WriteWord(_sp, value);
 }
