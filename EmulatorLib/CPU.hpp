@@ -4,8 +4,6 @@
 
 class MemoryBus;
 
-using namespace std;
-
 namespace kitsemu
 {
 	constexpr uint8_t JUMP_CYCLES[2] = { 12, 16 };
