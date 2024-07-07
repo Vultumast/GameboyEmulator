@@ -14,7 +14,7 @@ namespace EmulatorGUI
         RomInfo? info = null;
 
         MemoryBus? bus = null;
-        Processor? processor = null;
+        CPU? cpu = null;
         Video? video = null;
 
 
@@ -26,11 +26,11 @@ namespace EmulatorGUI
             info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
             bus = new MemoryBus(info);
 
-            processor = new Processor(bus);
+            cpu = new CPU(bus);
             video = new Video(bus, viewPanel.Handle);
-            processor.Reset();
+            // cpu.Reset();
 
-            processor.PC = 0;
+            cpu.PC = 0;
 
             hexViewControl.MemoryBus = bus;
         }
@@ -44,18 +44,19 @@ namespace EmulatorGUI
 
         private void refreshRegistersButton_Click(object sender, EventArgs e)
         {
-            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
-            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
-            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
-            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
-            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
-            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
+            afProcessorRegisterView.Value = cpu.GetRegister(Register.AF);
+            bcProcessorRegisterView.Value = cpu.GetRegister(Register.BC);
+            deProcessorRegisterView.Value = cpu.GetRegister(Register.DE);
+            hlProcessorRegisterView.Value = cpu.GetRegister(Register.HL);
+            spProcessorRegisterView.Value = cpu.GetRegister(Register.SP);
+            pcProcessorRegisterView.Value = cpu.GetRegister(Register.PC);
 
-            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
+            // interruptsEnabledCheckBox.Checked = cpu.InterruptsMasterEnabled;
         }
 
         private void pulseClockButton_Click(object sender, EventArgs e)
         {
+            /*
             processor.PulseClock();
 
             afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
@@ -66,10 +67,12 @@ namespace EmulatorGUI
             pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
 
             interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
+            */
         }
 
         private void consumeInstructionButton_Click(object sender, EventArgs e)
         {
+            /*
             var cycle = processor.RemainingCycles;
             processor.ConsumeInstruction();
 
@@ -77,6 +80,7 @@ namespace EmulatorGUI
             video.Update(cycle);
 
             updateProcessorInfo();
+            */
         }
 
         System.Timers.Timer? loopTimer = null;
@@ -114,44 +118,12 @@ namespace EmulatorGUI
 
             long elapsed = 0;
 
-            processor.theThing(video);
-
-            return;
-
             while (true)
             {
-                //watch.Restart();
+                cpu.Execute();
+                video.Update(cpu.Cycles);
+            }    
 
-
-                // processor.ConsumeInstruction();
-                processor.PulseClock();
-                // var cycle = processor.RemainingCycles;
-                video.Update(1);
-                // rawPanel.Invalidate();
-
-                /* this.Invoke(new MethodInvoker(delegate
-                {
-                    afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
-                    bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
-                    deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
-                    hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
-                    spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
-                    pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
-
-                    interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
-                })); */
-
-
-                // Console.WriteLine(string.Format("PC: {0:X04}\r", processor.GetRegister(Register.PC)));
-                // Console.WriteLine($"ELAPSED: {(float)elapsed / (float)Stopwatch.Frequency}");
-                //watch.Stop();
-                //elapsed = watch.ElapsedTicks;
-                //Application.DoEvents();
-                //Thread.Yield();
-
-                if (stopTimer)
-                    break;
-            }
         }
 
         private void rawPanel_Paint(object sender, PaintEventArgs e)
@@ -296,6 +268,7 @@ namespace EmulatorGUI
 
         private void runUntilRunButton_Click(object sender, EventArgs e)
         {
+            /*
             runUntilRegisterComboBox.Enabled = false;
             runUntilRegisterOperatorComboBox.Enabled = false;
             runUntilRegisterValueNumericUpDown.Enabled = false;
@@ -304,7 +277,7 @@ namespace EmulatorGUI
             ushort valueToMatch = (ushort)runUntilRegisterValueNumericUpDown.Value;
             int @operator = runUntilRegisterOperatorComboBox.SelectedIndex;
 
-            Console.WriteLine($"Waiting for {processor.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex)} {runUntilRegisterOperatorComboBox.SelectedItem} {(ushort)runUntilRegisterValueNumericUpDown.Value}");
+            Console.WriteLine($"Waiting for {cpu.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex)} {runUntilRegisterOperatorComboBox.SelectedItem} {(ushort)runUntilRegisterValueNumericUpDown.Value}");
 
             bool a = false;
             ushort cycle = 0;
@@ -324,8 +297,7 @@ namespace EmulatorGUI
                 _ => false
             }; 
 
-            if (a) */
-            if (processor.GetRegister(register) == valueToMatch)
+            if (cpu.GetRegister(register) == valueToMatch)
                 goto loopEnd;
 
             cycle = processor.RemainingCycles;
@@ -344,6 +316,7 @@ namespace EmulatorGUI
 
 
             updateProcessorInfo();
+            */
         }
 
 
@@ -351,15 +324,16 @@ namespace EmulatorGUI
 
         private void updateProcessorInfo()
         {
-            afProcessorRegisterView.Value = processor.GetRegister(Register.AF);
-            bcProcessorRegisterView.Value = processor.GetRegister(Register.BC);
-            deProcessorRegisterView.Value = processor.GetRegister(Register.DE);
-            hlProcessorRegisterView.Value = processor.GetRegister(Register.HL);
-            spProcessorRegisterView.Value = processor.GetRegister(Register.SP);
-            pcProcessorRegisterView.Value = processor.GetRegister(Register.PC);
+            afProcessorRegisterView.Value = cpu.GetRegister(Register.AF);
+            bcProcessorRegisterView.Value = cpu.GetRegister(Register.BC);
+            deProcessorRegisterView.Value = cpu.GetRegister(Register.DE);
+            hlProcessorRegisterView.Value = cpu.GetRegister(Register.HL);
+            spProcessorRegisterView.Value = cpu.GetRegister(Register.SP);
+            pcProcessorRegisterView.Value = cpu.GetRegister(Register.PC);
 
-            interruptsEnabledCheckBox.Checked = processor.InterruptsMasterEnabled;
-
+            /*
+            interruptsEnabledCheckBox.Checked = cpu.InterruptsMasterEnabled;
+            
             processorFlagsLabel.Text = $"Flags: " +
                 $"{(processor.GetFlag(Processor.Flags.Z) ? "Z" : "0")}" +
                 $"{(processor.GetFlag(Processor.Flags.N) ? "N" : "0")}" +
@@ -373,16 +347,9 @@ namespace EmulatorGUI
                 label1.Text = $"Highest: 0x{processor.PC.ToString("X04")}";
                 highest = processor.PC;
             }
+            */
 
             return;
-
-            if (callstackListBox.Items.Count == 0)
-                callstackListBox.Items.Add(processor.PC.ToString("X04"));
-            else
-            {
-                if (callstackListBox.Items[callstackListBox.Items.Count - 1] != processor.PC.ToString("X04"))
-                    callstackListBox.Items.Add(processor.PC.ToString("X04"));
-            }
         }
     }
 }

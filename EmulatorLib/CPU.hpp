@@ -202,7 +202,7 @@ namespace kitsemu
 			return reinterpret_cast<uint8_t&>(ptr);
 		}
 
-		bool SetFlag(Flag flag, bool value)
+		void SetFlag(Flag flag, bool value)
 		{
 			if (value)
 				_af |= static_cast<uint8_t>(flag);
@@ -226,5 +226,7 @@ namespace kitsemu
 			StackPush(_pc);
 			_pc = address;
 		}
+
+		uint8_t GetCycles() { return _cycles; }
 	};
 }
