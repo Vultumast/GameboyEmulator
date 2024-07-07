@@ -36,9 +36,6 @@
     <ClInclude Include="MemoryBus.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Processor.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Video.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,9 +75,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Video.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Processor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OpCodeInfo.hpp">

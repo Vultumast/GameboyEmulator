@@ -4,6 +4,8 @@
 
 class MemoryBus;
 
+using namespace std;
+
 namespace kitsemu
 {
 	constexpr uint8_t JUMP_CYCLES[2] = { 12, 16 };
@@ -53,7 +55,7 @@ namespace kitsemu
 		void opJP(bool condition);
 		void opCALL(bool condition);
 		void opPREFIX(uint8_t opcode);
-
+		uint16_t opADDImmediate(uint8_t value);
 
 		// 16-bit OpCodes
 
@@ -213,10 +215,10 @@ namespace kitsemu
 
 		void ClearFlags() { _af &= 0xFF00; };
 
-		const bool GetFlagZ() const { return (_af & Flag::Z) != 0; }
-		const bool GetFlagN() const { return (_af & Flag::N) != 0; }
-		const bool GetFlagH() const { return (_af & Flag::H) != 0; }
-		const bool GetFlagC() const { return (_af & Flag::C) != 0; }
+		bool GetFlagZ() const { return (_af & Flag::Z) != 0; }
+		bool GetFlagN() const { return (_af & Flag::N) != 0; }
+		bool GetFlagH() const { return (_af & Flag::H) != 0; }
+		bool GetFlagC() const { return (_af & Flag::C) != 0; }
 
 		uint16_t StackPop()
 		{

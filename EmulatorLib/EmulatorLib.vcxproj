@@ -171,7 +171,6 @@
     <ClInclude Include="MBC1.hpp" />
     <ClInclude Include="MemoryBus.hpp" />
     <ClInclude Include="PixelFetcher.hpp" />
-    <ClInclude Include="Processor.hpp" />
     <ClInclude Include="ROMInfo.hpp" />
     <ClInclude Include="Tile.hpp" />
     <ClInclude Include="Video.hpp" />
@@ -183,7 +182,6 @@
     <ClCompile Include="MBC1.cpp" />
     <ClCompile Include="MemoryBus.cpp" />
     <ClCompile Include="PixelFetcher.cpp" />
-    <ClCompile Include="Processor.cpp" />
     <ClCompile Include="OpCodeInfo.cpp" />
     <ClCompile Include="OpCodeInfo.hpp" />
     <ClCompile Include="RomInfo.cpp" />

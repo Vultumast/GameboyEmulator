@@ -4,7 +4,6 @@
 // Windows Header Files
 #include <windows.h>
 
-#include "Processor.hpp"
 #include "Video.hpp"
 #include "MemoryBus.hpp"
 #include "ROMInfo.hpp"
@@ -21,17 +20,8 @@ extern "C"
 	DLL_EXPORT void pointer_delete(void* pointer) { delete pointer; }
 	DLL_EXPORT uint8_t* create8kbank() { return new uint8_t[0x8000]; }
 
-	DLL_EXPORT Processor* processor_create(MemoryBus* bus) { return new Processor(bus); }
-	DLL_EXPORT void processor_reset(Processor* processor) { processor->Reset(); }
-	DLL_EXPORT void processor_setregister(Processor* processor, uint8_t reg, uint16_t value) { processor->SetRegister(static_cast<Register>(reg), value); }
-	DLL_EXPORT uint16_t processor_getregister(Processor* processor, uint8_t reg) { return processor->GetRegister(static_cast<Register>(reg)); }
-	DLL_EXPORT void processor_pulseclock(Processor* processor) { return processor->PulseClock(); }
-	DLL_EXPORT uint8_t processor_getremainingcycles(Processor* processor) { return processor->GetRemainingCycles(); }
-	DLL_EXPORT uint8_t processor_getinterruptsenabled(Processor* processor) { return processor->InterruptMasterEnable; }
-	DLL_EXPORT void processor_setinterruptsenabled(Processor* processor, uint8_t value) { processor->InterruptMasterEnable = value; }
-	DLL_EXPORT uint8_t processor_getflag(Processor* processor, uint8_t flag) { return processor->GetFlag((Processor::FLAGS)flag); }
-	DLL_EXPORT void processor_setflag(Processor* processor, uint8_t flag, uint8_t value) { processor->SetFlag((Processor::FLAGS)flag, value); }
-	DLL_EXPORT void processor_consumeinstruction(Processor* processor) { processor->ConsumeInstruction(); }
+
+
 
 	DLL_EXPORT Video* video_create(MemoryBus* bus, HWND hwnd) { return new Video(bus, hwnd); }
 	DLL_EXPORT void video_clear(Video* video) { video->Clear(); }

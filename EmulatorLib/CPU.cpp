@@ -520,7 +520,17 @@ void kitsemu::CPU::opPREFIX(uint8_t opcode)
 	case 0xFF: A() = opSET(0x80, A());								break; // SET A
 	}
 }
+uint16_t kitsemu::CPU::opADDImmediate(uint8_t value)
+{
+	int8_t immediate = _mmu->Read(_pc++);
+	uint16_t result = value + immediate;
 
+	SetFlag(Flag::Z, false);
+	SetFlag(Flag::N, false);
+	SetFlag(Flag::H, ((immediate & 0xF) + (value & 0xF)) > 0xF);
+	SetFlag(Flag::C, (result >> 8) != 0);
+	return result;
+}
 #pragma endregion
 
 #pragma region 16-bit
@@ -907,9 +917,44 @@ void kitsemu::CPU::Execute()
 	case 0xDC: opCALL(GetFlagC());				break; // CALL C,A16
 	// case 0xDD:                					break; // ILLEGAL OPCODE
 	case 0xDE: opSBC(_mmu->Read(_pc++));		break; // SBC A,D8
-	case 0xDF: ResetVector(0x20);				break; // RST 4
+	case 0xDF: ResetVector(0x18);				break; // RST 4
 
 
+	case 0xE0: _mmu->Write(0xFF00 + _mmu->Read(_pc++), A());	break;
+	case 0xE1: _hl = StackPop();								break;
+	case 0xE2: _mmu->Write(0xFF00 + C(), A());					break;
+	// case 0xE3:													break; ILLEGAL OPCODE
+	// case 0xE4:													break; ILLEGAL OPCODE
+	case 0xE5: StackPush(_hl);									break;
+	case 0xE6: opAND(_mmu->Read(_pc++));						break;
+	case 0xE7: ResetVector(0x20);								break;
 
+	case 0xE8: _sp = opADDImmediate(_sp);						break;
+	case 0xE9:	_pc = _hl;										break;
+	case 0xEA: _mmu->Write(_mmu->ReadWord(_pc++));				break;
+	// case 0xEB:													break;
+	// case 0xEC:													break;
+	// case 0xED:													break;
+	case 0xEE: opXOR(_mmu->Read(_pc++));						break;
+	case 0xEF: ResetVector(0x28);
+
+
+	case 0xF0: A() = _mmu->Read(0xFF00 + _mmu->ReadWord(_pc++));	break;
+	case 0xF1: _af = StackPop();									break;
+	case 0xF2: A() = _mmu->Read(0xFF00 + C());						break;
+	case 0xF3: IME = false;											break;
+	// case 0xF4:														break;
+	case 0xF5: StackPush(_af);										break;
+	case 0xF6: opOR(_mmu->Read(_pc++));								break;
+	case 0xF7: ResetVector(0x30);									break;
+
+	case 0xF8:;
+	case 0xF9:;
+	case 0xFA:;
+	case 0xFB:;
+	case 0xFC:;
+	case 0xFD:;
+	case 0xFE:;
+	case 0xFF:;
 	}
 }
