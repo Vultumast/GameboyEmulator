@@ -72,15 +72,13 @@ namespace EmulatorGUI
 
         private void consumeInstructionButton_Click(object sender, EventArgs e)
         {
-            /*
-            var cycle = processor.RemainingCycles;
-            processor.ConsumeInstruction();
+            cpu.Execute();
 
             //  Console.WriteLine($"Consumed instruction that had {cycle} cycles");
-            video.Update(cycle);
+            video.Update(cpu.Cycles);
 
             updateProcessorInfo();
-            */
+            
         }
 
         System.Timers.Timer? loopTimer = null;
