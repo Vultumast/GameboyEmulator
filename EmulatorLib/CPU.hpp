@@ -144,8 +144,15 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& A() 
 		{
-			uint8_t* ptr = (reinterpret_cast<uint8_t*>(&_af) + 1);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *(reinterpret_cast<uint8_t*>(&_af) + 1);
+		}
+		/// <summary>
+		/// The F regiter
+		/// </summary>
+		/// <returns></returns>
+		uint8_t& F()
+		{
+			return *reinterpret_cast<uint8_t*>(&_af);
 		}
 		/// <summary>
 		/// The B register
@@ -153,8 +160,7 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& B()
 		{
-			uint8_t* ptr = (reinterpret_cast<uint8_t*>(&_bc) + 1);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *(reinterpret_cast<uint8_t*>(&_bc) + 1);
 		}
 		/// <summary>
 		/// The C register
@@ -162,8 +168,7 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& C()
 		{
-			uint8_t* ptr = reinterpret_cast<uint8_t*>(&_bc);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *reinterpret_cast<uint8_t*>(&_bc);
 		}
 		/// <summary>
 		/// The D register
@@ -171,8 +176,7 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& D()
 		{
-			uint8_t* ptr = (reinterpret_cast<uint8_t*>(&_de) + 1);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *(reinterpret_cast<uint8_t*>(&_de) + 1);
 		}
 		/// <summary>
 		/// The E register
@@ -180,8 +184,7 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& E()
 		{
-			uint8_t* ptr = reinterpret_cast<uint8_t*>(&_de);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *reinterpret_cast<uint8_t*>(&_de);
 		}
 		/// <summary>
 		/// The H register
@@ -189,8 +192,7 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& H()
 		{
-			uint8_t* ptr = (reinterpret_cast<uint8_t*>(&_hl) + 1);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *(reinterpret_cast<uint8_t*>(&_hl) + 1);
 		}
 		/// <summary>
 		/// The L register
@@ -198,8 +200,7 @@ namespace kitsemu
 		/// <returns></returns>
 		uint8_t& L()
 		{
-			uint8_t* ptr = reinterpret_cast<uint8_t*>(&_hl);
-			return reinterpret_cast<uint8_t&>(ptr);
+			return *reinterpret_cast<uint8_t*>(&_hl);
 		}
 
 		void SetFlag(Flag flag, bool value)

@@ -116,11 +116,26 @@ namespace EmulatorGUI
 
             long elapsed = 0;
 
+            Stopwatch watch = new();
+
+            watch.Start();
+
             while (true)
             {
                 cpu.Execute();
                 video.Update(cpu.Cycles);
-            }    
+
+                if (watch.ElapsedMilliseconds > 16)
+                {
+                    watch.Restart();
+                    rawPanel.Invalidate();
+
+                    hexViewControl.Invoke(() =>
+                    {
+                        updateProcessorInfo();
+                    });
+                }
+            }
 
         }
 
@@ -266,7 +281,6 @@ namespace EmulatorGUI
 
         private void runUntilRunButton_Click(object sender, EventArgs e)
         {
-            /*
             runUntilRegisterComboBox.Enabled = false;
             runUntilRegisterOperatorComboBox.Enabled = false;
             runUntilRegisterValueNumericUpDown.Enabled = false;
@@ -277,36 +291,28 @@ namespace EmulatorGUI
 
             Console.WriteLine($"Waiting for {cpu.GetRegister((Register)runUntilRegisterComboBox.SelectedIndex)} {runUntilRegisterOperatorComboBox.SelectedItem} {(ushort)runUntilRegisterValueNumericUpDown.Value}");
 
-            bool a = false;
-            ushort cycle = 0;
-
-        loopStart:
-            // ushort value = processor.GetRegister(register);
-
-            // Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
-            /* a = @operator switch
+            while (true)
             {
-                0 => value == valueToMatch, // ==
-                1 => value != valueToMatch, // !=
-                2 => value <= valueToMatch,// <=
-                3 => value >= valueToMatch,// >=
-                4 => value < valueToMatch,// <
-                5 => value > valueToMatch,// >
-                _ => false
-            }; 
+                cpu.Execute();
+                video.Update(cpu.Cycles);
 
-            if (cpu.GetRegister(register) == valueToMatch)
-                goto loopEnd;
+                ushort value = cpu.GetRegister(register);
 
-            cycle = processor.RemainingCycles;
-            processor.ConsumeInstruction();
+                Console.Write($"Running until: {string.Format($"{{0:X04}} {runUntilRegisterOperatorComboBox.SelectedItem} {{1:X04}}", value, valueToMatch)}\r");
+                bool conditionMatched = @operator switch
+                {
+                    0 => value == valueToMatch, // ==
+                    1 => value != valueToMatch, // !=
+                    2 => value <= valueToMatch,// <=
+                    3 => value >= valueToMatch,// >=
+                    4 => value < valueToMatch,// <
+                    5 => value > valueToMatch,// >
+                    _ => false
+                };
 
-
-            video.Update(cycle);
-
-            goto loopStart;
-        loopEnd:
-
+                if (conditionMatched)
+                    break;
+            }
 
             runUntilRegisterComboBox.Enabled = true;
             runUntilRegisterOperatorComboBox.Enabled = true;
@@ -314,7 +320,6 @@ namespace EmulatorGUI
 
 
             updateProcessorInfo();
-            */
         }
 
 
@@ -328,6 +333,8 @@ namespace EmulatorGUI
             hlProcessorRegisterView.Value = cpu.GetRegister(Register.HL);
             spProcessorRegisterView.Value = cpu.GetRegister(Register.SP);
             pcProcessorRegisterView.Value = cpu.GetRegister(Register.PC);
+
+            hexViewControl.PCAddress = cpu.GetRegister(Register.PC);
 
             /*
             interruptsEnabledCheckBox.Checked = cpu.InterruptsMasterEnabled;

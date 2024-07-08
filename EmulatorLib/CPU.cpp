@@ -962,7 +962,7 @@ void kitsemu::CPU::Execute()
 
 	case 0xE8: _sp = opADDImmediate(_sp);						break;
 	case 0xE9:	_pc = _hl;										break;
-	case 0xEA: _mmu->Write(_mmu->ReadWord(_pc++), A());				break;
+	case 0xEA: _mmu->Write(_mmu->ReadWord(_pc), A()); _pc += 2;		break;
 	// case 0xEB:													break;
 	// case 0xEC:													break;
 	// case 0xED:													break;
@@ -970,7 +970,7 @@ void kitsemu::CPU::Execute()
 	case 0xEF: ResetVector(0x28);
 
 
-	case 0xF0: A() = _mmu->Read(0xFF00 + _mmu->ReadWord(_pc++));	break;
+	case 0xF0: A() = _mmu->Read(0xFF00 + _mmu->Read(_pc++));	break;
 	case 0xF1: _af = StackPop();									break;
 	case 0xF2: A() = _mmu->Read(0xFF00 + C());						break;
 	case 0xF3: IME = false;											break;

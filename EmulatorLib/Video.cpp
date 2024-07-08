@@ -206,8 +206,6 @@ void Video::DrawScanline()
 	// std::cout << "drawing curr scanline: " << _memoryBus->Read(HardwareRegister::LY) << std::endl;
 	static uint8_t* lcdControl = _memoryBus->Get(HardwareRegister::LCDC);
 
-	/*
-	* 
 	if (((*lcdControl) & LCDC::BGWindowEnablePriority) != 0)
 		RenderTiles();
 
@@ -216,7 +214,6 @@ void Video::DrawScanline()
 	{
 
 	}
-	*/
 
 	_memoryBus->RequestInterrupt(Interrupt::LCD);
 }

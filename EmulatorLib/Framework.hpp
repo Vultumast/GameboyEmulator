@@ -43,7 +43,7 @@ extern "C"
 		case 7: // B
 			return cpu->B();
 		case 8: // C
-			return cpu->B();
+			return cpu->C();
 		case 9: // D
 			return cpu->D();
 		case 10: // E
@@ -85,7 +85,7 @@ extern "C"
 			cpu->B() = (value & 0xFF);
 			break;
 		case 8: // C
-			cpu->B() = (value & 0xFF);
+			cpu->C() = (value & 0xFF);
 			break;
 		case 9: // D
 			cpu->D() = (value & 0xFF);

@@ -296,7 +296,7 @@
             // 
             runUntilRegisterComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             runUntilRegisterComboBox.FormattingEnabled = true;
-            runUntilRegisterComboBox.Items.AddRange(new object[] { "A", "B", "C", "D", "E", "H", "L", "AF", "BC", "DE", "HL", "SP", "PC" });
+            runUntilRegisterComboBox.Items.AddRange(new object[] { "AF", "BC", "DE", "HL", "SP", "PC", "A", "B", "C", "D", "E", "H", "L" });
             runUntilRegisterComboBox.Location = new Point(6, 22);
             runUntilRegisterComboBox.Name = "runUntilRegisterComboBox";
             runUntilRegisterComboBox.Size = new Size(121, 23);

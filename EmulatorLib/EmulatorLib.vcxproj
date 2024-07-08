@@ -92,6 +92,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" "$(Configuration)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy files to C# output</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -111,6 +117,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" "$(Configuration)"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy files to C# output</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -128,10 +140,10 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" Debug</Command>
+      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" "$(Configuration)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy Files to C# output</Message>
+      <Message>Copy files to C# output</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,10 +166,10 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PostBuildEvent>
-      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" Debug</Command>
+      <Command>CALL "$(SolutionDir)\CopyUnmanaged.bat" "$(SolutionDir)" "$(Configuration)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy Files to C# output</Message>
+      <Message>Copy files to C# output</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -133,10 +133,8 @@ void MemoryBus::Write(const std::uint16_t& address, const std::uint8_t& value)
 }
 std::uint8_t MemoryBus::Read(const std::uint16_t& address)
 {
-	/* TEMP 
 	if (!IsAddressMapped(address))
 		return 0xFF;
-	*/
 
 	if (address <= 0x7FFF)
 	{
@@ -161,21 +159,15 @@ uint8_t* MemoryBus::Get(const uint16_t& address)
 void MemoryBus::WriteWord(const uint16_t& address, const uint16_t& value)
 {
 	Write(address, value & 0x00FF);
-	Write(address + 1, (value & 0xFF00) >> 4);
+	Write(address + 1, (value & 0xFF00) >> 8);
 }
+
 uint16_t MemoryBus::ReadWord(const uint16_t& address)
 {
-	if (!IsAddressMapped(address))
-		return 0xFFFF;
+	uint8_t lsb = Read(address);
+	uint8_t msb = Read(address + 1);
 
-	std::uint16_t realAddress = address;
-	if (realAddress >= Addr_ERAM_Start && realAddress <= Addr_ERAM_End)
-		realAddress -= 0x2000;
-
-	uint16_t returnValue = _ram[realAddress];
-	returnValue |= ((uint16_t)_ram[realAddress + 1] << 8);
-
-	return returnValue;
+	return msb << 8 | lsb;
 }
 
 void MemoryBus::RequestInterrupt(Interrupt interrupt)
