@@ -10,6 +10,10 @@ namespace EmulatorGUI
         public MainForm()
         {
             InitializeComponent();
+            typeof(Panel)
+                .GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.GetSetMethod(true)
+                ?.Invoke(rawPanel, new object[] { true });
         }
         RomInfo? info = null;
 
@@ -22,8 +26,9 @@ namespace EmulatorGUI
         {
             // info = new RomInfo(File.ReadAllBytes("rom.gb"));
             // info = new RomInfo(File.ReadAllBytes("Tetris.gb"));
-            // info = new RomInfo(File.ReadAllBytes("alleyway.gb"));
+            // info = new RomInfo(File.ReadAllBytes("alleyway.gb
             info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\dmg_rom.bin"));
+            //info = new RomInfo(File.ReadAllBytes("Resources\\Boot\\marioland2.gb"));
             bus = new MemoryBus(info);
 
             cpu = new CPU(bus);
@@ -84,7 +89,7 @@ namespace EmulatorGUI
         System.Timers.Timer? loopTimer = null;
 
 
-        bool stopTimer = false;
+        bool stopTimer = true;
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -120,23 +125,35 @@ namespace EmulatorGUI
 
             watch.Start();
 
-            while (true)
-            {
-                cpu.Execute();
-                video.Update(cpu.Cycles);
+            int cyclesPerSecond = 4190000;
+            float frameRate = 59.72f;
+            float speedMultiplier = 1f;
+            float cyclesPerFrame = cyclesPerSecond / frameRate * speedMultiplier;
+            float cyclesAccumulated = 0f;
 
-                if (watch.ElapsedMilliseconds > 16)
+            float secondsPerFrame = 1 / frameRate;
+
+            while (!stopTimer)
+            {
+                while (cyclesAccumulated < cyclesPerFrame)
+                {
+                    cpu.Execute();
+                    video.Update(cpu.Cycles);
+                    cyclesAccumulated += cpu.Cycles;
+                }
+
+                if (watch.Elapsed.TotalSeconds > secondsPerFrame)
                 {
                     watch.Restart();
                     rawPanel.Invalidate();
-
-                    hexViewControl.Invoke(() =>
-                    {
-                        updateProcessorInfo();
-                    });
+                    hexViewControl.Invoke(updateProcessorInfo);
+                    cyclesAccumulated -= cyclesPerFrame;
+                }
+                else
+                {
+                    Thread.Yield();
                 }
             }
-
         }
 
         private void rawPanel_Paint(object sender, PaintEventArgs e)
