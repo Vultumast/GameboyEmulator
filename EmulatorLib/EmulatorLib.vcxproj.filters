@@ -66,6 +66,9 @@
     <ClInclude Include="CPU.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Export.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -96,6 +99,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

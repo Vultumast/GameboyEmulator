@@ -5,6 +5,8 @@
 
 #include <string>
 
+#include "Export.hpp"
+
 enum class CartridgeType
 {
 	ROM_Only = 0x00,
@@ -60,12 +62,12 @@ enum class MapperType
 	TAMA5
 };
 
-class ROMInfo
+class EMULATOR_API ROMInfo
 {
 private:
 	std::string _gameName = "";
 	uint8_t _cartType = 0x00;
-	uint8_t _ramSize = 0x00;
+	uint32_t _ramSize = 0x00;
 	uint32_t _romSize = 0x00;
 	uint8_t _revision = 0x00;
 

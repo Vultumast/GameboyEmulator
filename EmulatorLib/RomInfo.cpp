@@ -22,7 +22,7 @@ ROMInfo::ROMInfo(uint8_t* rom, uint32_t size)
 	_cartType = _rom[0x147];
 
 	_romSize = 32000 << _rom[0x148];
-	switch (_rom[0x148])
+	switch (_rom[0x149])
 	{
 	case 0x01:
 		_ramSize = 2000;
@@ -43,7 +43,7 @@ ROMInfo::ROMInfo(uint8_t* rom, uint32_t size)
 		_ramSize = 0x00;
 		break;
 	}
-	_ramSize = 32000 << _rom[0x148];
+	std::cout << "rom value: " << _rom[0x149] << std::endl;
 
 	_revision = _rom[0x14C];
 }

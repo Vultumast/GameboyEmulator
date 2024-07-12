@@ -176,6 +176,7 @@
     <ClInclude Include="Constants.hpp" />
     <ClInclude Include="CPU.hpp" />
     <ClInclude Include="Emulator.hpp" />
+    <ClInclude Include="Export.hpp" />
     <ClInclude Include="Framework.hpp" />
     <ClInclude Include="InstructionArguments.hpp" />
     <ClInclude Include="JoypadInfo.hpp" />
@@ -190,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Framework.cpp" />
     <ClCompile Include="MBC1.cpp" />
     <ClCompile Include="MemoryBus.cpp" />
     <ClCompile Include="PixelFetcher.cpp" />
