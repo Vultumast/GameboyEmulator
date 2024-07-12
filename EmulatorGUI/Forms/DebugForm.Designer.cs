@@ -1,6 +1,6 @@
 ﻿namespace EmulatorGUI
 {
-    partial class MainForm
+    partial class DebugForm
     {
         /// <summary>
         ///  Required designer variable.

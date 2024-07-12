@@ -5,9 +5,9 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace EmulatorGUI
 {
-    public partial class MainForm : Form
+    public partial class DebugForm : Form
     {
-        public MainForm()
+        public DebugForm()
         {
             InitializeComponent();
             typeof(Panel)
